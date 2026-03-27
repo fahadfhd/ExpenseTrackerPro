@@ -1,0 +1,27 @@
+# Flutter
+.build/
+.dart_tool/
+.packages
+.pub/
+build/
+
+# Android
+android/.gradle/
+android/app/debug/
+android/app/profile/
+android/app/release/
+
+# iOS
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/
+ios/Runner.xcworkspace/
+
+# Firebase (IMPORTANT)
+firebase-debug.log
+firebase-debug.*.log
+firestore-debug.log
+ui-debug.log
+
+# Env files
+.env
