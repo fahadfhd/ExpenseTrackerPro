@@ -153,27 +153,6 @@ class _ExpanseTrackerHomeState extends State<ExpanseTrackerHome> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final transactions = widget.getTransactions();
-
-    final pages = [
-      _DashboardView(
-        transactions: transactions,
-        onViewTransactions: () => setState(() => _currentIndex = 1),
-        smsPermissionState: _smsPermissionState,
-        isLoadingPermission: _isLoadingPermission,
-        isUpdatingPermission: _isUpdatingPermission,
-        onSmsPermissionPressed: _handleSmsPermissionAction,
-        gmailConnectionState: _gmailConnectionState,
-        gmailMessages: _gmailMessages,
-        isLoadingGmail: _isLoadingGmail,
-        isConnectingGmail: _isConnectingGmail,
-        isSyncingGmail: _isSyncingGmail,
-        onGmailConnectionPressed: _handleGmailConnectionAction,
-        onSyncGmailPressed: _syncGmailMessages,
-      ),
-      _TransactionsView(transactions: transactions),
-      const _MonetizationView(),
-    ];
 
     return Scaffold(
       body: DecoratedBox(
@@ -235,12 +214,42 @@ class _ExpanseTrackerHomeState extends State<ExpanseTrackerHome> {
                 ),
               ),
               Expanded(
-                child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 250),
-                  child: KeyedSubtree(
-                    key: ValueKey(_currentIndex),
-                    child: pages[_currentIndex],
-                  ),
+                child: StreamBuilder<List<TransactionItem>>(
+                  stream: widget.getTransactions(),
+                  initialData: const [],
+                  builder: (context, snapshot) {
+                    final transactions = snapshot.data ?? const [];
+                    final pages = [
+                      _DashboardView(
+                        transactions: transactions,
+                        onViewTransactions: () =>
+                            setState(() => _currentIndex = 1),
+                        smsPermissionState: _smsPermissionState,
+                        isLoadingPermission: _isLoadingPermission,
+                        isUpdatingPermission: _isUpdatingPermission,
+                        onSmsPermissionPressed: _handleSmsPermissionAction,
+                        gmailConnectionState: _gmailConnectionState,
+                        gmailMessages: _gmailMessages,
+                        isLoadingGmail: _isLoadingGmail,
+                        isConnectingGmail: _isConnectingGmail,
+                        isSyncingGmail: _isSyncingGmail,
+                        onGmailConnectionPressed: _handleGmailConnectionAction,
+                        onSyncGmailPressed: _syncGmailMessages,
+                      ),
+                      _TransactionsView(transactions: transactions),
+                      const _MonetizationView(),
+                    ];
+
+                    return AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 250),
+                      child: KeyedSubtree(
+                        key: ValueKey(
+                          '${_currentIndex}_${transactions.length}',
+                        ),
+                        child: pages[_currentIndex],
+                      ),
+                    );
+                  },
                 ),
               ),
             ],
@@ -328,6 +337,21 @@ class _DashboardView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final now = DateTime.now();
+    final monthlySpend = transactions
+        .where(
+          (transaction) =>
+              !transaction.isCredit &&
+              transaction.occurredAt.year == now.year &&
+              transaction.occurredAt.month == now.month,
+        )
+        .fold<int>(0, (sum, transaction) => sum + transaction.amount);
+    final categorizedCount = transactions
+        .where((transaction) => transaction.category != 'Uncategorized')
+        .length;
+    final categorizedPercent = transactions.isEmpty
+        ? 0
+        : ((categorizedCount / transactions.length) * 100).round();
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
@@ -339,8 +363,9 @@ class _DashboardView extends StatelessWidget {
             Expanded(
               child: _MetricCard(
                 label: 'This month',
-                value: '₹18,640',
-                delta: '+12%',
+                value: '₹$monthlySpend',
+                delta:
+                    '${transactions.where((item) => !item.isCredit).length} spends',
                 icon: Icons.calendar_month_rounded,
               ),
             ),
@@ -348,8 +373,8 @@ class _DashboardView extends StatelessWidget {
             Expanded(
               child: _MetricCard(
                 label: 'Auto-categorized',
-                value: '92%',
-                delta: 'Stable',
+                value: '$categorizedPercent%',
+                delta: '${transactions.length} records',
                 icon: Icons.auto_awesome_rounded,
               ),
             ),

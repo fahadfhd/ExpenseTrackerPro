@@ -6,5 +6,5 @@ class GetTransactions {
 
   final TransactionRepository _repository;
 
-  List<TransactionItem> call() => _repository.getTransactions();
+  Stream<List<TransactionItem>> call() => _repository.watchTransactions();
 }

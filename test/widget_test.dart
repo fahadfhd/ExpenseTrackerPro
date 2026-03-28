@@ -1,52 +1,72 @@
 import 'package:expensetrackerpro/app/app.dart';
+import 'package:expensetrackerpro/data/repositories/mock_transaction_repository.dart';
 import 'package:expensetrackerpro/domain/entities/email_message_item.dart';
 import 'package:expensetrackerpro/domain/entities/gmail_connection_state.dart';
 import 'package:expensetrackerpro/domain/entities/sms_permission_state.dart';
+import 'package:expensetrackerpro/domain/repositories/app_launch_repository.dart';
 import 'package:expensetrackerpro/domain/repositories/gmail_repository.dart';
 import 'package:expensetrackerpro/domain/repositories/sms_permission_repository.dart';
+import 'package:expensetrackerpro/domain/repositories/user_profile_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  testWidgets('renders SMS and Gmail access flows', (
+  testWidgets('shows splash, login, then app dashboard flows', (
     WidgetTester tester,
   ) async {
     final smsRepository = _FakeSmsPermissionRepository();
     final gmailRepository = _FakeGmailRepository();
+    final transactionRepository = MockTransactionRepository();
+    final userProfileRepository = _FakeUserProfileRepository();
+    final appLaunchRepository = _FakeAppLaunchRepository();
 
     await tester.pumpWidget(
       ExpanseTrackerProApp(
         smsPermissionRepository: smsRepository,
         gmailRepository: gmailRepository,
+        transactionRepository: transactionRepository,
+        userProfileRepository: userProfileRepository,
+        appLaunchRepository: appLaunchRepository,
       ),
     );
-    await tester.pumpAndSettle();
 
     expect(find.text('ExpanseTrackerPro'), findsOneWidget);
+    expect(find.text('Welcome to ExpanseTrackerPro'), findsNothing);
+
+    await tester.pump(const Duration(milliseconds: 1300));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Welcome to ExpanseTrackerPro'), findsOneWidget);
+    expect(find.text('Continue with Google'), findsOneWidget);
+
+    await tester.drag(find.byType(Scrollable).first, const Offset(0, -180));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Continue with Google'));
+    await tester.pumpAndSettle();
+
     expect(find.text('Total spent'), findsOneWidget);
+    expect(appLaunchRepository.hasCompleted, isTrue);
+  });
 
-    await tester.drag(find.byType(Scrollable).first, const Offset(0, -320));
+  testWidgets('skips login when entry flow was already completed', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      ExpanseTrackerProApp(
+        smsPermissionRepository: _FakeSmsPermissionRepository(),
+        gmailRepository: _FakeGmailRepository(),
+        transactionRepository: MockTransactionRepository(),
+        userProfileRepository: _FakeUserProfileRepository(),
+        appLaunchRepository: _FakeAppLaunchRepository(initialValue: true),
+      ),
+    );
+
+    await tester.pump(const Duration(milliseconds: 1300));
     await tester.pumpAndSettle();
 
-    expect(find.text('Allow SMS access'), findsOneWidget);
-    await tester.tap(find.text('Allow SMS access'));
-    await tester.pumpAndSettle();
-    expect(find.text('SMS access enabled'), findsOneWidget);
-
-    await tester.drag(find.byType(Scrollable).first, const Offset(0, -320));
-    await tester.pumpAndSettle();
-
-    await tester.tap(find.text('Connect Gmail').last);
-    await tester.pumpAndSettle();
-    expect(find.text('Gmail connected'), findsOneWidget);
-
-    await tester.tap(find.text('Scan finance emails'));
-    await tester.pumpAndSettle();
-    expect(find.text('Salary credited'), findsOneWidget);
-
-    await tester.tap(find.byIcon(Icons.light_mode_rounded));
-    await tester.pumpAndSettle();
-    expect(find.byIcon(Icons.dark_mode_rounded), findsOneWidget);
+    expect(find.text('Total spent'), findsOneWidget);
+    expect(find.text('Welcome to ExpanseTrackerPro'), findsNothing);
   });
 }
 
@@ -93,5 +113,28 @@ class _FakeGmailRepository implements GmailRepository {
         dateLabel: '26/03/2026',
       ),
     ];
+  }
+}
+
+class _FakeUserProfileRepository implements UserProfileRepository {
+  @override
+  Future<void> syncCurrentUserProfile({
+    required bool gmailConnected,
+    required ThemeMode themeMode,
+  }) async {}
+}
+
+class _FakeAppLaunchRepository implements AppLaunchRepository {
+  _FakeAppLaunchRepository({bool initialValue = false})
+    : hasCompleted = initialValue;
+
+  bool hasCompleted;
+
+  @override
+  Future<bool> hasCompletedEntryFlow() async => hasCompleted;
+
+  @override
+  Future<void> setCompletedEntryFlow(bool value) async {
+    hasCompleted = value;
   }
 }

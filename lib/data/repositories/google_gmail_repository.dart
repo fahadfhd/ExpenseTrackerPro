@@ -3,19 +3,25 @@ import 'dart:convert';
 import 'package:expensetrackerpro/domain/entities/email_message_item.dart';
 import 'package:expensetrackerpro/domain/entities/gmail_connection_state.dart';
 import 'package:expensetrackerpro/domain/repositories/gmail_repository.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 
 class GoogleGmailRepository implements GmailRepository {
-  GoogleGmailRepository({GoogleSignIn? googleSignIn, http.Client? httpClient})
-    : _googleSignIn = googleSignIn ?? GoogleSignIn.instance,
-      _httpClient = httpClient ?? http.Client();
+  GoogleGmailRepository({
+    FirebaseAuth? firebaseAuth,
+    GoogleSignIn? googleSignIn,
+    http.Client? httpClient,
+  }) : _firebaseAuth = firebaseAuth ?? FirebaseAuth.instance,
+       _googleSignIn = googleSignIn ?? GoogleSignIn.instance,
+       _httpClient = httpClient ?? http.Client();
 
   static const _scopes = ['https://www.googleapis.com/auth/gmail.readonly'];
   static const _searchQuery =
       '("debited" OR "credited" OR "spent" OR "payment" OR "invoice" OR "upi" OR "transaction") newer_than:180d';
 
+  final FirebaseAuth _firebaseAuth;
   final GoogleSignIn _googleSignIn;
   final http.Client _httpClient;
   bool _initialized = false;
@@ -31,10 +37,14 @@ class GoogleGmailRepository implements GmailRepository {
 
     _account ??= await _googleSignIn.attemptLightweightAuthentication();
     _account ??= await _googleSignIn.authenticate(scopeHint: _scopes);
+
     final user = _account;
-    if (user == null) return GmailConnectionState.signedOut();
+    if (user == null) {
+      return GmailConnectionState.signedOut();
+    }
 
     await user.authorizationClient.authorizeScopes(_scopes);
+    await _signInToFirebase(user);
     return GmailConnectionState.connected(user.email);
   }
 
@@ -44,6 +54,7 @@ class GoogleGmailRepository implements GmailRepository {
 
     await _ensureInitialized();
     await _googleSignIn.signOut();
+    await _firebaseAuth.signOut();
     _account = null;
   }
 
@@ -55,21 +66,22 @@ class GoogleGmailRepository implements GmailRepository {
 
     await _ensureInitialized();
 
+    final firebaseUser = _firebaseAuth.currentUser;
     _account ??= await _googleSignIn.attemptLightweightAuthentication();
     final user = _account;
-    if (user == null) {
+
+    if (firebaseUser == null || user == null) {
       return GmailConnectionState.signedOut();
     }
 
     final authorization = await user.authorizationClient.authorizationForScopes(
       _scopes,
     );
-
     if (authorization == null) {
       return GmailConnectionState.signedOut();
     }
 
-    return GmailConnectionState.connected(user.email);
+    return GmailConnectionState.connected(firebaseUser.email ?? user.email);
   }
 
   @override
@@ -81,7 +93,7 @@ class GoogleGmailRepository implements GmailRepository {
     await _ensureInitialized();
     _account ??= await _googleSignIn.attemptLightweightAuthentication();
     final user = _account;
-    if (user == null) {
+    if (user == null || _firebaseAuth.currentUser == null) {
       return const [];
     }
 
@@ -96,7 +108,6 @@ class GoogleGmailRepository implements GmailRepository {
       '/gmail/v1/users/me/messages',
       {'q': _searchQuery, 'maxResults': '10'},
     );
-
     final listResponse = await _httpClient.get(
       listUri,
       headers: authorizationHeaders,
@@ -119,7 +130,6 @@ class GoogleGmailRepository implements GmailRepository {
         '/gmail/v1/users/me/messages/$id',
         {'format': 'metadata'},
       );
-
       final detailResponse = await _httpClient.get(
         detailUri,
         headers: authorizationHeaders,
@@ -156,6 +166,17 @@ class GoogleGmailRepository implements GmailRepository {
 
     await _googleSignIn.initialize();
     _initialized = true;
+  }
+
+  Future<void> _signInToFirebase(GoogleSignInAccount user) async {
+    final authentication = user.authentication;
+    final idToken = authentication.idToken;
+    if (idToken == null) {
+      return;
+    }
+
+    final credential = GoogleAuthProvider.credential(idToken: idToken);
+    await _firebaseAuth.signInWithCredential(credential);
   }
 
   bool get _supportsGmail =>
