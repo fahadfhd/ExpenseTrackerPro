@@ -1,4 +1,5 @@
 import 'package:expensetrackerpro/domain/entities/gmail_connection_state.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class GoogleLoginScreen extends StatefulWidget {
@@ -42,6 +43,8 @@ class _GoogleLoginScreenState extends State<GoogleLoginScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final showSkipButton =
+        !(defaultTargetPlatform == TargetPlatform.iOS && !kIsWeb);
 
     return Scaffold(
       body: DecoratedBox(
@@ -174,14 +177,16 @@ class _GoogleLoginScreenState extends State<GoogleLoginScreen> {
                                 label: const Text('Continue with Google'),
                               ),
                             ),
-                            const SizedBox(height: 12),
-                            SizedBox(
-                              width: double.infinity,
-                              child: OutlinedButton(
-                                onPressed: widget.onContinueWithoutGoogle,
-                                child: const Text('Continue without Gmail'),
+                            if (showSkipButton) ...[
+                              const SizedBox(height: 12),
+                              SizedBox(
+                                width: double.infinity,
+                                child: OutlinedButton(
+                                  onPressed: widget.onContinueWithoutGoogle,
+                                  child: const Text('Continue without Gmail'),
+                                ),
                               ),
-                            ),
+                            ],
                           ],
                         ),
                       ),

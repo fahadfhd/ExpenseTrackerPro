@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:expensetrackerpro/core/theme/app_theme.dart';
 import 'package:expensetrackerpro/data/repositories/firebase_transaction_repository.dart';
 import 'package:expensetrackerpro/data/repositories/firebase_user_profile_repository.dart';
@@ -21,6 +23,7 @@ import 'package:expensetrackerpro/domain/usecases/open_sms_permission_settings.d
 import 'package:expensetrackerpro/domain/usecases/request_sms_permission.dart';
 import 'package:expensetrackerpro/domain/usecases/set_entry_flow_status.dart';
 import 'package:expensetrackerpro/domain/usecases/sync_current_user_profile.dart';
+import 'package:expensetrackerpro/domain/usecases/upsert_transactions.dart';
 import 'package:expensetrackerpro/presentation/auth/google_login_screen.dart';
 import 'package:expensetrackerpro/presentation/home/expanse_tracker_home.dart';
 import 'package:expensetrackerpro/presentation/splash/splash_screen.dart';
@@ -66,6 +69,9 @@ class _ExpanseTrackerProAppState extends State<ExpanseTrackerProApp> {
   late final GetTransactions _getTransactions = GetTransactions(
     _transactionRepository,
   );
+  late final UpsertTransactions _upsertTransactions = UpsertTransactions(
+    _transactionRepository,
+  );
   late final GetGmailConnectionState _getGmailConnectionState =
       GetGmailConnectionState(_gmailRepository);
   late final ConnectGmailReadOnly _connectGmailReadOnly = ConnectGmailReadOnly(
@@ -88,18 +94,31 @@ class _ExpanseTrackerProAppState extends State<ExpanseTrackerProApp> {
 
   Future<void> _bootstrap() async {
     await Future<void>.delayed(const Duration(milliseconds: 1200));
-    final connectionState = await _getGmailConnectionState();
     final hasCompletedEntryFlow = await _getEntryFlowStatus();
-    await _transactionRepository.seedInitialTransactions();
-    await _syncProfile(connectionState: connectionState);
-    if (!mounted) return;
 
-    setState(() {
-      _gmailConnectionState = connectionState;
-      _stage = connectionState.isConnected || hasCompletedEntryFlow
-          ? _AppStage.home
-          : _AppStage.login;
-    });
+    try {
+      final connectionState = await _getGmailConnectionState().timeout(
+        const Duration(seconds: 3),
+        onTimeout: () => GmailConnectionState.signedOut(),
+      );
+
+      if (!mounted) return;
+
+      setState(() {
+        _gmailConnectionState = connectionState;
+        _stage = connectionState.isConnected || hasCompletedEntryFlow
+            ? _AppStage.home
+            : _AppStage.login;
+      });
+
+      unawaited(_runPostLaunchTasks(connectionState));
+    } catch (e) {
+      debugPrint('Bootstrap critical tasks failed: $e');
+      if (!mounted) return;
+      setState(() {
+        _stage = hasCompletedEntryFlow ? _AppStage.home : _AppStage.login;
+      });
+    }
   }
 
   Future<void> _syncProfile({GmailConnectionState? connectionState}) {
@@ -115,32 +134,54 @@ class _ExpanseTrackerProAppState extends State<ExpanseTrackerProApp> {
           ? ThemeMode.light
           : ThemeMode.dark;
     });
-    _syncProfile();
+    try {
+      _syncProfile();
+    } catch (e) {
+      debugPrint('Theme sync failed: $e');
+    }
   }
 
   Future<void> _handleGoogleLogin() async {
-    final connectionState = await _connectGmailReadOnly();
-    await _transactionRepository.seedInitialTransactions();
-    await _setEntryFlowStatus(true);
-    await _syncProfile(connectionState: connectionState);
-    if (!mounted) return;
-
-    setState(() {
-      _gmailConnectionState = connectionState;
+    try {
+      final connectionState = await _connectGmailReadOnly();
       if (connectionState.isConnected) {
-        _stage = _AppStage.home;
+        await _setEntryFlowStatus(true);
       }
-    });
+
+      if (!mounted) return;
+
+      setState(() {
+        _gmailConnectionState = connectionState;
+        if (connectionState.isConnected) {
+          _stage = _AppStage.home;
+        }
+      });
+
+      if (connectionState.isConnected) {
+        unawaited(_runPostLaunchTasks(connectionState));
+      }
+    } catch (e) {
+      debugPrint('Google login failed: $e');
+    }
   }
 
   Future<void> _continueWithoutGoogle() async {
-    await _transactionRepository.seedInitialTransactions();
     await _setEntryFlowStatus(true);
     if (!mounted) return;
 
     setState(() {
       _stage = _AppStage.home;
     });
+
+    unawaited(_runPostLaunchTasks(_gmailConnectionState));
+  }
+
+  Future<void> _runPostLaunchTasks(GmailConnectionState connectionState) async {
+    try {
+      await _syncProfile(connectionState: connectionState);
+    } catch (e) {
+      debugPrint('Post launch tasks failed: $e');
+    }
   }
 
   @override
@@ -171,6 +212,8 @@ class _ExpanseTrackerProAppState extends State<ExpanseTrackerProApp> {
           openSmsPermissionSettings: OpenSmsPermissionSettings(
             _smsPermissionRepository,
           ),
+          upsertTransactions: _upsertTransactions,
+          clearTransactions: _transactionRepository.clearTransactions,
           getGmailConnectionState: _getGmailConnectionState,
           connectGmailReadOnly: _connectGmailReadOnly,
           disconnectGmail: DisconnectGmail(_gmailRepository),

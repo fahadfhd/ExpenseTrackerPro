@@ -70,18 +70,13 @@ class GoogleGmailRepository implements GmailRepository {
     _account ??= await _googleSignIn.attemptLightweightAuthentication();
     final user = _account;
 
-    if (firebaseUser == null || user == null) {
+    if (firebaseUser == null && user == null) {
       return GmailConnectionState.signedOut();
     }
 
-    final authorization = await user.authorizationClient.authorizationForScopes(
-      _scopes,
+    return GmailConnectionState.connected(
+      firebaseUser?.email ?? user?.email ?? 'Connected account',
     );
-    if (authorization == null) {
-      return GmailConnectionState.signedOut();
-    }
-
-    return GmailConnectionState.connected(firebaseUser.email ?? user.email);
   }
 
   @override
@@ -119,11 +114,10 @@ class GoogleGmailRepository implements GmailRepository {
 
     final listData = jsonDecode(listResponse.body) as Map<String, dynamic>;
     final messages = (listData['messages'] as List<dynamic>? ?? const []);
-    final results = <EmailMessageItem>[];
 
-    for (final message in messages) {
+    final detailFutures = messages.map((message) async {
       final id = (message as Map<String, dynamic>)['id'] as String?;
-      if (id == null) continue;
+      if (id == null) return null;
 
       final detailUri = Uri.https(
         'gmail.googleapis.com',
@@ -135,7 +129,7 @@ class GoogleGmailRepository implements GmailRepository {
         headers: authorizationHeaders,
       );
 
-      if (detailResponse.statusCode != 200) continue;
+      if (detailResponse.statusCode != 200) return null;
 
       final detail = jsonDecode(detailResponse.body) as Map<String, dynamic>;
       final payload = detail['payload'] as Map<String, dynamic>? ?? const {};
@@ -148,17 +142,17 @@ class GoogleGmailRepository implements GmailRepository {
         detail['internalDate']?.toString() ?? '',
       );
 
-      results.add(
-        EmailMessageItem(
-          sender: from,
-          subject: subject,
-          snippet: snippet,
-          dateLabel: _formatDate(internalDate),
-        ),
+      return EmailMessageItem(
+        sender: from,
+        subject: subject,
+        snippet: snippet,
+        dateLabel: _formatDate(internalDate),
+        occurredAt: _dateTimeFromMillis(internalDate),
       );
-    }
+    });
 
-    return results;
+    final results = await Future.wait(detailFutures);
+    return results.whereType<EmailMessageItem>().toList();
   }
 
   Future<void> _ensureInitialized() async {
@@ -197,9 +191,14 @@ class GoogleGmailRepository implements GmailRepository {
   String _formatDate(int? milliseconds) {
     if (milliseconds == null) return 'Unknown date';
 
-    final date = DateTime.fromMillisecondsSinceEpoch(milliseconds);
+    final date = _dateTimeFromMillis(milliseconds);
     final day = date.day.toString().padLeft(2, '0');
     final month = date.month.toString().padLeft(2, '0');
     return '$day/$month/${date.year}';
+  }
+
+  DateTime _dateTimeFromMillis(int? milliseconds) {
+    if (milliseconds == null) return DateTime.now();
+    return DateTime.fromMillisecondsSinceEpoch(milliseconds);
   }
 }

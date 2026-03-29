@@ -1,11 +1,12 @@
 import 'package:expensetrackerpro/app/app.dart';
-import 'package:expensetrackerpro/data/repositories/mock_transaction_repository.dart';
 import 'package:expensetrackerpro/domain/entities/email_message_item.dart';
 import 'package:expensetrackerpro/domain/entities/gmail_connection_state.dart';
 import 'package:expensetrackerpro/domain/entities/sms_permission_state.dart';
+import 'package:expensetrackerpro/domain/entities/transaction_item.dart';
 import 'package:expensetrackerpro/domain/repositories/app_launch_repository.dart';
 import 'package:expensetrackerpro/domain/repositories/gmail_repository.dart';
 import 'package:expensetrackerpro/domain/repositories/sms_permission_repository.dart';
+import 'package:expensetrackerpro/domain/repositories/transaction_repository.dart';
 import 'package:expensetrackerpro/domain/repositories/user_profile_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -16,7 +17,7 @@ void main() {
   ) async {
     final smsRepository = _FakeSmsPermissionRepository();
     final gmailRepository = _FakeGmailRepository();
-    final transactionRepository = MockTransactionRepository();
+    final transactionRepository = _FakeTransactionRepository();
     final userProfileRepository = _FakeUserProfileRepository();
     final appLaunchRepository = _FakeAppLaunchRepository();
 
@@ -56,7 +57,7 @@ void main() {
       ExpanseTrackerProApp(
         smsPermissionRepository: _FakeSmsPermissionRepository(),
         gmailRepository: _FakeGmailRepository(),
-        transactionRepository: MockTransactionRepository(),
+        transactionRepository: _FakeTransactionRepository(),
         userProfileRepository: _FakeUserProfileRepository(),
         appLaunchRepository: _FakeAppLaunchRepository(initialValue: true),
       ),
@@ -105,12 +106,13 @@ class _FakeGmailRepository implements GmailRepository {
 
   @override
   Future<List<EmailMessageItem>> getRelevantMessages() async {
-    return const [
+    return [
       EmailMessageItem(
         sender: 'alerts@bank.com',
         subject: 'Salary credited',
         snippet: 'Your account has been credited with INR 42,000.',
         dateLabel: '26/03/2026',
+        occurredAt: DateTime(2026, 3, 26, 10),
       ),
     ];
   }
@@ -137,4 +139,18 @@ class _FakeAppLaunchRepository implements AppLaunchRepository {
   Future<void> setCompletedEntryFlow(bool value) async {
     hasCompleted = value;
   }
+}
+
+class _FakeTransactionRepository implements TransactionRepository {
+  @override
+  Future<void> seedInitialTransactions() async {}
+
+  @override
+  Stream<List<TransactionItem>> watchTransactions() => Stream.value([]);
+
+  @override
+  Future<void> upsertTransactions(List<TransactionItem> transactions) async {}
+
+  @override
+  Future<void> clearTransactions() async {}
 }

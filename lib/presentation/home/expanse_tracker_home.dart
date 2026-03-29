@@ -1,3 +1,7 @@
+import 'package:expensetrackerpro/core/transactions/email_due_parser.dart';
+import 'package:expensetrackerpro/core/transactions/email_transaction_parser.dart';
+import 'package:expensetrackerpro/core/transactions/transaction_filters.dart';
+import 'package:expensetrackerpro/domain/entities/due_item.dart';
 import 'package:expensetrackerpro/domain/entities/email_message_item.dart';
 import 'package:expensetrackerpro/domain/entities/gmail_connection_state.dart';
 import 'package:expensetrackerpro/domain/entities/sms_permission_state.dart';
@@ -10,6 +14,8 @@ import 'package:expensetrackerpro/domain/usecases/get_sms_permission_status.dart
 import 'package:expensetrackerpro/domain/usecases/get_transactions.dart';
 import 'package:expensetrackerpro/domain/usecases/open_sms_permission_settings.dart';
 import 'package:expensetrackerpro/domain/usecases/request_sms_permission.dart';
+import 'package:expensetrackerpro/domain/usecases/upsert_transactions.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class ExpanseTrackerHome extends StatefulWidget {
@@ -21,6 +27,8 @@ class ExpanseTrackerHome extends StatefulWidget {
     required this.getSmsPermissionStatus,
     required this.requestSmsPermission,
     required this.openSmsPermissionSettings,
+    required this.upsertTransactions,
+    required this.clearTransactions,
     required this.getGmailConnectionState,
     required this.connectGmailReadOnly,
     required this.disconnectGmail,
@@ -33,6 +41,8 @@ class ExpanseTrackerHome extends StatefulWidget {
   final GetSmsPermissionStatus getSmsPermissionStatus;
   final RequestSmsPermission requestSmsPermission;
   final OpenSmsPermissionSettings openSmsPermissionSettings;
+  final UpsertTransactions upsertTransactions;
+  final Future<void> Function() clearTransactions;
   final GetGmailConnectionState getGmailConnectionState;
   final ConnectGmailReadOnly connectGmailReadOnly;
   final DisconnectGmail disconnectGmail;
@@ -47,6 +57,11 @@ class _ExpanseTrackerHomeState extends State<ExpanseTrackerHome> {
   SmsPermissionState _smsPermissionState = SmsPermissionState.denied();
   GmailConnectionState _gmailConnectionState = GmailConnectionState.signedOut();
   List<EmailMessageItem> _gmailMessages = const [];
+  List<DueItem> _dueItems = const [];
+  TransactionDateFilter _selectedDateFilter = TransactionDateFilter.all;
+  bool _filterUpiOnly = false;
+  bool _filterCardsOnly = false;
+  bool _filterDebitOnly = false;
   bool _isLoadingPermission = true;
   bool _isUpdatingPermission = false;
   bool _isLoadingGmail = true;
@@ -142,10 +157,14 @@ class _ExpanseTrackerHomeState extends State<ExpanseTrackerHome> {
     });
 
     final messages = await widget.getRelevantGmailMessages();
+    final parsedTransactions = EmailTransactionParser.parse(messages);
+    final dueItems = EmailDueParser.parse(messages);
+    await widget.upsertTransactions(parsedTransactions);
     if (!mounted) return;
 
     setState(() {
       _gmailMessages = messages;
+      _dueItems = dueItems;
       _isSyncingGmail = false;
     });
   }
@@ -202,6 +221,21 @@ class _ExpanseTrackerHomeState extends State<ExpanseTrackerHome> {
                       ),
                     ),
                     IconButton.filledTonal(
+                      tooltip: 'Clear data',
+                      onPressed: () async {
+                        await widget.clearTransactions();
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Transactions wiped out!'),
+                            ),
+                          );
+                        }
+                      },
+                      icon: const Icon(Icons.delete_sweep_rounded),
+                    ),
+                    const SizedBox(width: 8),
+                    IconButton.filledTonal(
                       tooltip: 'Toggle theme',
                       onPressed: widget.onToggleTheme,
                       icon: Icon(
@@ -219,6 +253,13 @@ class _ExpanseTrackerHomeState extends State<ExpanseTrackerHome> {
                   initialData: const [],
                   builder: (context, snapshot) {
                     final transactions = snapshot.data ?? const [];
+                    final filteredTransactions = TransactionFilters.apply(
+                      transactions: transactions,
+                      dateFilter: _selectedDateFilter,
+                      upiOnly: _filterUpiOnly,
+                      cardsOnly: _filterCardsOnly,
+                      debitOnly: _filterDebitOnly,
+                    );
                     final pages = [
                       _DashboardView(
                         transactions: transactions,
@@ -230,13 +271,40 @@ class _ExpanseTrackerHomeState extends State<ExpanseTrackerHome> {
                         onSmsPermissionPressed: _handleSmsPermissionAction,
                         gmailConnectionState: _gmailConnectionState,
                         gmailMessages: _gmailMessages,
+                        dueItems: _dueItems,
                         isLoadingGmail: _isLoadingGmail,
                         isConnectingGmail: _isConnectingGmail,
                         isSyncingGmail: _isSyncingGmail,
                         onGmailConnectionPressed: _handleGmailConnectionAction,
                         onSyncGmailPressed: _syncGmailMessages,
                       ),
-                      _TransactionsView(transactions: transactions),
+                      _TransactionsView(
+                        transactions: filteredTransactions,
+                        selectedDateFilter: _selectedDateFilter,
+                        filterUpiOnly: _filterUpiOnly,
+                        filterCardsOnly: _filterCardsOnly,
+                        filterDebitOnly: _filterDebitOnly,
+                        onDateFilterChanged: (filter) {
+                          setState(() {
+                            _selectedDateFilter = filter;
+                          });
+                        },
+                        onUpiFilterChanged: (value) {
+                          setState(() {
+                            _filterUpiOnly = value;
+                          });
+                        },
+                        onCardsFilterChanged: (value) {
+                          setState(() {
+                            _filterCardsOnly = value;
+                          });
+                        },
+                        onDebitFilterChanged: (value) {
+                          setState(() {
+                            _filterDebitOnly = value;
+                          });
+                        },
+                      ),
                       const _MonetizationView(),
                     ];
 
@@ -292,13 +360,19 @@ class _ExpanseTrackerHomeState extends State<ExpanseTrackerHome> {
   }
 
   String _headerSubtitle() {
+    final isAndroid =
+        !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
     switch (_currentIndex) {
       case 1:
-        return 'Parse, scan, and review every SMS-based transaction.';
+        return isAndroid
+            ? 'Review transactions imported from SMS and Gmail.'
+            : 'Review transactions imported from Gmail.';
       case 2:
         return 'Ad-friendly revenue layers that still feel premium.';
       default:
-        return 'Smart expense tracking with an interface users will trust.';
+        return isAndroid
+            ? 'Import spending from SMS and Gmail in one clean tracker.'
+            : 'Import spending from Gmail in one clean tracker.';
     }
   }
 }
@@ -313,6 +387,7 @@ class _DashboardView extends StatelessWidget {
     required this.onSmsPermissionPressed,
     required this.gmailConnectionState,
     required this.gmailMessages,
+    required this.dueItems,
     required this.isLoadingGmail,
     required this.isConnectingGmail,
     required this.isSyncingGmail,
@@ -328,6 +403,7 @@ class _DashboardView extends StatelessWidget {
   final VoidCallback onSmsPermissionPressed;
   final GmailConnectionState gmailConnectionState;
   final List<EmailMessageItem> gmailMessages;
+  final List<DueItem> dueItems;
   final bool isLoadingGmail;
   final bool isConnectingGmail;
   final bool isSyncingGmail;
@@ -337,6 +413,8 @@ class _DashboardView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isAndroid =
+        !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
     final now = DateTime.now();
     final monthlySpend = transactions
         .where(
@@ -363,9 +441,10 @@ class _DashboardView extends StatelessWidget {
             Expanded(
               child: _MetricCard(
                 label: 'This month',
-                value: '₹$monthlySpend',
-                delta:
-                    '${transactions.where((item) => !item.isCredit).length} spends',
+                value: transactions.isEmpty ? 'No data' : '₹$monthlySpend',
+                delta: transactions.isEmpty
+                    ? 'Scan transactions'
+                    : '${transactions.where((item) => !item.isCredit).length} spends',
                 icon: Icons.calendar_month_rounded,
               ),
             ),
@@ -373,20 +452,24 @@ class _DashboardView extends StatelessWidget {
             Expanded(
               child: _MetricCard(
                 label: 'Auto-categorized',
-                value: '$categorizedPercent%',
-                delta: '${transactions.length} records',
+                value: transactions.isEmpty ? '--' : '$categorizedPercent%',
+                delta: transactions.isEmpty
+                    ? 'Waiting for imports'
+                    : '${transactions.length} records',
                 icon: Icons.auto_awesome_rounded,
               ),
             ),
           ],
         ),
-        const SizedBox(height: 18),
-        _SmsPermissionCard(
-          state: smsPermissionState,
-          isLoading: isLoadingPermission,
-          isUpdating: isUpdatingPermission,
-          onPressed: onSmsPermissionPressed,
-        ),
+        if (isAndroid) ...[
+          const SizedBox(height: 18),
+          _SmsPermissionCard(
+            state: smsPermissionState,
+            isLoading: isLoadingPermission,
+            isUpdating: isUpdatingPermission,
+            onPressed: onSmsPermissionPressed,
+          ),
+        ],
         const SizedBox(height: 18),
         _GmailAccessCard(
           state: gmailConnectionState,
@@ -397,6 +480,10 @@ class _DashboardView extends StatelessWidget {
           onConnectPressed: onGmailConnectionPressed,
           onSyncPressed: onSyncGmailPressed,
         ),
+        if (dueItems.isNotEmpty) ...[
+          const SizedBox(height: 18),
+          _DueItemsCard(dueItems: dueItems),
+        ],
         const SizedBox(height: 18),
         Card(
           child: Padding(
@@ -423,17 +510,21 @@ class _DashboardView extends StatelessWidget {
                 Wrap(
                   spacing: 10,
                   runSpacing: 10,
-                  children: const [
-                    _ActionChip(icon: Icons.sms_rounded, label: 'Read SMS'),
-                    _ActionChip(
+                  children: [
+                    if (isAndroid)
+                      const _ActionChip(
+                        icon: Icons.sms_rounded,
+                        label: 'Read SMS',
+                      ),
+                    const _ActionChip(
                       icon: Icons.mark_email_read_rounded,
                       label: 'Read Gmail',
                     ),
-                    _ActionChip(
+                    const _ActionChip(
                       icon: Icons.category_rounded,
                       label: 'Tune categories',
                     ),
-                    _ActionChip(
+                    const _ActionChip(
                       icon: Icons.shield_outlined,
                       label: 'Privacy policy',
                     ),
@@ -451,8 +542,134 @@ class _DashboardView extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 12),
-        ...transactions.take(3).map(_TransactionTile.new),
+        if (transactions.isEmpty)
+          _EmptyTransactionsCard(isAndroid: isAndroid)
+        else
+          ...transactions.take(3).map(_TransactionTile.new),
       ],
+    );
+  }
+}
+
+class _EmptyTransactionsCard extends StatelessWidget {
+  const _EmptyTransactionsCard({required this.isAndroid});
+
+  final bool isAndroid;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'No transactions yet',
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              isAndroid
+                  ? 'Connect Gmail and allow SMS access to start importing real transactions.'
+                  : 'Connect Gmail to start importing real transactions.',
+              style: theme.textTheme.bodyLarge?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+                height: 1.45,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _DueItemsCard extends StatelessWidget {
+  const _DueItemsCard({required this.dueItems});
+
+  final List<DueItem> dueItems;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Upcoming card dues',
+              style: theme.textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            const SizedBox(height: 14),
+            ...dueItems.take(3).map((due) {
+              final dueDate =
+                  '${due.dueDate.day.toString().padLeft(2, '0')}/${due.dueDate.month.toString().padLeft(2, '0')}/${due.dueDate.year}';
+              return Container(
+                margin: const EdgeInsets.only(bottom: 12),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 42,
+                      height: 42,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFD96C3F).withValues(alpha: 0.14),
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: const Icon(
+                        Icons.credit_card_rounded,
+                        color: Color(0xFFD96C3F),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            due.title,
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            'Due on $dueDate',
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Text(
+                      '₹${due.amount}',
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w900,
+                        color: const Color(0xFFD96C3F),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -777,47 +994,140 @@ class _SmsPermissionCard extends StatelessWidget {
 }
 
 class _TransactionsView extends StatelessWidget {
-  const _TransactionsView({required this.transactions});
+  const _TransactionsView({
+    required this.transactions,
+    required this.selectedDateFilter,
+    required this.filterUpiOnly,
+    required this.filterCardsOnly,
+    required this.filterDebitOnly,
+    required this.onDateFilterChanged,
+    required this.onUpiFilterChanged,
+    required this.onCardsFilterChanged,
+    required this.onDebitFilterChanged,
+  });
 
   final List<TransactionItem> transactions;
+  final TransactionDateFilter selectedDateFilter;
+  final bool filterUpiOnly;
+  final bool filterCardsOnly;
+  final bool filterDebitOnly;
+  final ValueChanged<TransactionDateFilter> onDateFilterChanged;
+  final ValueChanged<bool> onUpiFilterChanged;
+  final ValueChanged<bool> onCardsFilterChanged;
+  final ValueChanged<bool> onDebitFilterChanged;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return ListView(
-      padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
-      children: [
-        Card(
+    return CustomScrollView(
+      slivers: [
+        SliverToBoxAdapter(
           child: Padding(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text(
-                  'Filters',
-                  style: theme.textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w800,
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Filters',
+                          style: theme.textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        const SizedBox(height: 14),
+                        Wrap(
+                          spacing: 10,
+                          runSpacing: 10,
+                          children: [
+                            _FilterChip(
+                              label: 'Today',
+                              isSelected:
+                                  selectedDateFilter ==
+                                  TransactionDateFilter.today,
+                              onTap: () => onDateFilterChanged(
+                                selectedDateFilter ==
+                                        TransactionDateFilter.today
+                                    ? TransactionDateFilter.all
+                                    : TransactionDateFilter.today,
+                              ),
+                            ),
+                            _FilterChip(
+                              label: 'This month',
+                              isSelected:
+                                  selectedDateFilter ==
+                                  TransactionDateFilter.thisMonth,
+                              onTap: () => onDateFilterChanged(
+                                selectedDateFilter ==
+                                        TransactionDateFilter.thisMonth
+                                    ? TransactionDateFilter.all
+                                    : TransactionDateFilter.thisMonth,
+                              ),
+                            ),
+                            _FilterChip(
+                              label: 'UPI',
+                              isSelected: filterUpiOnly,
+                              onTap: () => onUpiFilterChanged(!filterUpiOnly),
+                            ),
+                            _FilterChip(
+                              label: 'Cards',
+                              isSelected: filterCardsOnly,
+                              onTap: () =>
+                                  onCardsFilterChanged(!filterCardsOnly),
+                            ),
+                            _FilterChip(
+                              label: 'Debit only',
+                              isSelected: filterDebitOnly,
+                              onTap: () =>
+                                  onDebitFilterChanged(!filterDebitOnly),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 14),
+                        Text(
+                          transactions.isEmpty
+                              ? 'No transactions match the selected filters.'
+                              : '${transactions.length} transaction${transactions.length == 1 ? '' : 's'} shown',
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-                const SizedBox(height: 14),
-                const Wrap(
-                  spacing: 10,
-                  runSpacing: 10,
-                  children: [
-                    _FilterChip(label: 'Today'),
-                    _FilterChip(label: 'This month'),
-                    _FilterChip(label: 'UPI'),
-                    _FilterChip(label: 'Cards'),
-                    _FilterChip(label: 'Debit only'),
-                  ],
-                ),
+                const SizedBox(height: 18),
+                if (transactions.isEmpty)
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Text(
+                        'Try clearing one or two filters, or import more data from Gmail/SMS.',
+                        style: theme.textTheme.bodyLarge?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                          height: 1.45,
+                        ),
+                      ),
+                    ),
+                  ),
               ],
             ),
           ),
         ),
-        const SizedBox(height: 18),
-        ...transactions.map(_TransactionTile.new),
+        if (transactions.isNotEmpty)
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
+            sliver: SliverList.builder(
+              itemCount: transactions.length,
+              itemBuilder: (context, index) =>
+                  _TransactionTile(transactions[index]),
+            ),
+          ),
       ],
     );
   }
@@ -1148,24 +1458,45 @@ class _ActionChip extends StatelessWidget {
 }
 
 class _FilterChip extends StatelessWidget {
-  const _FilterChip({required this.label});
+  const _FilterChip({
+    required this.label,
+    required this.isSelected,
+    required this.onTap,
+  });
 
   final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: theme.colorScheme.outlineVariant),
-      ),
-      child: Text(
-        label,
-        style: theme.textTheme.labelLarge?.copyWith(
-          fontWeight: FontWeight.w700,
+    return InkWell(
+      borderRadius: BorderRadius.circular(999),
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(999),
+          border: Border.all(
+            color: isSelected
+                ? theme.colorScheme.primary
+                : theme.colorScheme.outlineVariant,
+          ),
+          color: isSelected
+              ? theme.colorScheme.primaryContainer
+              : Colors.transparent,
+        ),
+        child: Text(
+          label,
+          style: theme.textTheme.labelLarge?.copyWith(
+            fontWeight: FontWeight.w700,
+            color: isSelected
+                ? theme.colorScheme.onPrimaryContainer
+                : theme.colorScheme.onSurface,
+          ),
         ),
       ),
     );
