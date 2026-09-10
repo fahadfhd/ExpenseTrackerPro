@@ -94,7 +94,7 @@ class _ExpanseTrackerProAppState extends State<ExpanseTrackerProApp> {
 
   Future<void> _bootstrap() async {
     await Future<void>.delayed(const Duration(milliseconds: 1200));
-    final hasCompletedEntryFlow = await _getEntryFlowStatus();
+    await _getEntryFlowStatus();
 
     try {
       final connectionState = await _getGmailConnectionState().timeout(
@@ -106,9 +106,7 @@ class _ExpanseTrackerProAppState extends State<ExpanseTrackerProApp> {
 
       setState(() {
         _gmailConnectionState = connectionState;
-        _stage = connectionState.isConnected || hasCompletedEntryFlow
-            ? _AppStage.home
-            : _AppStage.login;
+        _stage = _AppStage.home;
       });
 
       unawaited(_runPostLaunchTasks(connectionState));
@@ -116,7 +114,7 @@ class _ExpanseTrackerProAppState extends State<ExpanseTrackerProApp> {
       debugPrint('Bootstrap critical tasks failed: $e');
       if (!mounted) return;
       setState(() {
-        _stage = hasCompletedEntryFlow ? _AppStage.home : _AppStage.login;
+        _stage = _AppStage.home;
       });
     }
   }

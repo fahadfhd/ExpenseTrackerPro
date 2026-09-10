@@ -1,3 +1,4 @@
+import 'package:expensetrackerpro/core/config/feature_flags.dart';
 import 'package:expensetrackerpro/core/transactions/email_due_parser.dart';
 import 'package:expensetrackerpro/core/transactions/email_transaction_parser.dart';
 import 'package:expensetrackerpro/core/transactions/transaction_filters.dart';
@@ -360,19 +361,13 @@ class _ExpanseTrackerHomeState extends State<ExpanseTrackerHome> {
   }
 
   String _headerSubtitle() {
-    final isAndroid =
-        !kIsWeb && defaultTargetPlatform == TargetPlatform.android;
     switch (_currentIndex) {
       case 1:
-        return isAndroid
-            ? 'Review transactions imported from SMS and Gmail.'
-            : 'Review transactions imported from Gmail.';
+        return 'Review your logged transactions.';
       case 2:
         return 'Ad-friendly revenue layers that still feel premium.';
       default:
-        return isAndroid
-            ? 'Import spending from SMS and Gmail in one clean tracker.'
-            : 'Import spending from Gmail in one clean tracker.';
+        return 'Track your spending and accounts in one clean tracker.';
     }
   }
 }
@@ -461,7 +456,7 @@ class _DashboardView extends StatelessWidget {
             ),
           ],
         ),
-        if (isAndroid) ...[
+        if (kAutoImportEnabled && isAndroid) ...[
           const SizedBox(height: 18),
           _SmsPermissionCard(
             state: smsPermissionState,
@@ -470,16 +465,18 @@ class _DashboardView extends StatelessWidget {
             onPressed: onSmsPermissionPressed,
           ),
         ],
-        const SizedBox(height: 18),
-        _GmailAccessCard(
-          state: gmailConnectionState,
-          messages: gmailMessages,
-          isLoading: isLoadingGmail,
-          isConnecting: isConnectingGmail,
-          isSyncing: isSyncingGmail,
-          onConnectPressed: onGmailConnectionPressed,
-          onSyncPressed: onSyncGmailPressed,
-        ),
+        if (kAutoImportEnabled) ...[
+          const SizedBox(height: 18),
+          _GmailAccessCard(
+            state: gmailConnectionState,
+            messages: gmailMessages,
+            isLoading: isLoadingGmail,
+            isConnecting: isConnectingGmail,
+            isSyncing: isSyncingGmail,
+            onConnectPressed: onGmailConnectionPressed,
+            onSyncPressed: onSyncGmailPressed,
+          ),
+        ],
         if (dueItems.isNotEmpty) ...[
           const SizedBox(height: 18),
           _DueItemsCard(dueItems: dueItems),
@@ -511,15 +508,16 @@ class _DashboardView extends StatelessWidget {
                   spacing: 10,
                   runSpacing: 10,
                   children: [
-                    if (isAndroid)
+                    if (kAutoImportEnabled && isAndroid)
                       const _ActionChip(
                         icon: Icons.sms_rounded,
                         label: 'Read SMS',
                       ),
-                    const _ActionChip(
-                      icon: Icons.mark_email_read_rounded,
-                      label: 'Read Gmail',
-                    ),
+                    if (kAutoImportEnabled)
+                      const _ActionChip(
+                        icon: Icons.mark_email_read_rounded,
+                        label: 'Read Gmail',
+                      ),
                     const _ActionChip(
                       icon: Icons.category_rounded,
                       label: 'Tune categories',
@@ -543,7 +541,7 @@ class _DashboardView extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         if (transactions.isEmpty)
-          _EmptyTransactionsCard(isAndroid: isAndroid)
+          const _EmptyTransactionsCard()
         else
           ...transactions.take(3).map(_TransactionTile.new),
       ],
@@ -552,9 +550,7 @@ class _DashboardView extends StatelessWidget {
 }
 
 class _EmptyTransactionsCard extends StatelessWidget {
-  const _EmptyTransactionsCard({required this.isAndroid});
-
-  final bool isAndroid;
+  const _EmptyTransactionsCard();
 
   @override
   Widget build(BuildContext context) {
@@ -574,9 +570,7 @@ class _EmptyTransactionsCard extends StatelessWidget {
             ),
             const SizedBox(height: 10),
             Text(
-              isAndroid
-                  ? 'Connect Gmail and allow SMS access to start importing real transactions.'
-                  : 'Connect Gmail to start importing real transactions.',
+              'Add your first transaction to start building your spending history.',
               style: theme.textTheme.bodyLarge?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
                 height: 1.45,
@@ -1107,7 +1101,7 @@ class _TransactionsView extends StatelessWidget {
                     child: Padding(
                       padding: const EdgeInsets.all(20),
                       child: Text(
-                        'Try clearing one or two filters, or import more data from Gmail/SMS.',
+                        'Try clearing one or two filters, or add more transactions.',
                         style: theme.textTheme.bodyLarge?.copyWith(
                           color: theme.colorScheme.onSurfaceVariant,
                           height: 1.45,
@@ -1257,7 +1251,7 @@ class _HeroCard extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'Track finance signals from SMS first, then extend to Gmail read-only access.',
+            'Track every expense and account you add, all in one clean tracker.',
             style: theme.textTheme.bodyLarge?.copyWith(
               color: Colors.white.withValues(alpha: 0.82),
               height: 1.45,
