@@ -1,0 +1,1206 @@
+{
+  "@@locale": "en",
+  "appTitle": "ExpanseTrackerPro",
+  "save": "Save",
+  "cancel": "Cancel",
+  "delete": "Delete",
+  "edit": "Edit",
+  "duplicate": "Duplicate",
+  "add": "Add",
+  "close": "Close",
+  "done": "Done",
+  "retry": "Retry",
+  "confirm": "Confirm",
+  "apply": "Apply",
+  "reset": "Reset",
+  "clear": "Clear",
+  "none": "None",
+  "all": "All",
+  "optional": "Optional",
+  "required": "Required",
+  "notes": "Notes",
+  "description": "Description",
+  "date": "Date",
+  "time": "Time",
+  "amount": "Amount",
+  "name": "Name",
+  "archive": "Archive",
+  "unarchive": "Unarchive",
+  "archived": "Archived",
+  "seeAll": "See all",
+  "today": "Today",
+  "yesterday": "Yesterday",
+  "previousMonth": "Previous month",
+  "nextMonth": "Next month",
+  "thisMonth": "This month",
+  "pickDate": "Pick a date",
+  "pickTime": "Pick a time",
+  "noDate": "No date",
+  "deleteConfirmTitle": "Delete {item}?",
+  "deleteConfirmBody": "This cannot be undone.",
+  "deleted": "Deleted",
+  "saved": "Saved",
+  "loading": "Loading…",
+  "somethingWentWrong": "Something went wrong",
+  "emptyTitle": "Nothing here yet",
+  "invalidAmount": "Enter a valid amount greater than zero",
+  "invalidNumber": "Enter a valid number",
+  "nameRequired": "Enter a name",
+  "valueBetween": "Enter a value between {min} and {max}",
+  "comingFromInstallments": "{count} of {total}",
+  "navHome": "Home",
+  "navTransactions": "Transactions",
+  "navAccounts": "Accounts",
+  "navLoans": "Loans",
+  "navMore": "More",
+  "failureNetwork": "You're offline or the connection is unstable. Changes are saved on this device and will sync when you're back online.",
+  "failurePermission": "You don't have permission to do that. Try signing in again.",
+  "failureUnauthenticated": "Your session has expired. Please sign in again.",
+  "failureNotFound": "That item no longer exists.",
+  "failureInvalidData": "The data is invalid or damaged.",
+  "failureUnsupportedSchema": "This backup was made by a newer version of the app. Update the app to restore it.",
+  "failureNotification": "A reminder could not be scheduled on this device.",
+  "failureUnknown": "Something went wrong. Please try again.",
+  "syncRejected": "A change could not be saved to the cloud: {reason}",
+  "syncAllSynced": "All changes synced",
+  "syncPending": "{count} change(s) waiting to sync",
+  "syncLastSynced": "Last synced {time}",
+  "txTypeExpense": "Expense",
+  "txTypeIncome": "Income",
+  "txTypeTransfer": "Transfer",
+  "txTypeCreditCardExpense": "Card expense",
+  "txTypeCreditCardPayment": "Card bill payment",
+  "txTypeLoanPayment": "Loan payment",
+  "txTypeRefund": "Refund",
+  "txTypeBorrowed": "Borrowed",
+  "txTypeLent": "Lent",
+  "txTypeDebtRepayment": "Repaid debt",
+  "txTypeDebtCollection": "Collected debt",
+  "txStatusCleared": "Cleared",
+  "txStatusPending": "Pending",
+  "accountTypeSavings": "Savings account",
+  "accountTypeCurrent": "Current account",
+  "accountTypeCash": "Cash",
+  "accountTypeWallet": "Wallet",
+  "accountTypeOther": "Other",
+  "catFood": "Food",
+  "catFoodGroceries": "Groceries",
+  "catFoodDining": "Dining out",
+  "catFoodDelivery": "Food delivery",
+  "catTransport": "Transport",
+  "catTransportFuel": "Fuel",
+  "catTransportPublic": "Public transport",
+  "catTransportCab": "Cab",
+  "catTransportParking": "Parking & tolls",
+  "catTransportService": "Vehicle service",
+  "catShopping": "Shopping",
+  "catShoppingClothing": "Clothing",
+  "catShoppingElectronics": "Electronics",
+  "catShoppingHome": "Home & kitchen",
+  "catBills": "Bills & utilities",
+  "catBillsElectricity": "Electricity",
+  "catBillsWater": "Water",
+  "catBillsInternet": "Internet",
+  "catBillsPhone": "Mobile & phone",
+  "catHousing": "Housing",
+  "catHousingRent": "Rent",
+  "catHousingMaintenance": "Maintenance",
+  "catHealth": "Health",
+  "catHealthMedical": "Doctor & hospital",
+  "catHealthPharmacy": "Pharmacy",
+  "catHealthFitness": "Fitness",
+  "catEntertainment": "Entertainment",
+  "catEntertainmentSubscriptions": "Subscriptions",
+  "catEntertainmentOutings": "Movies & outings",
+  "catEntertainmentTravel": "Travel & holidays",
+  "catEducation": "Education",
+  "catInsurance": "Insurance",
+  "catPersonal": "Personal care",
+  "catGifts": "Gifts & donations",
+  "catFees": "Fees & charges",
+  "catOther": "Other",
+  "catSalary": "Salary",
+  "catBusiness": "Business",
+  "catInterest": "Interest",
+  "catInvestment": "Investments",
+  "catGiftIncome": "Gifts received",
+  "catOtherIncome": "Other income",
+  "catTransfer": "Transfer",
+  "catDebt": "Borrow & lend",
+  "catLoanEmi": "Loan EMI",
+  "catCardPayment": "Card payment",
+  "freqOnce": "Once",
+  "freqDaily": "Daily",
+  "freqWeekly": "Weekly",
+  "freqMonthly": "Monthly",
+  "freqYearly": "Yearly",
+  "freqQuarterly": "Quarterly",
+  "freqHalfYearly": "Half-yearly",
+  "everyNDays": "Every {n} days",
+  "everyNWeeks": "Every {n} weeks",
+  "everyNMonths": "Every {n} months",
+  "everyNYears": "Every {n} years",
+  "loanStatusActive": "Active",
+  "loanStatusCompleted": "Completed",
+  "loanStatusClosed": "Closed",
+  "loanStatusPrepaid": "Prepaid",
+  "installmentPaid": "Paid",
+  "installmentSkipped": "Skipped",
+  "installmentOverdue": "Overdue",
+  "installmentUpcoming": "Upcoming",
+  "debtPending": "Pending",
+  "debtPartial": "Partially settled",
+  "debtSettled": "Settled",
+  "debtOverdue": "Overdue",
+  "debtBorrowed": "Borrowed",
+  "debtLent": "Lent",
+  "reminderTypeLoanEmi": "Loan EMI",
+  "reminderTypeCreditCard": "Credit card payment",
+  "reminderTypeBorrowed": "Borrowed money",
+  "reminderTypeLent": "Lent money",
+  "reminderTypeGym": "Gym",
+  "reminderTypeMeeting": "Meeting",
+  "reminderTypeInsurance": "Insurance",
+  "reminderTypeSubscription": "Subscription",
+  "reminderTypeBill": "Bill",
+  "reminderTypeCustom": "Custom",
+  "fuelPetrol": "Petrol",
+  "fuelDiesel": "Diesel",
+  "fuelCng": "CNG",
+  "fuelLpg": "LPG",
+  "fuelElectric": "Electric",
+  "fuelHybrid": "Hybrid",
+  "sortNewest": "Newest first",
+  "sortOldest": "Oldest first",
+  "sortLargest": "Largest amount",
+  "sortSmallest": "Smallest amount",
+  "issueAmountNotPositive": "Amount must be greater than zero.",
+  "issueAmountTooLarge": "Amount is too large.",
+  "issueCategoryMismatch": "Choose a category that matches the transaction type.",
+  "issueCardRequired": "Choose a credit card.",
+  "issueCardNotAllowed": "A credit card can't be used for this type.",
+  "issueSourceAccountRequired": "Choose the account the money leaves.",
+  "issueDestinationAccountRequired": "Choose the account the money goes to.",
+  "issueSameTransferAccounts": "Source and destination must be different accounts.",
+  "issueLoanRequired": "Choose a loan.",
+  "issueDebtRecordRequired": "This needs a borrow/lend record.",
+  "issueRefundTargetAmbiguous": "A refund goes to either an account or a card, not both.",
+  "remindersTitle": "Reminders",
+  "reminderNew": "New reminder",
+  "reminderEdit": "Edit reminder",
+  "reminderTitleLabel": "Title",
+  "reminderTitleHint": "e.g. Gym, Pay electricity bill",
+  "reminderTypeLabel": "Type",
+  "reminderRepeat": "Repeat",
+  "reminderEvery": "Every",
+  "reminderUntil": "Ends",
+  "reminderNeverEnds": "Never",
+  "reminderNotify": "Notify me",
+  "reminderOffsetAtTime": "At the time",
+  "reminderOffsetMinutes": "{n} min before",
+  "reminderOffsetHours": "{n} h before",
+  "reminderOffsetDays": "{n} day(s) before",
+  "reminderOffsetCustom": "Custom…",
+  "reminderOffsetCustomTitle": "Days before",
+  "reminderEnabled": "Enabled",
+  "reminderDisabled": "Disabled",
+  "reminderNext": "Next: {date}",
+  "reminderEnded": "No upcoming occurrences",
+  "reminderLinked": "Managed from {module}. You can change time, alerts and on/off here.",
+  "remindersEmpty": "No reminders yet. Add gym sessions, bills, renewals or anything else you don't want to miss.",
+  "remindersUpcoming": "Upcoming",
+  "remindersInactive": "Off or finished",
+  "notificationsOff": "Notifications are turned off for this app, so reminders won't alert you.",
+  "notificationsEnable": "Turn on",
+  "notifDue": "{what} · due now",
+  "notifInDays": "{what} · in {n} day(s)",
+  "notifInHours": "{what} · in {n} h",
+  "notifInMinutes": "{what} · in {n} min",
+  "reminderLoanTitle": "EMI due: {name}",
+  "reminderCardTitle": "Card bill due: {name}",
+  "reminderBorrowedTitle": "Repay {person}",
+  "reminderLentTitle": "Collect from {person}",
+  "moduleLoans": "Loans",
+  "moduleCards": "Credit cards",
+  "moduleBorrowLend": "Borrow & lend",
+  "addTransaction": "Add transaction",
+  "editTransaction": "Edit transaction",
+  "duplicateTransaction": "Duplicate transaction",
+  "transactionDetails": "Transaction",
+  "txMoreTypes": "More",
+  "category": "Category",
+  "subcategory": "Subcategory",
+  "paidWith": "Paid with",
+  "receivedIn": "Received in",
+  "fromAccount": "From account",
+  "toAccount": "To account",
+  "creditCard": "Credit card",
+  "refundTo": "Refund to",
+  "cashUntracked": "Cash / not tracked",
+  "merchantOrPerson": "Merchant or person",
+  "tags": "Tags",
+  "tagsHint": "Comma separated, e.g. trip, office",
+  "markPending": "Pending (not yet paid)",
+  "markPendingHelp": "Pending items don't change balances or totals until cleared.",
+  "noAccountsHint": "Add an account or card to track balances. You can still record cash spending.",
+  "transactionSaved": "Transaction saved",
+  "transactionDeleted": "Transaction deleted",
+  "budgetWarning": "{budget} budget is at {percent}% for this month",
+  "budgetOverall": "Overall",
+  "managedElsewhere": "This entry is managed from {module}. Open it there to change or remove it.",
+  "moduleVehicles": "Vehicles",
+  "searchTransactions": "Search description, category, amount, date…",
+  "filters": "Filters",
+  "filtersActive": "Filters ({count})",
+  "sortBy": "Sort by",
+  "accountsLabel": "Accounts",
+  "cardsLabel": "Cards",
+  "categoriesLabel": "Categories",
+  "amountRange": "Amount range",
+  "minAmount": "Min",
+  "maxAmount": "Max",
+  "clearFilters": "Clear filters",
+  "dateRange": "Date range",
+  "customRange": "Custom range",
+  "backToMonth": "Back to month view",
+  "listView": "List",
+  "calendarView": "Calendar",
+  "noTransactions": "No transactions in this period yet. Tap + to add your first one.",
+  "noMatches": "No transactions match your search or filters.",
+  "dayTotal": "Spent {amount}",
+  "moneyIn": "In",
+  "moneyOut": "Out",
+  "transactionsCount": "{count} transactions",
+  "recurringGenerated": "Created by recurring rule",
+  "importedFrom": "Imported ({source})",
+  "selectDay": "Select a day to see its transactions",
+  "noTransactionsOnDay": "Nothing recorded on this day.",
+  "status": "Status",
+  "entriesLabel": "Entries",
+  "typeLabel": "Type",
+  "dashboardSpentThisMonth": "Spent in {month}",
+  "dashboardIncome": "Income",
+  "dashboardSpending": "Spending",
+  "dashboardSavings": "Savings",
+  "dashboardSavingsRate": "{percent}% of income saved",
+  "dashboardOverspent": "Spent {amount} more than earned",
+  "dashboardNoIncome": "No income recorded this month",
+  "dashboardEmi": "EMIs paid",
+  "dashboardCardSpending": "Card spending",
+  "dashboardBorrowed": "Borrowed",
+  "dashboardLent": "Lent",
+  "dashboardPendingPayments": "Pending payments",
+  "dashboardScopeAll": "All accounts & cards",
+  "dashboardUpcoming": "Coming up",
+  "dashboardUpcomingEmpty": "No dues in the next 30 days.",
+  "dashboardOverdue": "Overdue",
+  "dashboardDueOn": "Due {date}",
+  "dashboardRecent": "Recent transactions",
+  "dashboardBudget": "Monthly budget",
+  "dashboardBudgetLeft": "{amount} left",
+  "dashboardBudgetOver": "{amount} over budget",
+  "chartByCategory": "Spending by category",
+  "chartDaily": "Daily spending",
+  "chartIncomeVsSpending": "Income vs spending",
+  "chartByAccount": "Spending by account",
+  "chartByCard": "Spending by card",
+  "chartTrend": "Monthly spending trend",
+  "chartNoData": "No spending to chart for this period.",
+  "chartOther": "Other",
+  "chartSemanticsTotal": "{title}. Total {amount}.",
+  "netWorth": "Net worth",
+  "searchEverything": "Search everything",
+  "emptyDashboardTitle": "Welcome! Let's set things up",
+  "emptyDashboardBody": "Add an account or card, then record your first expense. Everything works offline and syncs when you're online.",
+  "addAccount": "Add account",
+  "addCard": "Add card",
+  "addExpense": "Add expense",
+  "accountsTitle": "Accounts & cards",
+  "accountsTab": "Accounts",
+  "cardsTab": "Credit cards",
+  "newAccount": "New account",
+  "editAccount": "Edit account",
+  "accountName": "Account name",
+  "accountNameHint": "e.g. Salary account, Wallet",
+  "bankName": "Bank name",
+  "openingBalance": "Opening balance",
+  "openingBalanceHelp": "Balance on the day you start tracking. Transactions recorded here adjust it automatically.",
+  "currentBalance": "Current balance",
+  "noCredentialsNote": "Never enter passwords, PINs or card numbers. This app doesn't need them.",
+  "accountsEmpty": "No accounts yet. Add your bank accounts, cash or wallets to see balances.",
+  "assets": "Accounts",
+  "cardDebt": "Card dues",
+  "showArchived": "Archived ({count})",
+  "accountInUse": "This account is used by transactions, loans, borrow/lend records, recurring entries or a card, so it can't be deleted. Archive it instead to hide it.",
+  "accountArchived": "Account archived",
+  "recentActivity": "Recent activity",
+  "noActivity": "No transactions linked yet.",
+  "inThisMonth": "In this month",
+  "outThisMonth": "Out this month",
+  "newCard": "New credit card",
+  "editCard": "Edit credit card",
+  "cardName": "Card name",
+  "cardNameHint": "e.g. Millennia, Amazon Pay",
+  "last4": "Last 4 digits",
+  "last4Help": "Only to recognise the card. Never enter the full number.",
+  "last4Invalid": "Enter exactly 4 digits",
+  "creditLimit": "Credit limit",
+  "currentOutstanding": "Current outstanding",
+  "currentOutstandingHelp": "What you owe today. New card transactions update it automatically.",
+  "statementDay": "Statement day",
+  "dueDay": "Payment due day",
+  "dayOfMonth": "Day of month (1–31)",
+  "minimumDuePercent": "Minimum due %",
+  "minimumDuePercentHelp": "Used to estimate the minimum due. Check your statement for the exact figure.",
+  "linkedAccount": "Pays from account",
+  "cardsEmpty": "No credit cards yet. Add one to track limits, utilisation and due dates.",
+  "outstanding": "Outstanding",
+  "available": "Available",
+  "utilization": "Utilisation",
+  "utilizationValue": "{percent}% used",
+  "statement": "Last statement",
+  "statementBalance": "Statement balance",
+  "totalDue": "Total due",
+  "minimumDueEstimate": "Minimum due (est.)",
+  "dueDate": "Due date",
+  "paidInFull": "Paid",
+  "payBill": "Pay bill",
+  "addCardExpense": "Add expense",
+  "cardSpending6m": "Card spending, last 6 months",
+  "cardInUse": "This card is used by transactions or recurring entries, so it can't be deleted. Archive it instead.",
+  "cardReminderNote": "A due-date reminder is created automatically. Adjust it in Reminders.",
+  "recalcBalances": "Recalculate balances",
+  "recalcBalancesHelp": "Rebuilds every account and card balance from your full transaction history. Use this if a balance looks wrong.",
+  "recalcDone": "Balances recalculated",
+  "dayInvalid": "Enter a day between 1 and 31",
+  "accountTypeLabel": "Account type",
+  "outstandingWhenAdded": "Outstanding when added",
+  "outstandingWhenAddedHelp": "The card's current outstanding is {current}, which already includes transactions recorded in the app. Only change this to correct the starting amount.",
+  "loansTitle": "Loans",
+  "loansEmpty": "No loans yet. Add a loan to track EMIs, interest and what's left to pay.",
+  "addLoan": "Add loan",
+  "newLoan": "New loan",
+  "editLoan": "Edit loan",
+  "loanName": "Loan name",
+  "loanNameHint": "e.g. Home loan, Car loan",
+  "lender": "Lender",
+  "principal": "Principal amount",
+  "interestRate": "Interest rate (% per year)",
+  "tenure": "Number of installments",
+  "tenureMonthsHelp": "{months} months",
+  "firstEmiDate": "First EMI date",
+  "emiAmount": "EMI amount",
+  "emiComputed": "Calculated EMI: {amount}",
+  "emiOverride": "Use the lender's EMI",
+  "emiOverrideHelp": "Lenders sometimes round the EMI. Enter their exact figure so the schedule matches your statements.",
+  "payFromAccount": "Pay EMIs from",
+  "loanReminder": "Remind me before each EMI",
+  "findRate": "Don't know the rate? Find it from the EMI",
+  "loansOutstanding": "Total outstanding",
+  "loansMonthlyEmi": "Monthly EMIs",
+  "loansActive": "{count} active",
+  "loanOverdueCount": "{count} overdue",
+  "loanProgress": "{paid} of {total} EMIs paid",
+  "outstandingPrincipal": "Outstanding principal",
+  "nextEmi": "Next EMI",
+  "nextEmiOn": "#{number} on {date}",
+  "noNextEmi": "No EMIs left",
+  "paidEmis": "Paid EMIs",
+  "remainingEmis": "Remaining EMIs",
+  "totalInterest": "Total interest",
+  "paidInterest": "Interest paid",
+  "remainingInterest": "Interest remaining",
+  "principalPaid": "Principal paid",
+  "prepaid": "Prepaid",
+  "principalVsInterest": "Principal vs interest",
+  "principalLabel": "Principal",
+  "interestLabel": "Interest",
+  "markPaid": "Mark EMI paid",
+  "markPaidTitle": "EMI #{number}",
+  "paidOn": "Paid on",
+  "skipEmi": "Mark as skipped",
+  "clearMark": "Undo mark",
+  "recordPrepayment": "Record prepayment",
+  "prepaymentAmount": "Prepayment amount",
+  "prepaymentMode": "After the prepayment",
+  "prepayReduceTenure": "Keep EMI, finish sooner",
+  "prepayReduceEmi": "Keep tenure, lower EMI",
+  "prepayPreview": "What changes",
+  "prepayNewEmi": "EMI: {before} → {after}",
+  "prepayNewTenure": "Remaining EMIs: {before} → {after}",
+  "prepayInterestSaved": "Interest saved: {amount}",
+  "prepayOutstanding": "Outstanding: {before} → {after}",
+  "prepayExplain": "Prepayments reduce principal immediately. You choose whether the EMI stays the same (loan ends earlier) or the number of EMIs stays the same (EMI goes down). Nothing changes until you confirm.",
+  "prepayments": "Prepayments",
+  "schedule": "Repayment schedule",
+  "scheduleRowSemantics": "EMI {number}, due {date}, {emi}, principal {principal}, interest {interest}, balance {balance}, {status}",
+  "balanceLabel": "Balance",
+  "emiDoesNotCoverInterest": "This EMI doesn't cover the interest, so the loan would never be repaid. Check the EMI, rate and principal.",
+  "unappliedPrepayment": "{amount} of prepayments exceeded what was owed and was not applied.",
+  "closeLoan": "Mark loan closed",
+  "reopenLoan": "Reopen loan",
+  "loanClosedNote": "Closed loans stop sending reminders.",
+  "emiCalculator": "EMI calculator",
+  "rateFinder": "Interest rate finder",
+  "financialTools": "Financial tools",
+  "calcResultEmi": "Monthly EMI",
+  "calcTotalPayment": "Total payment",
+  "calcInterestPercent": "Interest is {percent}% of principal",
+  "calcFirstEmiSplit": "First EMI split",
+  "calcRateResult": "Approximate interest rate",
+  "calcRateValue": "{rate}% per year",
+  "calcRateImpossible": "These numbers can't work: the EMIs add up to less than the principal.",
+  "calcRateTooHigh": "The implied rate is unrealistically high. Check the inputs.",
+  "calcRateZero": "0% — the EMIs exactly repay the principal (no interest).",
+  "useThisRate": "Use this rate",
+  "calcEnterValues": "Enter the values to see the result.",
+  "emiFrequencyLabel": "EMI frequency",
+  "borrowLendTitle": "Borrow & lend",
+  "debtsEmpty": "Nothing here yet. Record money you've borrowed from or lent to someone.",
+  "newDebt": "New record",
+  "editDebt": "Edit record",
+  "iBorrowed": "I borrowed",
+  "iLent": "I lent",
+  "personName": "Person",
+  "personNameHint": "Who is it with?",
+  "personRequired": "Enter a name",
+  "givenOn": "Date",
+  "dueDateOptional": "Due date (optional)",
+  "moneyMovedThrough": "Money moved through",
+  "debtReminder": "Remind me before the due date",
+  "debtReminderOffsets": "When to remind",
+  "iOwe": "I owe",
+  "owedToMe": "Owed to me",
+  "overdueAmount": "Overdue",
+  "totalBorrowed": "Total borrowed",
+  "totalLent": "Total lent",
+  "openRecords": "{count} open",
+  "outstandingOf": "{outstanding} of {total} left",
+  "settlements": "Settlements",
+  "addSettlement": "Record repayment",
+  "settlementAmount": "Amount repaid",
+  "noSettlements": "No repayments recorded yet.",
+  "settleFull": "Settle in full",
+  "filterOpen": "Open",
+  "filterSettled": "Settled",
+  "debtDueOn": "Due {date}",
+  "vehiclesTitle": "Vehicles",
+  "vehiclesEmpty": "No vehicles yet. Add one to track mileage and fuel costs.",
+  "addVehicle": "Add vehicle",
+  "newVehicle": "New vehicle",
+  "editVehicle": "Edit vehicle",
+  "vehicleName": "Vehicle name",
+  "vehicleNameHint": "e.g. Swift, Activa",
+  "registrationNickname": "Registration / nickname",
+  "fuelPrice": "Fuel price per unit",
+  "expectedMileage": "Expected mileage",
+  "expectedMileageHelp": "Used until you log fuel fills; then the measured average is used.",
+  "unitKmPerL": "km/l",
+  "unitKmPerKwh": "km/kWh",
+  "unitKmPerKg": "km/kg",
+  "unitLitre": "l",
+  "unitKwh": "kWh",
+  "unitKg": "kg",
+  "unitKm": "km",
+  "avgMileage": "Average mileage",
+  "costPerKm": "Cost per km",
+  "fuelThisMonth": "Fuel this month",
+  "fuelMonthlyAverage": "Monthly average",
+  "fuelYearlyEstimate": "Yearly estimate",
+  "fuelCost6m": "Fuel cost, last 6 months",
+  "totalDistance": "Distance logged",
+  "fuelLogs": "Fuel history",
+  "fuelLogsEmpty": "No fuel fills logged yet.",
+  "addFuel": "Log fuel",
+  "editFuel": "Edit fuel fill",
+  "odometer": "Odometer (optional)",
+  "distanceTravelled": "Distance since last fill",
+  "fuelQuantity": "Fuel added",
+  "pricePerUnit": "Price per unit",
+  "totalCost": "Total cost",
+  "recordAsExpense": "Record as expense from",
+  "dontRecord": "Don't record as expense",
+  "mileageCalculator": "Mileage calculator",
+  "mileageResult": "Mileage",
+  "tripCost": "Fuel cost for this trip",
+  "tripDistance": "Trip distance",
+  "calcCostPerKm": "Cost per km",
+  "noMileageYet": "—",
+  "vehicleFuelExpenseNote": "Fuel fills recorded as expenses also appear in Transactions and budgets.",
+  "fuelTypeLabel": "Fuel type",
+  "budgetsTitle": "Budgets",
+  "budgetsEmpty": "No budgets yet. Set a monthly limit overall or per category.",
+  "addBudget": "Add budget",
+  "editBudget": "Edit budget",
+  "budgetFor": "Budget for",
+  "budgetLimit": "Monthly limit",
+  "budgetThresholds": "Warn me at",
+  "budgetThresholdsHelp": "Percent of the limit, comma separated (e.g. 75, 90, 100)",
+  "budgetThresholdsInvalid": "Enter percentages between 1 and 200",
+  "budgetSpentOf": "{spent} of {limit}",
+  "budgetRemaining": "{amount} left",
+  "budgetOver": "{amount} over",
+  "budgetReached": "Reached {percent}%",
+  "budgetAlertsSetting": "Warn when a budget threshold is crossed",
+  "recurringTitle": "Recurring",
+  "recurringEmpty": "No recurring entries. Add salary, rent, subscriptions and other regular payments; they're recorded automatically on their dates.",
+  "addRecurring": "Add recurring",
+  "editRecurring": "Edit recurring",
+  "recurringTitleLabel": "Title",
+  "recurringTitleHint": "e.g. Rent, Netflix, Salary",
+  "startsOn": "Starts on",
+  "recurringNext": "Next: {date}",
+  "recurringPaused": "Paused",
+  "recurringActive": "Active",
+  "recurringAutoNote": "Entries are created on each date (when the app opens), at most once per date. Loan EMIs are tracked in Loans instead.",
+  "recurringGeneratedCount": "{count} recurring entries recorded",
+  "reportsTitle": "Reports",
+  "reportSummary": "Summary",
+  "reportCategories": "Categories",
+  "reportAccounts": "Accounts",
+  "reportCards": "Cards",
+  "reportLoans": "Loans",
+  "reportDebts": "Borrow & lend",
+  "reportFuel": "Fuel",
+  "reportPeriod": "Period",
+  "reportAllAccounts": "All accounts",
+  "reportAllCards": "All cards",
+  "reportAllCategories": "All categories",
+  "reportMonthly": "By month",
+  "reportPeriodSpending": "Spending in period",
+  "reportPeriodIncome": "Income in period",
+  "reportTransactions": "Transactions",
+  "reportNoVehicles": "No vehicles to report.",
+  "reportNoLoans": "No loans to report.",
+  "reportNoCards": "No cards to report.",
+  "reportNoAccounts": "No accounts to report.",
+  "reportNoDebts": "No borrow/lend records.",
+  "reportByPerson": "By person",
+  "reportFuelInPeriod": "Fuel cost in period",
+  "searchTitle": "Search",
+  "searchHint": "Search transactions, accounts, loans, people…",
+  "searchScopeNote": "Transactions from the last 12 months are searched.",
+  "searchNoResults": "No results for \"{query}\"",
+  "searchStart": "Type at least 2 characters to search.",
+  "searchGroupTransactions": "Transactions",
+  "searchGroupAccounts": "Accounts",
+  "searchGroupCards": "Credit cards",
+  "searchGroupLoans": "Loans",
+  "searchGroupDebts": "Borrow & lend",
+  "searchGroupReminders": "Reminders",
+  "searchGroupVehicles": "Vehicles",
+  "settingsTitle": "Settings",
+  "settingsAppearance": "Appearance",
+  "themeSystem": "System",
+  "themeLight": "Light",
+  "themeDark": "Dark",
+  "settingsCurrency": "Currency",
+  "settingsLanguage": "Language",
+  "languageSystem": "Device language",
+  "settingsNotifications": "Notifications",
+  "notificationsStatusOn": "Allowed",
+  "notificationsStatusOff": "Not allowed",
+  "notificationsResync": "Reschedule all reminders",
+  "notificationsResynced": "Reminders rescheduled",
+  "settingsData": "Data & sync",
+  "settingsAccount": "Account",
+  "signedInAs": "Signed in as {email}",
+  "guestAccount": "Guest (this device only)",
+  "guestWarning": "You're using a guest account. Sign in with Google so your data is backed up and can be restored on a new phone.",
+  "linkGoogle": "Sign in with Google",
+  "googleAccountExistsTitle": "Use your existing account?",
+  "googleAccountExistsBody": "This Google account already has data. Switching to it will hide the data you created as a guest on this device. You can't merge them.",
+  "switchAccount": "Switch account",
+  "signOut": "Sign out",
+  "signOutGuestWarning": "You're a guest: signing out permanently loses access to this data unless you sign in with Google first.",
+  "signOutConfirm": "Sign out?",
+  "backupTitle": "Backup & restore",
+  "backupNow": "Back up now",
+  "backupAuto": "Automatic weekly backup",
+  "backupLast": "Last backup: {time}",
+  "backupNever": "No backup yet",
+  "backupDone": "Backup complete ({count} records)",
+  "backupList": "Restore from a backup",
+  "backupEmpty": "No backups found for this account.",
+  "restoreConfirmTitle": "Restore this backup?",
+  "restoreConfirmBody": "Records in the backup will overwrite matching records. Records you added after the backup are kept. Reminders will be rescheduled.",
+  "restoreDone": "Restored {count} records",
+  "restoreSkipped": "{count} invalid records were skipped",
+  "backupNeedsAccount": "Sign in with Google to use cloud backups.",
+  "backupInProgress": "Working…",
+  "importTitle": "Import from Gmail",
+  "importBody": "Scan bank and card emails (read-only) and add the transactions found. Duplicates are merged.",
+  "importDone": "{count} transactions imported",
+  "privacyNote": "Your data is stored in your private Firebase space. Only you can read it. The app never stores passwords, PINs, CVVs or full card numbers.",
+  "aboutVersion": "Version {version}",
+  "moreTitle": "More",
+  "moreMoney": "Money",
+  "moreTools": "Tools",
+  "moreApp": "App",
+  "welcomeTitle": "Welcome to ExpanseTrackerPro",
+  "welcomeBody": "Track spending, accounts, cards, loans and reminders in one place. Works offline; syncs securely when you're online.",
+  "welcomePrivacy": "Your data is private to your account. We never ask for bank passwords, PINs or card numbers.",
+  "continueWithGoogle": "Continue with Google",
+  "continueAsGuest": "Continue without an account",
+  "guestNote": "You can sign in with Google later to back up your data.",
+  "signInFailed": "Sign-in didn't complete. Please try again.",
+  "firstLaunchOffline": "Connect to the internet once to set up your private space. After that, the app works offline.",
+  "signOutBody": "Your data stays in your account. Sign in again with the same Google account to see it.",
+  "@deleteConfirmTitle": {
+    "placeholders": {
+      "item": {
+        "type": "String"
+      }
+    }
+  },
+  "@valueBetween": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "@comingFromInstallments": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "@syncRejected": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "@syncPending": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "@syncLastSynced": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "@everyNDays": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "@everyNWeeks": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "@everyNMonths": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "@everyNYears": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "@reminderOffsetMinutes": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "@reminderOffsetHours": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "@reminderOffsetDays": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "@reminderNext": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@reminderLinked": {
+    "placeholders": {
+      "module": {
+        "type": "String"
+      }
+    }
+  },
+  "@notifDue": {
+    "placeholders": {
+      "what": {
+        "type": "String"
+      }
+    }
+  },
+  "@notifInDays": {
+    "placeholders": {
+      "what": {
+        "type": "String"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "@notifInHours": {
+    "placeholders": {
+      "what": {
+        "type": "String"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "@notifInMinutes": {
+    "placeholders": {
+      "what": {
+        "type": "String"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "@reminderLoanTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@reminderCardTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@reminderBorrowedTitle": {
+    "placeholders": {
+      "person": {
+        "type": "String"
+      }
+    }
+  },
+  "@reminderLentTitle": {
+    "placeholders": {
+      "person": {
+        "type": "String"
+      }
+    }
+  },
+  "@budgetWarning": {
+    "placeholders": {
+      "budget": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "@managedElsewhere": {
+    "placeholders": {
+      "module": {
+        "type": "String"
+      }
+    }
+  },
+  "@filtersActive": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "@dayTotal": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@transactionsCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "@importedFrom": {
+    "placeholders": {
+      "source": {
+        "type": "String"
+      }
+    }
+  },
+  "@dashboardSpentThisMonth": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "@dashboardSavingsRate": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "@dashboardOverspent": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@dashboardDueOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@dashboardBudgetLeft": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@dashboardBudgetOver": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@chartSemanticsTotal": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@showArchived": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "@utilizationValue": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "@outstandingWhenAddedHelp": {
+    "placeholders": {
+      "current": {
+        "type": "String"
+      }
+    }
+  },
+  "@tenureMonthsHelp": {
+    "placeholders": {
+      "months": {
+        "type": "String"
+      }
+    }
+  },
+  "@emiComputed": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@loansActive": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "@loanOverdueCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "@loanProgress": {
+    "placeholders": {
+      "paid": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "@nextEmiOn": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@markPaidTitle": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "@prepayNewEmi": {
+    "placeholders": {
+      "before": {
+        "type": "String"
+      },
+      "after": {
+        "type": "String"
+      }
+    }
+  },
+  "@prepayNewTenure": {
+    "placeholders": {
+      "before": {
+        "type": "String"
+      },
+      "after": {
+        "type": "String"
+      }
+    }
+  },
+  "@prepayInterestSaved": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@prepayOutstanding": {
+    "placeholders": {
+      "before": {
+        "type": "String"
+      },
+      "after": {
+        "type": "String"
+      }
+    }
+  },
+  "@scheduleRowSemantics": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      },
+      "emi": {
+        "type": "String"
+      },
+      "principal": {
+        "type": "String"
+      },
+      "interest": {
+        "type": "String"
+      },
+      "balance": {
+        "type": "String"
+      },
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "@unappliedPrepayment": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@calcInterestPercent": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "@calcRateValue": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "@openRecords": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "@outstandingOf": {
+    "placeholders": {
+      "outstanding": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "@debtDueOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@budgetSpentOf": {
+    "placeholders": {
+      "spent": {
+        "type": "String"
+      },
+      "limit": {
+        "type": "String"
+      }
+    }
+  },
+  "@budgetRemaining": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@budgetOver": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@budgetReached": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "@recurringNext": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@recurringGeneratedCount": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "@searchNoResults": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "@signedInAs": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "@backupLast": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "@backupDone": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "@restoreDone": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "@restoreSkipped": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "@importDone": {
+    "placeholders": {
+      "count": {
+        "type": "String"
+      }
+    }
+  },
+  "@aboutVersion": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  }
+}

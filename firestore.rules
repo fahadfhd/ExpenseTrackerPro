@@ -1,0 +1,61 @@
+rules_version = '2';
+
+// Every user's data lives under users/{uid} and only that user can touch
+// it. Nothing outside users/{uid} is readable or writable.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isOwner(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    // Credentials must never be stored, even by a modified client.
+    function noCredentials() {
+      return !request.resource.data.keys().hasAny(
+        ['cvv', 'cvc', 'pin', 'otp', 'password', 'cardNumber', 'fullCardNumber']
+      );
+    }
+
+    function validTransaction() {
+      let d = request.resource.data;
+      return noCredentials()
+        // Schema-1 documents (written by the old app) are allowed so they
+        // can be read and migrated; new writes use schema 2.
+        && (d.get('schemaVersion', 0) == 0
+          || (d.amountMinor is int
+            && d.amountMinor > 0
+            && d.date is timestamp
+            && d.type in ['expense', 'income', 'transfer', 'creditCardExpense',
+                          'creditCardPayment', 'loanPayment', 'refund',
+                          'borrowed', 'lent', 'debtRepayment', 'debtCollection']
+            && d.get('userId', request.auth.uid) == request.auth.uid));
+    }
+
+    function validCard() {
+      let last4 = request.resource.data.get('last4', '');
+      return noCredentials() && (last4 == '' || last4.matches('^[0-9]{4}$'));
+    }
+
+    match /users/{uid} {
+      allow read, write: if isOwner(uid);
+
+      match /transactions/{id} {
+        allow read, delete: if isOwner(uid);
+        allow create, update: if isOwner(uid) && validTransaction();
+      }
+
+      match /credit_cards/{id} {
+        allow read, delete: if isOwner(uid);
+        allow create, update: if isOwner(uid) && validCard();
+      }
+
+      match /{collection}/{id} {
+        allow read, delete: if isOwner(uid);
+        allow create, update: if isOwner(uid) && noCredentials()
+          && collection in ['accounts', 'loans', 'loan_payments', 'borrow_lend',
+                            'reminders', 'vehicles', 'fuel_logs', 'budgets',
+                            'recurring_transactions', 'settings'];
+      }
+    }
+  }
+}

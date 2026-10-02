@@ -1,16 +1,29 @@
-# expensetrackerpro
+# ExpanseTrackerPro
 
-A new Flutter project.
+A personal finance manager built with Flutter and Firebase: expenses and
+income, bank accounts, credit cards, loans with EMI schedules, borrow/lend,
+budgets, recurring transactions, vehicle fuel tracking, reminders with local
+notifications, reports, and cloud backup. Works offline and syncs when
+online.
 
-## Getting Started
+## Getting started
 
-This project is a starting point for a Flutter application.
+```sh
+flutter pub get
+flutter run
+```
 
-A few resources to get you started if this is your first Flutter project:
+Firebase setup (Anonymous + Google auth, Firestore rules/indexes, Storage
+rules) is described in [docs/IMPLEMENTATION_NOTES.md](docs/IMPLEMENTATION_NOTES.md#firebase-setup-required).
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+## Development
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+```sh
+flutter analyze
+flutter test
+```
+
+Architecture, calculation rules (balances, summaries, EMI/amortization,
+prepayments), notification and backup design, migrations and known
+limitations are documented in
+[docs/IMPLEMENTATION_NOTES.md](docs/IMPLEMENTATION_NOTES.md).

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:expensetrackerpro/domain/entities/email_message_item.dart';
 import 'package:expensetrackerpro/domain/entities/gmail_connection_state.dart';
 import 'package:expensetrackerpro/domain/repositories/gmail_repository.dart';
+import 'package:expensetrackerpro/features/auth/data/auth_repository.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -24,7 +25,6 @@ class GoogleGmailRepository implements GmailRepository {
   final FirebaseAuth _firebaseAuth;
   final GoogleSignIn _googleSignIn;
   final http.Client _httpClient;
-  bool _initialized = false;
   GoogleSignInAccount? _account;
 
   @override
@@ -155,12 +155,8 @@ class GoogleGmailRepository implements GmailRepository {
     return results.whereType<EmailMessageItem>().toList();
   }
 
-  Future<void> _ensureInitialized() async {
-    if (_initialized) return;
-
-    await _googleSignIn.initialize();
-    _initialized = true;
-  }
+  Future<void> _ensureInitialized() =>
+      GoogleSignInBootstrap.ensureInitialized();
 
   Future<void> _signInToFirebase(GoogleSignInAccount user) async {
     final authentication = user.authentication;
