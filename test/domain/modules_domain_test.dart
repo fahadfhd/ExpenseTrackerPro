@@ -1,13 +1,13 @@
-import 'package:expensetrackerpro/core/notifications/notification_planner.dart';
-import 'package:expensetrackerpro/core/utils/recurrence.dart';
-import 'package:expensetrackerpro/features/borrow_lend/domain/debt_record.dart';
-import 'package:expensetrackerpro/features/budgets/domain/budget.dart';
-import 'package:expensetrackerpro/features/credit_cards/domain/credit_card.dart';
-import 'package:expensetrackerpro/features/recurring/domain/recurring_rule.dart';
-import 'package:expensetrackerpro/features/reminders/domain/reminder.dart';
-import 'package:expensetrackerpro/features/transactions/domain/monthly_summary.dart';
-import 'package:expensetrackerpro/features/transactions/domain/transaction.dart';
-import 'package:expensetrackerpro/features/vehicles/domain/vehicle.dart';
+import 'package:kept/core/notifications/notification_planner.dart';
+import 'package:kept/core/utils/recurrence.dart';
+import 'package:kept/features/borrow_lend/domain/debt_record.dart';
+import 'package:kept/features/budgets/domain/budget.dart';
+import 'package:kept/features/credit_cards/domain/credit_card.dart';
+import 'package:kept/features/recurring/domain/recurring_rule.dart';
+import 'package:kept/features/reminders/domain/reminder.dart';
+import 'package:kept/features/transactions/domain/monthly_summary.dart';
+import 'package:kept/features/transactions/domain/transaction.dart';
+import 'package:kept/features/vehicles/domain/vehicle.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 final _t = DateTime(2026, 1, 1);
@@ -25,10 +25,8 @@ CreditCard _card({int limit = 10000000, int opening = 0, int delta = 0}) =>
     ).copyWith().withDelta(delta);
 
 extension on CreditCard {
-  CreditCard withDelta(int delta) => CreditCard.fromMap(id, {
-    ...toMap(),
-    'ledgerDeltaMinor': delta,
-  });
+  CreditCard withDelta(int delta) =>
+      CreditCard.fromMap(id, {...toMap(), 'ledgerDeltaMinor': delta});
 }
 
 void main() {
@@ -53,8 +51,14 @@ void main() {
 
     test('statement and due dates', () {
       final card = _card();
-      expect(card.lastStatementDate(DateTime(2026, 3, 25)), DateTime(2026, 3, 20));
-      expect(card.lastStatementDate(DateTime(2026, 3, 5)), DateTime(2026, 2, 20));
+      expect(
+        card.lastStatementDate(DateTime(2026, 3, 25)),
+        DateTime(2026, 3, 20),
+      );
+      expect(
+        card.lastStatementDate(DateTime(2026, 3, 5)),
+        DateTime(2026, 2, 20),
+      );
       expect(card.nextDueDate(DateTime(2026, 3, 5)), DateTime(2026, 3, 8));
       expect(card.nextDueDate(DateTime(2026, 3, 9)), DateTime(2026, 4, 8));
       final status = CardStatus.compute(
@@ -131,7 +135,11 @@ void main() {
       expect(VehicleMath.mileage(450, 0), isNull);
       expect(VehicleMath.costPerKm(300000, 450), closeTo(666.67, .01));
       expect(
-        VehicleMath.tripCost(distanceKm: 150, mileage: 15, pricePerUnitMinor: 10250),
+        VehicleMath.tripCost(
+          distanceKm: 150,
+          mileage: 15,
+          pricePerUnitMinor: 10250,
+        ),
         102500,
       );
     });
@@ -169,7 +177,12 @@ void main() {
   });
 
   group('Borrow/Lend', () {
-    DebtRecord record(DebtDirection d, int amount, {DateTime? due, List<int> paid = const []}) => DebtRecord(
+    DebtRecord record(
+      DebtDirection d,
+      int amount, {
+      DateTime? due,
+      List<int> paid = const [],
+    }) => DebtRecord(
       id: '$d$amount',
       direction: d,
       personName: 'Asha',
@@ -185,15 +198,41 @@ void main() {
 
     test('status follows settlements and due date', () {
       final now = DateTime(2026, 5, 1);
-      expect(record(DebtDirection.lent, 1000).statusAt(now), DebtStatus.pending);
-      expect(record(DebtDirection.lent, 1000, paid: [400]).statusAt(now), DebtStatus.partiallySettled);
-      expect(record(DebtDirection.lent, 1000, paid: [400, 600]).statusAt(now), DebtStatus.settled);
-      expect(record(DebtDirection.lent, 1000, due: DateTime(2026, 4, 30)).statusAt(now), DebtStatus.overdue);
-      expect(record(DebtDirection.lent, 1000, due: DateTime(2026, 5, 1)).statusAt(now), DebtStatus.pending);
+      expect(
+        record(DebtDirection.lent, 1000).statusAt(now),
+        DebtStatus.pending,
+      );
+      expect(
+        record(DebtDirection.lent, 1000, paid: [400]).statusAt(now),
+        DebtStatus.partiallySettled,
+      );
+      expect(
+        record(DebtDirection.lent, 1000, paid: [400, 600]).statusAt(now),
+        DebtStatus.settled,
+      );
+      expect(
+        record(
+          DebtDirection.lent,
+          1000,
+          due: DateTime(2026, 4, 30),
+        ).statusAt(now),
+        DebtStatus.overdue,
+      );
+      expect(
+        record(
+          DebtDirection.lent,
+          1000,
+          due: DateTime(2026, 5, 1),
+        ).statusAt(now),
+        DebtStatus.pending,
+      );
     });
 
     test('outstanding never goes negative on over-settlement', () {
-      expect(record(DebtDirection.borrowed, 1000, paid: [1500]).outstandingMinor, 0);
+      expect(
+        record(DebtDirection.borrowed, 1000, paid: [1500]).outstandingMinor,
+        0,
+      );
     });
 
     test('summary totals by direction', () {
@@ -214,7 +253,13 @@ void main() {
   group('Recurrence', () {
     test('monthly on the 31st clamps to month end', () {
       const r = Recurrence(frequency: RecurrenceFrequency.monthly);
-      final dates = r.between(DateTime(2026, 1, 31, 9), DateTime(2026, 1, 1), DateTime(2026, 5, 1)).toList();
+      final dates = r
+          .between(
+            DateTime(2026, 1, 31, 9),
+            DateTime(2026, 1, 1),
+            DateTime(2026, 5, 1),
+          )
+          .toList();
       expect(dates, [
         DateTime(2026, 1, 31, 9),
         DateTime(2026, 2, 28, 9),
@@ -230,7 +275,13 @@ void main() {
         until: DateTime(2026, 2, 1),
       );
       expect(
-        r.between(DateTime(2026, 1, 1), DateTime(2025, 1, 1), DateTime(2027, 1, 1)).toList(),
+        r
+            .between(
+              DateTime(2026, 1, 1),
+              DateTime(2025, 1, 1),
+              DateTime(2027, 1, 1),
+            )
+            .toList(),
         [DateTime(2026, 1, 1), DateTime(2026, 1, 15), DateTime(2026, 1, 29)],
       );
     });
@@ -266,8 +317,15 @@ void main() {
 
     test('generates each missed occurrence once', () {
       final due = rule().dueOccurrences(DateTime(2026, 3, 10));
-      expect(due, [DateTime(2026, 1, 5), DateTime(2026, 2, 5), DateTime(2026, 3, 5)]);
-      expect(rule(last: DateTime(2026, 3, 5)).dueOccurrences(DateTime(2026, 3, 10)), isEmpty);
+      expect(due, [
+        DateTime(2026, 1, 5),
+        DateTime(2026, 2, 5),
+        DateTime(2026, 3, 5),
+      ]);
+      expect(
+        rule(last: DateTime(2026, 3, 5)).dueOccurrences(DateTime(2026, 3, 10)),
+        isEmpty,
+      );
       expect(
         rule(last: DateTime(2026, 2, 5)).dueOccurrences(DateTime(2026, 3, 10)),
         [DateTime(2026, 3, 5)],
@@ -285,10 +343,12 @@ void main() {
     });
 
     test('upcoming lists the next occurrences', () {
-      expect(rule(last: DateTime(2026, 3, 5)).upcoming(DateTime(2026, 3, 10), count: 2), [
-        DateTime(2026, 4, 5),
-        DateTime(2026, 5, 5),
-      ]);
+      expect(
+        rule(
+          last: DateTime(2026, 3, 5),
+        ).upcoming(DateTime(2026, 3, 10), count: 2),
+        [DateTime(2026, 4, 5), DateTime(2026, 5, 5)],
+      );
     });
   });
 
@@ -329,16 +389,31 @@ void main() {
     });
 
     test('ids are deterministic and unique', () {
-      final r = reminder(recurrence: const Recurrence(frequency: RecurrenceFrequency.daily));
-      final a = NotificationPlanner.plan([r], now: DateTime(2026, 3, 21), bodyFor: body);
-      final b = NotificationPlanner.plan([r], now: DateTime(2026, 3, 21), bodyFor: body);
+      final r = reminder(
+        recurrence: const Recurrence(frequency: RecurrenceFrequency.daily),
+      );
+      final a = NotificationPlanner.plan(
+        [r],
+        now: DateTime(2026, 3, 21),
+        bodyFor: body,
+      );
+      final b = NotificationPlanner.plan(
+        [r],
+        now: DateTime(2026, 3, 21),
+        bodyFor: body,
+      );
       expect(a.map((p) => p.id), b.map((p) => p.id));
       expect(a.map((p) => p.id).toSet(), hasLength(a.length));
     });
 
     test('caps the number of pending notifications and keeps the soonest', () {
       final plan = NotificationPlanner.plan(
-        [reminder(recurrence: const Recurrence(frequency: RecurrenceFrequency.daily), offsets: [0, 60])],
+        [
+          reminder(
+            recurrence: const Recurrence(frequency: RecurrenceFrequency.daily),
+            offsets: [0, 60],
+          ),
+        ],
         now: DateTime(2026, 3, 21),
         bodyFor: body,
       );
@@ -348,7 +423,11 @@ void main() {
 
     test('disabled reminders are not scheduled', () {
       expect(
-        NotificationPlanner.plan([reminder(enabled: false)], now: DateTime(2026, 3, 1), bodyFor: body),
+        NotificationPlanner.plan(
+          [reminder(enabled: false)],
+          now: DateTime(2026, 3, 1),
+          bodyFor: body,
+        ),
         isEmpty,
       );
     });
@@ -358,7 +437,9 @@ void main() {
         [
           reminder(
             date: DateTime(2026, 1, 3),
-            recurrence: const Recurrence(frequency: RecurrenceFrequency.monthly),
+            recurrence: const Recurrence(
+              frequency: RecurrenceFrequency.monthly,
+            ),
             offsets: [7 * 1440],
           ),
         ],

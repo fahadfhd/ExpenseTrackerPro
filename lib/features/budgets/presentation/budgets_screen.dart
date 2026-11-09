@@ -1,15 +1,16 @@
-import 'package:expensetrackerpro/core/l10n/l10n.dart';
-import 'package:expensetrackerpro/core/money/money.dart';
-import 'package:expensetrackerpro/core/settings/app_settings.dart';
-import 'package:expensetrackerpro/features/budgets/application/budget_providers.dart';
-import 'package:expensetrackerpro/features/budgets/domain/budget.dart';
-import 'package:expensetrackerpro/features/categories/domain/category.dart';
-import 'package:expensetrackerpro/features/transactions/application/transaction_providers.dart';
-import 'package:expensetrackerpro/shared/widgets/dialogs.dart';
-import 'package:expensetrackerpro/shared/widgets/form_fields.dart';
-import 'package:expensetrackerpro/shared/widgets/month_switcher.dart';
-import 'package:expensetrackerpro/shared/widgets/section_card.dart';
-import 'package:expensetrackerpro/shared/widgets/states.dart';
+import 'package:kept/core/l10n/l10n.dart';
+import 'package:kept/core/money/money.dart';
+import 'package:kept/core/settings/app_settings.dart';
+import 'package:kept/features/budgets/application/budget_providers.dart';
+import 'package:kept/features/budgets/domain/budget.dart';
+import 'package:kept/features/categories/domain/category.dart';
+import 'package:kept/features/transactions/application/transaction_providers.dart';
+import 'package:kept/shared/widgets/dialogs.dart';
+import 'package:kept/shared/widgets/form_fields.dart';
+import 'package:kept/shared/widgets/month_switcher.dart';
+import 'package:kept/shared/widgets/section_card.dart';
+import 'package:kept/shared/widgets/states.dart';
+import 'package:kept/features/categories/application/category_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -19,6 +20,7 @@ class BudgetsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
+    ref.watch(customCategoriesProvider);
     final month = ref.watch(selectedMonthProvider);
     final usage = ref.watch(budgetUsageProvider(month));
     final money = ref.watch(currencyFormatterProvider);
@@ -37,7 +39,10 @@ class BudgetsScreen extends ConsumerWidget {
             child: AsyncView<List<BudgetUsage>>(
               value: usage,
               data: (list) => list.isEmpty
-                  ? EmptyState(icon: Icons.pie_chart_rounded, message: l10n.budgetsEmpty)
+                  ? EmptyState(
+                      icon: Icons.pie_chart_rounded,
+                      message: l10n.budgetsEmpty,
+                    )
                   : ListView(
                       padding: const EdgeInsets.fromLTRB(16, 0, 16, 96),
                       children: [
@@ -46,37 +51,72 @@ class BudgetsScreen extends ConsumerWidget {
                             padding: const EdgeInsets.only(bottom: 12),
                             child: InkWell(
                               borderRadius: BorderRadius.circular(24),
-                              onTap: () => showFormSheet(context, BudgetSheet(initial: u.budget)),
+                              onTap: () => showFormSheet(
+                                context,
+                                BudgetSheet(initial: u.budget),
+                              ),
                               child: SectionCard(
                                 title: u.budget.isOverall
                                     ? l10n.budgetOverall
                                     : l10n.categoryLabel(u.budget.categoryId),
-                                trailing: Text('${u.percent}%', style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
+                                trailing: Text(
+                                  '${u.percent}%',
+                                  style: theme.textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                ),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     ProgressMeter(
                                       ratio: u.ratio,
-                                      semanticsLabel: l10n.budgetSpentOf(money.format(u.spentMinor), money.format(u.budget.amountMinor)),
+                                      semanticsLabel: l10n.budgetSpentOf(
+                                        money.format(u.spentMinor),
+                                        money.format(u.budget.amountMinor),
+                                      ),
                                       warnAt: u.budget.thresholds.first / 100,
                                       alertAt: u.budget.thresholds.last / 100,
                                     ),
                                     const SizedBox(height: 8),
                                     Row(
                                       children: [
-                                        Expanded(child: Text(l10n.budgetSpentOf(money.format(u.spentMinor), money.format(u.budget.amountMinor)))),
+                                        Expanded(
+                                          child: Text(
+                                            l10n.budgetSpentOf(
+                                              money.format(u.spentMinor),
+                                              money.format(
+                                                u.budget.amountMinor,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
                                         Text(
                                           u.isOver
-                                              ? l10n.budgetOver(money.format(-u.remainingMinor))
-                                              : l10n.budgetRemaining(money.format(u.remainingMinor)),
-                                          style: const TextStyle(fontWeight: FontWeight.w700),
+                                              ? l10n.budgetOver(
+                                                  money.format(
+                                                    -u.remainingMinor,
+                                                  ),
+                                                )
+                                              : l10n.budgetRemaining(
+                                                  money.format(
+                                                    u.remainingMinor,
+                                                  ),
+                                                ),
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w700,
+                                          ),
                                         ),
                                       ],
                                     ),
                                     if (u.reachedThreshold != null)
                                       Padding(
                                         padding: const EdgeInsets.only(top: 4),
-                                        child: Text(l10n.budgetReached('${u.reachedThreshold}'), style: theme.textTheme.labelMedium),
+                                        child: Text(
+                                          l10n.budgetReached(
+                                            '${u.reachedThreshold}',
+                                          ),
+                                          style: theme.textTheme.labelMedium,
+                                        ),
                                       ),
                                   ],
                                 ),
@@ -105,7 +145,9 @@ class _BudgetSheetState extends ConsumerState<BudgetSheet> {
   static const _overall = '__overall__';
   final _formKey = GlobalKey<FormState>();
   late final _amount = TextEditingController(
-    text: widget.initial == null ? '' : Money.toEditable(widget.initial!.amountMinor),
+    text: widget.initial == null
+        ? ''
+        : Money.toEditable(widget.initial!.amountMinor),
   );
   late final _thresholds = TextEditingController(
     text: (widget.initial?.thresholds ?? defaultBudgetThresholds).join(', '),
@@ -121,7 +163,9 @@ class _BudgetSheetState extends ConsumerState<BudgetSheet> {
 
   List<int>? _parseThresholds(String text) {
     final parts = text.split(',').map((p) => int.tryParse(p.trim())).toList();
-    if (parts.isEmpty || parts.any((p) => p == null || p < 1 || p > 200)) return null;
+    if (parts.isEmpty || parts.any((p) => p == null || p < 1 || p > 200)) {
+      return null;
+    }
     return (parts.cast<int>().toSet().toList()..sort());
   }
 
@@ -134,16 +178,18 @@ class _BudgetSheetState extends ConsumerState<BudgetSheet> {
     if (initial != null && initial.categoryId != categoryId) {
       ref.read(budgetRepositoryProvider).delete(initial.id);
     }
-    ref.read(budgetRepositoryProvider).save(
-      Budget(
-        id: Budget.idFor(categoryId),
-        categoryId: categoryId,
-        amountMinor: Money.parse(_amount.text)!,
-        thresholds: _parseThresholds(_thresholds.text)!,
-        createdAt: initial?.createdAt ?? now,
-        updatedAt: now,
-      ),
-    );
+    ref
+        .read(budgetRepositoryProvider)
+        .save(
+          Budget(
+            id: Budget.idFor(categoryId),
+            categoryId: categoryId,
+            amountMinor: Money.parse(_amount.text)!,
+            thresholds: _parseThresholds(_thresholds.text)!,
+            createdAt: initial?.createdAt ?? now,
+            updatedAt: now,
+          ),
+        );
     Navigator.pop(context);
   }
 
@@ -155,6 +201,7 @@ class _BudgetSheetState extends ConsumerState<BudgetSheet> {
       child: Form(
         key: _formKey,
         child: ListView(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           shrinkWrap: true,
           padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
           children: [
@@ -163,7 +210,9 @@ class _BudgetSheetState extends ConsumerState<BudgetSheet> {
                 Expanded(
                   child: Text(
                     initial == null ? l10n.addBudget : l10n.editBudget,
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
                 ),
                 if (initial != null)
@@ -182,8 +231,15 @@ class _BudgetSheetState extends ConsumerState<BudgetSheet> {
               label: l10n.budgetFor,
               value: _target,
               options: [
-                PickerOption(_overall, l10n.budgetOverall, icon: Icons.all_inclusive_rounded),
-                for (final c in Categories.expense)
+                PickerOption(
+                  _overall,
+                  l10n.budgetOverall,
+                  icon: Icons.all_inclusive_rounded,
+                ),
+                for (final c in Categories.selectable(
+                  CategoryKind.expense,
+                  includeArchived: true,
+                ))
                   PickerOption(c.id, l10n.categoryLabel(c.id), icon: c.icon),
               ],
               onChanged: (v) => setState(() => _target = v ?? _target),
@@ -199,11 +255,15 @@ class _BudgetSheetState extends ConsumerState<BudgetSheet> {
                 helperText: l10n.budgetThresholdsHelp,
                 suffixText: '%',
               ),
-              validator: (v) => _parseThresholds(v ?? '') == null ? l10n.budgetThresholdsInvalid : null,
+              validator: (v) => _parseThresholds(v ?? '') == null
+                  ? l10n.budgetThresholdsInvalid
+                  : null,
             ),
             const SizedBox(height: 16),
             FilledButton(
-              style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
+              style: FilledButton.styleFrom(
+                minimumSize: const Size.fromHeight(52),
+              ),
               onPressed: _save,
               child: Text(l10n.save),
             ),

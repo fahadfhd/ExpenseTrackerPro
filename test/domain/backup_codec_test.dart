@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart' show Timestamp;
-import 'package:expensetrackerpro/core/errors/app_failure.dart';
-import 'package:expensetrackerpro/features/backup/domain/backup_codec.dart';
+import 'package:kept/core/errors/app_failure.dart';
+import 'package:kept/features/backup/domain/backup_codec.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -11,7 +11,11 @@ void main() {
 
   Map<String, Map<String, Map<String, dynamic>>> sample() => {
     'accounts': {
-      'a1': {'name': 'Salary', 'openingBalanceMinor': 1000, 'ledgerDeltaMinor': -50},
+      'a1': {
+        'name': 'Salary',
+        'openingBalanceMinor': 1000,
+        'ledgerDeltaMinor': -50,
+      },
     },
     'transactions': {
       't1': {
@@ -25,12 +29,20 @@ void main() {
       },
     },
     'reminders': {
-      'r1': {'title': 'Gym', 'scheduledDate': '2026-03-20', 'offsetsMinutes': [0, 60]},
+      'r1': {
+        'title': 'Gym',
+        'scheduledDate': '2026-03-20',
+        'offsetsMinutes': [0, 60],
+      },
     },
   };
 
   test('round-trips documents, ids and timestamps', () {
-    final json = BackupCodec.encode(createdAt: createdAt, collections: sample(), settings: {'currencyCode': 'INR'});
+    final json = BackupCodec.encode(
+      createdAt: createdAt,
+      collections: sample(),
+      settings: {'currencyCode': 'INR'},
+    );
     final payload = BackupCodec.decode(json);
     expect(payload.createdAt, createdAt);
     expect(payload.skipped, 0);
@@ -46,11 +58,23 @@ void main() {
   test('rejects files that are not backups', () {
     expect(
       () => BackupCodec.decode('not json'),
-      throwsA(isA<AppFailure>().having((f) => f.kind, 'kind', FailureKind.invalidData)),
+      throwsA(
+        isA<AppFailure>().having(
+          (f) => f.kind,
+          'kind',
+          FailureKind.invalidData,
+        ),
+      ),
     );
     expect(
       () => BackupCodec.decode(jsonEncode({'format': 'other'})),
-      throwsA(isA<AppFailure>().having((f) => f.kind, 'kind', FailureKind.invalidData)),
+      throwsA(
+        isA<AppFailure>().having(
+          (f) => f.kind,
+          'kind',
+          FailureKind.invalidData,
+        ),
+      ),
     );
   });
 
@@ -63,20 +87,36 @@ void main() {
     });
     expect(
       () => BackupCodec.decode(json),
-      throwsA(isA<AppFailure>().having((f) => f.kind, 'kind', FailureKind.unsupportedSchema)),
+      throwsA(
+        isA<AppFailure>().having(
+          (f) => f.kind,
+          'kind',
+          FailureKind.unsupportedSchema,
+        ),
+      ),
     );
   });
 
   test('skips invalid documents and forbidden credential fields', () {
     final data = sample();
-    data['transactions']!['bad-amount'] = {'type': 'expense', 'amountMinor': -5, 'date': txDate};
-    data['transactions']!['bad-type'] = {'type': 'hack', 'amountMinor': 5, 'date': txDate};
+    data['transactions']!['bad-amount'] = {
+      'type': 'expense',
+      'amountMinor': -5,
+      'date': txDate,
+    };
+    data['transactions']!['bad-type'] = {
+      'type': 'hack',
+      'amountMinor': 5,
+      'date': txDate,
+    };
     data['credit_cards'] = {
       'c1': {'name': 'Card', 'cvv': '123'},
       'c2': {'name': 'Card 2', 'last4': '4242'},
     };
     data['accounts']!['bad id/with slash'] = {'name': 'x'};
-    final payload = BackupCodec.decode(BackupCodec.encode(createdAt: createdAt, collections: data));
+    final payload = BackupCodec.decode(
+      BackupCodec.encode(createdAt: createdAt, collections: data),
+    );
     expect(payload.skipped, 4);
     expect(payload.collections['credit_cards']!.keys, ['c2']);
     expect(payload.collections['transactions']!.keys, ['t1']);
@@ -87,7 +127,11 @@ void main() {
       'format': BackupCodec.format,
       'schemaVersion': 1,
       'createdAt': createdAt.toIso8601String(),
-      'collections': {'unknown': {'x': {'a': 1}}},
+      'collections': {
+        'unknown': {
+          'x': {'a': 1},
+        },
+      },
     });
     expect(BackupCodec.decode(json).collections, isEmpty);
   });

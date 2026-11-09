@@ -6,6 +6,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart' as intl;
 
 import 'app_localizations_en.dart';
+import 'app_localizations_ml.dart';
 
 // ignore_for_file: type=lint
 
@@ -92,12 +93,15 @@ abstract class AppLocalizations {
       ];
 
   /// A list of this localizations delegate's supported locales.
-  static const List<Locale> supportedLocales = <Locale>[Locale('en')];
+  static const List<Locale> supportedLocales = <Locale>[
+    Locale('en'),
+    Locale('ml'),
+  ];
 
   /// No description provided for @appTitle.
   ///
   /// In en, this message translates to:
-  /// **'ExpanseTrackerPro'**
+  /// **'Kept'**
   String get appTitle;
 
   /// No description provided for @save.
@@ -483,6 +487,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Last synced {time}'**
   String syncLastSynced(String time);
+
+  /// No description provided for @failureSignInMethodDisabled.
+  ///
+  /// In en, this message translates to:
+  /// **'This sign-in option isn\'t available right now. Please use another option.'**
+  String get failureSignInMethodDisabled;
+
+  /// No description provided for @undo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get undo;
+
+  /// No description provided for @discardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard changes?'**
+  String get discardTitle;
+
+  /// No description provided for @discardBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You have unsaved changes that will be lost.'**
+  String get discardBody;
+
+  /// No description provided for @discard.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard'**
+  String get discard;
+
+  /// No description provided for @keepEditing.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep editing'**
+  String get keepEditing;
+
+  /// No description provided for @restored.
+  ///
+  /// In en, this message translates to:
+  /// **'Restored'**
+  String get restored;
 
   /// No description provided for @txTypeExpense.
   ///
@@ -2350,6 +2396,30 @@ abstract class AppLocalizations {
   /// **'The card\'s current outstanding is {current}, which already includes transactions recorded in the app. Only change this to correct the starting amount.'**
   String outstandingWhenAddedHelp(String current);
 
+  /// No description provided for @cardDueDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment due date'**
+  String get cardDueDate;
+
+  /// No description provided for @cardDueDateHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeats every month on this day.'**
+  String get cardDueDateHelp;
+
+  /// No description provided for @cardDueDateRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the payment due date'**
+  String get cardDueDateRequired;
+
+  /// No description provided for @cardMoreDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'More details (optional)'**
+  String get cardMoreDetails;
+
   /// No description provided for @loansTitle.
   ///
   /// In en, this message translates to:
@@ -2434,24 +2504,6 @@ abstract class AppLocalizations {
   /// **'EMI amount'**
   String get emiAmount;
 
-  /// No description provided for @emiComputed.
-  ///
-  /// In en, this message translates to:
-  /// **'Calculated EMI: {amount}'**
-  String emiComputed(String amount);
-
-  /// No description provided for @emiOverride.
-  ///
-  /// In en, this message translates to:
-  /// **'Use the lender\'s EMI'**
-  String get emiOverride;
-
-  /// No description provided for @emiOverrideHelp.
-  ///
-  /// In en, this message translates to:
-  /// **'Lenders sometimes round the EMI. Enter their exact figure so the schedule matches your statements.'**
-  String get emiOverrideHelp;
-
   /// No description provided for @payFromAccount.
   ///
   /// In en, this message translates to:
@@ -2463,12 +2515,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Remind me before each EMI'**
   String get loanReminder;
-
-  /// No description provided for @findRate.
-  ///
-  /// In en, this message translates to:
-  /// **'Don\'t know the rate? Find it from the EMI'**
-  String get findRate;
 
   /// No description provided for @loansOutstanding.
   ///
@@ -2831,6 +2877,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'EMI frequency'**
   String get emiFrequencyLabel;
+
+  /// No description provided for @loanRateCalculated.
+  ///
+  /// In en, this message translates to:
+  /// **'Interest rate (calculated)'**
+  String get loanRateCalculated;
+
+  /// No description provided for @loanRateFromEmi.
+  ///
+  /// In en, this message translates to:
+  /// **'Worked out from the principal, EMI amount and number of EMIs, so you don\'t have to look it up.'**
+  String get loanRateFromEmi;
+
+  /// No description provided for @loanInterestSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Total interest {interest} · total payable {total}'**
+  String loanInterestSummary(String interest, String total);
+
+  /// No description provided for @loanEmisPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'EMIs already paid'**
+  String get loanEmisPaid;
+
+  /// No description provided for @loanEmisPaidHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'How many EMIs you\'ve already paid. They\'re marked paid in the schedule; no account balance changes.'**
+  String get loanEmisPaidHelp;
+
+  /// No description provided for @loanEmisPaidInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a number from 0 to {max}'**
+  String loanEmisPaidInvalid(String max);
+
+  /// No description provided for @loanFirstEmiDate.
+  ///
+  /// In en, this message translates to:
+  /// **'First EMI date'**
+  String get loanFirstEmiDate;
+
+  /// No description provided for @loanNextEmiDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Next EMI date'**
+  String get loanNextEmiDate;
+
+  /// No description provided for @loanNextEmiHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Due date of EMI #{number}'**
+  String loanNextEmiHelp(String number);
+
+  /// No description provided for @loanKnowRate.
+  ///
+  /// In en, this message translates to:
+  /// **'I know the interest rate instead'**
+  String get loanKnowRate;
+
+  /// No description provided for @loanUseEmi.
+  ///
+  /// In en, this message translates to:
+  /// **'Use the EMI amount instead'**
+  String get loanUseEmi;
+
+  /// No description provided for @loanEmiCalculated.
+  ///
+  /// In en, this message translates to:
+  /// **'Calculated EMI: {amount}'**
+  String loanEmiCalculated(String amount);
+
+  /// No description provided for @loanPayFromHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional. Used as the default account when you mark an EMI paid.'**
+  String get loanPayFromHelp;
+
+  /// No description provided for @loanSavedWithPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Loan saved. {count} EMIs marked as paid.'**
+  String loanSavedWithPaid(String count);
 
   /// No description provided for @borrowLendTitle.
   ///
@@ -3927,13 +4057,13 @@ abstract class AppLocalizations {
   /// No description provided for @welcomeTitle.
   ///
   /// In en, this message translates to:
-  /// **'Welcome to ExpanseTrackerPro'**
+  /// **'Your money, beautifully organised'**
   String get welcomeTitle;
 
   /// No description provided for @welcomeBody.
   ///
   /// In en, this message translates to:
-  /// **'Track spending, accounts, cards, loans and reminders in one place. Works offline; syncs securely when you\'re online.'**
+  /// **'Expenses, accounts, cards, loans and reminders — all in one calm, private place.'**
   String get welcomeBody;
 
   /// No description provided for @welcomePrivacy.
@@ -3957,7 +4087,7 @@ abstract class AppLocalizations {
   /// No description provided for @guestNote.
   ///
   /// In en, this message translates to:
-  /// **'You can sign in with Google later to back up your data.'**
+  /// **'Start right away. Link Google later in Settings to back up and use your data on a new phone.'**
   String get guestNote;
 
   /// No description provided for @signInFailed.
@@ -3969,7 +4099,7 @@ abstract class AppLocalizations {
   /// No description provided for @firstLaunchOffline.
   ///
   /// In en, this message translates to:
-  /// **'Connect to the internet once to set up your private space. After that, the app works offline.'**
+  /// **'You\'re offline. Connect to the internet once to set up your private space — after that the app works offline.'**
   String get firstLaunchOffline;
 
   /// No description provided for @signOutBody.
@@ -3977,6 +4107,1080 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Your data stays in your account. Sign in again with the same Google account to see it.'**
   String get signOutBody;
+
+  /// No description provided for @welcomeFeatureTrack.
+  ///
+  /// In en, this message translates to:
+  /// **'Every rupee in one place'**
+  String get welcomeFeatureTrack;
+
+  /// No description provided for @welcomeFeatureDues.
+  ///
+  /// In en, this message translates to:
+  /// **'Never miss a due date'**
+  String get welcomeFeatureDues;
+
+  /// No description provided for @welcomeFeatureLoans.
+  ///
+  /// In en, this message translates to:
+  /// **'Loans made clear'**
+  String get welcomeFeatureLoans;
+
+  /// No description provided for @welcomeFeaturePrivate.
+  ///
+  /// In en, this message translates to:
+  /// **'Private and offline-first'**
+  String get welcomeFeaturePrivate;
+
+  /// No description provided for @googleNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Recommended: your data is backed up and follows you to a new phone.'**
+  String get googleNote;
+
+  /// No description provided for @signingIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Signing you in…'**
+  String get signingIn;
+
+  /// No description provided for @signInCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign-in was cancelled.'**
+  String get signInCancelled;
+
+  /// No description provided for @guestUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Guest access is turned off for this app right now. Please continue with Google.'**
+  String get guestUnavailable;
+
+  /// No description provided for @guestUnavailableDev.
+  ///
+  /// In en, this message translates to:
+  /// **'Developer: enable Anonymous sign-in in Firebase Console → Authentication → Sign-in method.'**
+  String get guestUnavailableDev;
+
+  /// No description provided for @backupConnectTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Back up your data'**
+  String get backupConnectTitle;
+
+  /// No description provided for @backupConnectBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect your Google account to back up automatically and restore on a new phone. Without it, your data lives only on this device.'**
+  String get backupConnectBody;
+
+  /// No description provided for @backupConnect.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect backup'**
+  String get backupConnect;
+
+  /// No description provided for @backupConnectedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup connected'**
+  String get backupConnectedTitle;
+
+  /// No description provided for @backupConnectedAs.
+  ///
+  /// In en, this message translates to:
+  /// **'Backing up to {email}'**
+  String backupConnectedAs(String email);
+
+  /// No description provided for @backupConnectUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Cloud backup needs Google sign-in, which isn\'t available on this device.'**
+  String get backupConnectUnavailable;
+
+  /// No description provided for @adPrivacyOptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Ad privacy settings'**
+  String get adPrivacyOptions;
+
+  /// No description provided for @adPrivacyOptionsHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Review or change your choice about personalised ads.'**
+  String get adPrivacyOptionsHelp;
+
+  /// No description provided for @categoriesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Categories'**
+  String get categoriesTitle;
+
+  /// No description provided for @categoriesManage.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage categories'**
+  String get categoriesManage;
+
+  /// No description provided for @categoryBuiltIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Built-in'**
+  String get categoryBuiltIn;
+
+  /// No description provided for @categoryYours.
+  ///
+  /// In en, this message translates to:
+  /// **'Your categories'**
+  String get categoryYours;
+
+  /// No description provided for @categoryYoursEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'You haven\'t added any categories yet. Tap + to create one.'**
+  String get categoryYoursEmpty;
+
+  /// No description provided for @categoryAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'New category'**
+  String get categoryAdd;
+
+  /// No description provided for @categoryEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit category'**
+  String get categoryEdit;
+
+  /// No description provided for @categoryNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Category name'**
+  String get categoryNameLabel;
+
+  /// No description provided for @categoryNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Pets, Coffee, Freelance'**
+  String get categoryNameHint;
+
+  /// No description provided for @categoryTypeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Used for'**
+  String get categoryTypeLabel;
+
+  /// No description provided for @categoryIconLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Icon'**
+  String get categoryIconLabel;
+
+  /// No description provided for @categoryColorLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Color'**
+  String get categoryColorLabel;
+
+  /// No description provided for @categoryNameEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a name'**
+  String get categoryNameEmpty;
+
+  /// No description provided for @categoryNameTooLong.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep it under {max} characters'**
+  String categoryNameTooLong(String max);
+
+  /// No description provided for @categoryNameDuplicate.
+  ///
+  /// In en, this message translates to:
+  /// **'A category with this name already exists'**
+  String get categoryNameDuplicate;
+
+  /// No description provided for @categoryTypeLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'The type can\'t be changed after creation.'**
+  String get categoryTypeLocked;
+
+  /// No description provided for @categoryArchived.
+  ///
+  /// In en, this message translates to:
+  /// **'Archived'**
+  String get categoryArchived;
+
+  /// No description provided for @categoryArchive.
+  ///
+  /// In en, this message translates to:
+  /// **'Archive'**
+  String get categoryArchive;
+
+  /// No description provided for @categoryRestore.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore'**
+  String get categoryRestore;
+
+  /// No description provided for @categoryArchivedNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Archived categories are hidden when adding transactions, but existing transactions keep them.'**
+  String get categoryArchivedNote;
+
+  /// No description provided for @categoryInUse.
+  ///
+  /// In en, this message translates to:
+  /// **'This category is used by transactions, a budget or a recurring entry, so it can\'t be deleted. Archive it instead.'**
+  String get categoryInUse;
+
+  /// No description provided for @categoryDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Category deleted'**
+  String get categoryDeleted;
+
+  /// No description provided for @categoryNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New'**
+  String get categoryNew;
+
+  /// No description provided for @categoryRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a category'**
+  String get categoryRequired;
+
+  /// No description provided for @categoryTapToClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the selected category again to clear it'**
+  String get categoryTapToClear;
+
+  /// No description provided for @typeTapToClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap again to switch back to Expense'**
+  String get typeTapToClear;
+
+  /// No description provided for @paymentRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose how you paid'**
+  String get paymentRequired;
+
+  /// No description provided for @receivedRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose where the money went'**
+  String get receivedRequired;
+
+  /// No description provided for @paymentCash.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash / not tracked'**
+  String get paymentCash;
+
+  /// No description provided for @paymentCashHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Doesn\'t change any balance'**
+  String get paymentCashHint;
+
+  /// No description provided for @paymentNoneYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No accounts or cards yet. Add one to see balances update automatically, or continue with untracked cash.'**
+  String get paymentNoneYet;
+
+  /// No description provided for @paymentTapToClear.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap again to clear'**
+  String get paymentTapToClear;
+
+  /// No description provided for @paymentPaidFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid from'**
+  String get paymentPaidFrom;
+
+  /// No description provided for @paymentPayingAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay the bill from'**
+  String get paymentPayingAccount;
+
+  /// No description provided for @paymentDestination.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to account'**
+  String get paymentDestination;
+
+  /// No description provided for @addExpenseFromAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Add transaction'**
+  String get addExpenseFromAccount;
+
+  /// No description provided for @adLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Advertisement'**
+  String get adLabel;
+
+  /// No description provided for @notificationChannelName.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders'**
+  String get notificationChannelName;
+
+  /// No description provided for @notificationChannelDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Bill, EMI, card and personal reminders'**
+  String get notificationChannelDescription;
+
+  /// No description provided for @settingsAds.
+  ///
+  /// In en, this message translates to:
+  /// **'Ads'**
+  String get settingsAds;
+
+  /// No description provided for @adFreeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No ads for 24 hours'**
+  String get adFreeTitle;
+
+  /// No description provided for @adFreeShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch a video, no ads for 24 hours'**
+  String get adFreeShort;
+
+  /// No description provided for @adFreeWatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch a video'**
+  String get adFreeWatch;
+
+  /// No description provided for @adFreeHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch one short video and Kept shows no ads for the next 24 hours.'**
+  String get adFreeHelp;
+
+  /// No description provided for @adFreeActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Ads are off until {time}'**
+  String adFreeActive(String time);
+
+  /// No description provided for @adFreeLoading.
+  ///
+  /// In en, this message translates to:
+  /// **'Getting a video ready…'**
+  String get adFreeLoading;
+
+  /// No description provided for @adFreeUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No video is available right now. Please try again later.'**
+  String get adFreeUnavailable;
+
+  /// No description provided for @adFreeThanks.
+  ///
+  /// In en, this message translates to:
+  /// **'Thanks! No ads for the next 24 hours.'**
+  String get adFreeThanks;
+
+  /// No description provided for @adFreeNotCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch the video to the end to turn ads off.'**
+  String get adFreeNotCompleted;
+
+  /// No description provided for @paymentTypeAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank account'**
+  String get paymentTypeAccount;
+
+  /// No description provided for @paymentTypeCash.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash'**
+  String get paymentTypeCash;
+
+  /// No description provided for @txTypeRepayBorrow.
+  ///
+  /// In en, this message translates to:
+  /// **'Repay a borrow'**
+  String get txTypeRepayBorrow;
+
+  /// No description provided for @repayWhich.
+  ///
+  /// In en, this message translates to:
+  /// **'Which borrow?'**
+  String get repayWhich;
+
+  /// No description provided for @repayLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} left'**
+  String repayLeft(String amount);
+
+  /// No description provided for @moreTypes.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get moreTypes;
+
+  /// No description provided for @moreDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'More details'**
+  String get moreDetails;
+
+  /// No description provided for @moreCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get moreCategories;
+
+  /// No description provided for @debtPlanTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Debt-free plan'**
+  String get debtPlanTitle;
+
+  /// No description provided for @debtPlanEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No loans, card balances or borrowed money to clear. You\'re debt-free!'**
+  String get debtPlanEmpty;
+
+  /// No description provided for @debtPlanDebtFreeBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Debt-free by'**
+  String get debtPlanDebtFreeBy;
+
+  /// No description provided for @debtPlanIn.
+  ///
+  /// In en, this message translates to:
+  /// **'in {duration}'**
+  String debtPlanIn(String duration);
+
+  /// No description provided for @debtPlanDurationMonths.
+  ///
+  /// In en, this message translates to:
+  /// **'{months} mo'**
+  String debtPlanDurationMonths(String months);
+
+  /// No description provided for @debtPlanDurationYears.
+  ///
+  /// In en, this message translates to:
+  /// **'{years} yr {months} mo'**
+  String debtPlanDurationYears(String years, String months);
+
+  /// No description provided for @debtPlanTotalOwed.
+  ///
+  /// In en, this message translates to:
+  /// **'Total owed'**
+  String get debtPlanTotalOwed;
+
+  /// No description provided for @debtPlanInterestAhead.
+  ///
+  /// In en, this message translates to:
+  /// **'Interest still to pay'**
+  String get debtPlanInterestAhead;
+
+  /// No description provided for @debtPlanSavings.
+  ///
+  /// In en, this message translates to:
+  /// **'Saves {amount} and {duration} compared with paying only the minimums'**
+  String debtPlanSavings(String amount, String duration);
+
+  /// No description provided for @debtPlanSavingsInterestOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Saves {amount} compared with paying only the minimums'**
+  String debtPlanSavingsInterestOnly(String amount);
+
+  /// No description provided for @debtPlanNeverClears.
+  ///
+  /// In en, this message translates to:
+  /// **'At this payment some debts never clear. Add more each month to finish them.'**
+  String get debtPlanNeverClears;
+
+  /// No description provided for @debtPlanChartTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your debt going down'**
+  String get debtPlanChartTitle;
+
+  /// No description provided for @debtPlanChartSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'Total debt falls from {amount} to zero by {date}'**
+  String debtPlanChartSemantics(String amount, String date);
+
+  /// No description provided for @debtPlanMonthlyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What you pay each month'**
+  String get debtPlanMonthlyTitle;
+
+  /// No description provided for @debtPlanExtraLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Extra per month'**
+  String get debtPlanExtraLabel;
+
+  /// No description provided for @debtPlanMinimums.
+  ///
+  /// In en, this message translates to:
+  /// **'Minimum payments'**
+  String get debtPlanMinimums;
+
+  /// No description provided for @debtPlanExtra.
+  ///
+  /// In en, this message translates to:
+  /// **'Extra'**
+  String get debtPlanExtra;
+
+  /// No description provided for @debtPlanTotalMonthly.
+  ///
+  /// In en, this message translates to:
+  /// **'Total each month'**
+  String get debtPlanTotalMonthly;
+
+  /// No description provided for @debtPlanCommitNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep paying this total even after a debt closes. The freed-up money clears the next one.'**
+  String get debtPlanCommitNote;
+
+  /// No description provided for @debtPlanWhatIfTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What if you paid more?'**
+  String get debtPlanWhatIfTitle;
+
+  /// No description provided for @debtPlanWhatIfRow.
+  ///
+  /// In en, this message translates to:
+  /// **'+{amount} a month'**
+  String debtPlanWhatIfRow(String amount);
+
+  /// No description provided for @debtPlanWhatIfDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'Done by {date}, saves {amount}'**
+  String debtPlanWhatIfDetail(String date, String amount);
+
+  /// No description provided for @debtPlanWhatIfStillOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Some debts still won\'t clear'**
+  String get debtPlanWhatIfStillOpen;
+
+  /// No description provided for @debtPlanStrategyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Which debt first?'**
+  String get debtPlanStrategyTitle;
+
+  /// No description provided for @debtPlanAvalanche.
+  ///
+  /// In en, this message translates to:
+  /// **'Highest interest first'**
+  String get debtPlanAvalanche;
+
+  /// No description provided for @debtPlanAvalancheHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Costs the least overall.'**
+  String get debtPlanAvalancheHelp;
+
+  /// No description provided for @debtPlanSnowball.
+  ///
+  /// In en, this message translates to:
+  /// **'Smallest balance first'**
+  String get debtPlanSnowball;
+
+  /// No description provided for @debtPlanSnowballHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Closes debts sooner, so you see progress early.'**
+  String get debtPlanSnowballHelp;
+
+  /// No description provided for @debtPlanStrategyResult.
+  ///
+  /// In en, this message translates to:
+  /// **'Done by {date} · {amount} interest'**
+  String debtPlanStrategyResult(String date, String amount);
+
+  /// No description provided for @debtPlanCheapest.
+  ///
+  /// In en, this message translates to:
+  /// **'Lowest cost'**
+  String get debtPlanCheapest;
+
+  /// No description provided for @debtPlanThisMonthTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay this in {month}'**
+  String debtPlanThisMonthTitle(String month);
+
+  /// No description provided for @debtPlanFocus.
+  ///
+  /// In en, this message translates to:
+  /// **'Put your extra here'**
+  String get debtPlanFocus;
+
+  /// No description provided for @debtPlanRoadmapTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your roadmap'**
+  String get debtPlanRoadmapTitle;
+
+  /// No description provided for @debtPlanStepCleared.
+  ///
+  /// In en, this message translates to:
+  /// **'Cleared by {date}'**
+  String debtPlanStepCleared(String date);
+
+  /// No description provided for @debtPlanStepOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Not cleared at this payment'**
+  String get debtPlanStepOpen;
+
+  /// No description provided for @debtPlanRate.
+  ///
+  /// In en, this message translates to:
+  /// **'{rate}% a year'**
+  String debtPlanRate(String rate);
+
+  /// No description provided for @debtPlanRateEstimated.
+  ///
+  /// In en, this message translates to:
+  /// **'{rate}% a year (estimated)'**
+  String debtPlanRateEstimated(String rate);
+
+  /// No description provided for @debtPlanNoInterest.
+  ///
+  /// In en, this message translates to:
+  /// **'No interest'**
+  String get debtPlanNoInterest;
+
+  /// No description provided for @debtPlanSetRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Set interest rate'**
+  String get debtPlanSetRate;
+
+  /// No description provided for @debtPlanSetRateTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Interest rate for {name}'**
+  String debtPlanSetRateTitle(String name);
+
+  /// No description provided for @debtPlanEstimatedWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Some cards use an estimated {rate}% interest rate. Set the real rate from your statement for an accurate plan.'**
+  String debtPlanEstimatedWarning(String rate);
+
+  /// No description provided for @debtPlanLowPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'{names}: the minimum payment doesn\'t cover the interest, so this balance grows unless you pay more.'**
+  String debtPlanLowPayment(String names);
+
+  /// No description provided for @debtPlanTipsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear it faster'**
+  String get debtPlanTipsTitle;
+
+  /// No description provided for @debtPlanTipOverdue.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear overdue payments first. Late fees and penalty interest cost more than anything in this plan.'**
+  String get debtPlanTipOverdue;
+
+  /// No description provided for @debtPlanTipCardInterest.
+  ///
+  /// In en, this message translates to:
+  /// **'Your cards cost about {amount} in interest this month. Avoid new spending on them until they are cleared.'**
+  String debtPlanTipCardInterest(String amount);
+
+  /// No description provided for @debtPlanTipUtilization.
+  ///
+  /// In en, this message translates to:
+  /// **'{names}: over 30% of the limit is in use. Bringing it lower can help your credit score.'**
+  String debtPlanTipUtilization(String names);
+
+  /// No description provided for @debtPlanTipConsolidate.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask your bank about moving card dues to a lower-rate loan or EMI. Do it only if the total cost, with fees, is lower.'**
+  String get debtPlanTipConsolidate;
+
+  /// No description provided for @debtPlanAssumptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Estimate only. Assumes no new card spending, on-time payments and unchanged rates. Lenders may charge for prepayment, so check first.'**
+  String get debtPlanAssumptions;
+
+  /// No description provided for @cardAnnualRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Interest rate (% a year)'**
+  String get cardAnnualRate;
+
+  /// No description provided for @cardAnnualRateHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Shown on your statement. Used by the Debt-free plan.'**
+  String get cardAnnualRateHelp;
+
+  /// No description provided for @extraMoneyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Got extra money?'**
+  String get extraMoneyTitle;
+
+  /// No description provided for @extraMoneySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bonus, arrears or side income: see which debt to close with it.'**
+  String get extraMoneySubtitle;
+
+  /// No description provided for @extraMoneyAction.
+  ///
+  /// In en, this message translates to:
+  /// **'See where to put it'**
+  String get extraMoneyAction;
+
+  /// No description provided for @extraMoneyDetected.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} more income than usual this month. Put it to work on your debt.'**
+  String extraMoneyDetected(String amount);
+
+  /// No description provided for @extraMoneyIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the extra amount you received and we\'ll show which loan, EMI or card to pay.'**
+  String get extraMoneyIntro;
+
+  /// No description provided for @extraMoneyAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Extra money received'**
+  String get extraMoneyAmount;
+
+  /// No description provided for @extraMoneyRecordIncome.
+  ///
+  /// In en, this message translates to:
+  /// **'Add it to my income'**
+  String get extraMoneyRecordIncome;
+
+  /// No description provided for @extraMoneyKeepReserve.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep some as emergency money'**
+  String get extraMoneyKeepReserve;
+
+  /// No description provided for @extraMoneyKeepReserveHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Your savings are below 3 months of expenses and payments. Up to 25% is set aside.'**
+  String get extraMoneyKeepReserveHelp;
+
+  /// No description provided for @extraMoneyDoThis.
+  ///
+  /// In en, this message translates to:
+  /// **'Do this'**
+  String get extraMoneyDoThis;
+
+  /// No description provided for @extraMoneyCloses.
+  ///
+  /// In en, this message translates to:
+  /// **'Closes this debt'**
+  String get extraMoneyCloses;
+
+  /// No description provided for @extraMoneyPartPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Part payment'**
+  String get extraMoneyPartPayment;
+
+  /// No description provided for @extraMoneyKeep.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep as emergency money'**
+  String get extraMoneyKeep;
+
+  /// No description provided for @extraMoneyLeftover.
+  ///
+  /// In en, this message translates to:
+  /// **'Left over for you'**
+  String get extraMoneyLeftover;
+
+  /// No description provided for @extraMoneyResult.
+  ///
+  /// In en, this message translates to:
+  /// **'What this does'**
+  String get extraMoneyResult;
+
+  /// No description provided for @extraMoneyClearsAll.
+  ///
+  /// In en, this message translates to:
+  /// **'This clears all your debt!'**
+  String get extraMoneyClearsAll;
+
+  /// No description provided for @extraMoneyNewDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Debt-free by {date}'**
+  String extraMoneyNewDate(String date);
+
+  /// No description provided for @extraMoneyInterestSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Interest saved'**
+  String get extraMoneyInterestSaved;
+
+  /// No description provided for @extraMoneySooner.
+  ///
+  /// In en, this message translates to:
+  /// **'Finishes {duration} sooner'**
+  String extraMoneySooner(String duration);
+
+  /// No description provided for @extraMoneyFreed.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly payments that stop'**
+  String get extraMoneyFreed;
+
+  /// No description provided for @extraMoneyInstead.
+  ///
+  /// In en, this message translates to:
+  /// **'Prefer one less EMI? {name} can be closed outright for {amount}, which stops {monthly} a month.'**
+  String extraMoneyInstead(String name, String amount, String monthly);
+
+  /// No description provided for @extraMoneyCaution.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a debt to record the payment. Ask your lender for the exact closing amount and any prepayment charges first.'**
+  String get extraMoneyCaution;
+
+  /// No description provided for @debtProgressTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your progress'**
+  String get debtProgressTitle;
+
+  /// No description provided for @debtProgressPaid.
+  ///
+  /// In en, this message translates to:
+  /// **'{paid} paid off of {peak}'**
+  String debtProgressPaid(String paid, String peak);
+
+  /// No description provided for @debtProgressJustCleared.
+  ///
+  /// In en, this message translates to:
+  /// **'Well done! You cleared {names}.'**
+  String debtProgressJustCleared(String names);
+
+  /// No description provided for @debtLoadTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Debt load'**
+  String get debtLoadTitle;
+
+  /// No description provided for @debtLoadShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Required payments take {percent}% of your usual income.'**
+  String debtLoadShare(String percent);
+
+  /// No description provided for @debtLoadHealthy.
+  ///
+  /// In en, this message translates to:
+  /// **'Healthy'**
+  String get debtLoadHealthy;
+
+  /// No description provided for @debtLoadHealthyHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'You have room to pay extra and finish sooner.'**
+  String get debtLoadHealthyHelp;
+
+  /// No description provided for @debtLoadWatch.
+  ///
+  /// In en, this message translates to:
+  /// **'Be careful'**
+  String get debtLoadWatch;
+
+  /// No description provided for @debtLoadWatchHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Avoid taking on new EMIs until this comes down.'**
+  String get debtLoadWatchHelp;
+
+  /// No description provided for @debtLoadHigh.
+  ///
+  /// In en, this message translates to:
+  /// **'Too high'**
+  String get debtLoadHigh;
+
+  /// No description provided for @debtLoadHighHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Above 40% is hard to sustain. Avoid new loans and consider asking your lender about restructuring.'**
+  String get debtLoadHighHelp;
+
+  /// No description provided for @debtLoadOverBudget.
+  ///
+  /// In en, this message translates to:
+  /// **'Usual spending and payments are {amount} a month more than your usual income.'**
+  String debtLoadOverBudget(String amount);
+
+  /// No description provided for @debtPlanSuggestedExtra.
+  ///
+  /// In en, this message translates to:
+  /// **'Your last few months suggest you can afford {amount} extra a month.'**
+  String debtPlanSuggestedExtra(String amount);
+
+  /// No description provided for @debtPlanUseSuggested.
+  ///
+  /// In en, this message translates to:
+  /// **'Use this amount'**
+  String get debtPlanUseSuggested;
+
+  /// No description provided for @debtPlanReminder.
+  ///
+  /// In en, this message translates to:
+  /// **'Remind me each month'**
+  String get debtPlanReminder;
+
+  /// No description provided for @debtPlanReminderHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'A notification on the 1st says what to pay.'**
+  String get debtPlanReminderHelp;
+
+  /// No description provided for @debtPlanReminderTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Debt plan: pay {amount} to {name}'**
+  String debtPlanReminderTitle(String amount, String name);
+
+  /// No description provided for @debtPlanCompareSwitch.
+  ///
+  /// In en, this message translates to:
+  /// **'Compare the cost'**
+  String get debtPlanCompareSwitch;
+
+  /// No description provided for @debtSwitchTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Move to a cheaper loan?'**
+  String get debtSwitchTitle;
+
+  /// No description provided for @debtSwitchIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Compare keeping a balance at its current rate with a card-to-EMI plan, balance transfer or personal loan.'**
+  String get debtSwitchIntro;
+
+  /// No description provided for @debtSwitchBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount to move'**
+  String get debtSwitchBalance;
+
+  /// No description provided for @debtSwitchCurrentRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Current interest rate (% a year)'**
+  String get debtSwitchCurrentRate;
+
+  /// No description provided for @debtSwitchNewRate.
+  ///
+  /// In en, this message translates to:
+  /// **'New interest rate (% a year)'**
+  String get debtSwitchNewRate;
+
+  /// No description provided for @debtSwitchMonths.
+  ///
+  /// In en, this message translates to:
+  /// **'Months to repay'**
+  String get debtSwitchMonths;
+
+  /// No description provided for @debtSwitchFee.
+  ///
+  /// In en, this message translates to:
+  /// **'Processing fee'**
+  String get debtSwitchFee;
+
+  /// No description provided for @debtSwitchFeeHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Include GST. Some EMI offers charge interest at a flat rate, so ask for the reducing-balance rate.'**
+  String get debtSwitchFeeHelp;
+
+  /// No description provided for @debtSwitchResult.
+  ///
+  /// In en, this message translates to:
+  /// **'Result'**
+  String get debtSwitchResult;
+
+  /// No description provided for @debtSwitchWorthIt.
+  ///
+  /// In en, this message translates to:
+  /// **'Worth it: saves {amount} after the fee'**
+  String debtSwitchWorthIt(String amount);
+
+  /// No description provided for @debtSwitchNotWorthIt.
+  ///
+  /// In en, this message translates to:
+  /// **'Not worth it: the fee cancels out the saving'**
+  String get debtSwitchNotWorthIt;
+
+  /// No description provided for @debtSwitchKeepInterest.
+  ///
+  /// In en, this message translates to:
+  /// **'Interest if you stay'**
+  String get debtSwitchKeepInterest;
+
+  /// No description provided for @debtSwitchNewInterest.
+  ///
+  /// In en, this message translates to:
+  /// **'Interest if you move'**
+  String get debtSwitchNewInterest;
+
+  /// No description provided for @debtSwitchFeeAmount.
+  ///
+  /// In en, this message translates to:
+  /// **'Fee'**
+  String get debtSwitchFeeAmount;
+
+  /// No description provided for @debtSwitchNewEmi.
+  ///
+  /// In en, this message translates to:
+  /// **'New monthly EMI'**
+  String get debtSwitchNewEmi;
 }
 
 class _AppLocalizationsDelegate
@@ -3990,7 +5194,7 @@ class _AppLocalizationsDelegate
 
   @override
   bool isSupported(Locale locale) =>
-      <String>['en'].contains(locale.languageCode);
+      <String>['en', 'ml'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
@@ -4001,6 +5205,8 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
   switch (locale.languageCode) {
     case 'en':
       return AppLocalizationsEn();
+    case 'ml':
+      return AppLocalizationsMl();
   }
 
   throw FlutterError(

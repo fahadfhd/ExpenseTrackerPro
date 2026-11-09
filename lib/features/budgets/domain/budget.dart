@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart' show Timestamp;
-import 'package:expensetrackerpro/core/firebase/firestore_codec.dart';
-import 'package:expensetrackerpro/features/transactions/domain/monthly_summary.dart';
+import 'package:kept/core/firebase/firestore_codec.dart';
+import 'package:kept/features/transactions/domain/monthly_summary.dart';
 
 const defaultBudgetThresholds = [75, 90, 100];
 
@@ -45,9 +45,9 @@ class Budget {
 
   factory Budget.fromMap(String id, Map<String, dynamic> map) {
     final now = DateTime.now();
-    final thresholds =
-        Codec.ints(map['thresholds']).where((t) => t > 0 && t <= 200).toList()
-          ..sort();
+    final thresholds = Codec.ints(
+      map['thresholds'],
+    ).where((t) => t > 0 && t <= 200).toList()..sort();
     return Budget(
       id: id,
       categoryId: Codec.stringOrNull(map['categoryId']),
@@ -89,20 +89,21 @@ abstract final class BudgetCalculator {
   static List<BudgetUsage> usage(
     Iterable<Budget> budgets,
     MonthlySummary summary,
-  ) => [
-    for (final b in budgets.where((b) => b.enabled))
-      BudgetUsage(
-        budget: b,
-        spentMinor: b.isOverall
-            ? summary.spending
-            : summary.byCategory[b.categoryId] ?? 0,
-      ),
-  ]..sort((a, b) {
-    if (a.budget.isOverall != b.budget.isOverall) {
-      return a.budget.isOverall ? -1 : 1;
-    }
-    return b.ratio.compareTo(a.ratio);
-  });
+  ) =>
+      [
+        for (final b in budgets.where((b) => b.enabled))
+          BudgetUsage(
+            budget: b,
+            spentMinor: b.isOverall
+                ? summary.spending
+                : summary.byCategory[b.categoryId] ?? 0,
+          ),
+      ]..sort((a, b) {
+        if (a.budget.isOverall != b.budget.isOverall) {
+          return a.budget.isOverall ? -1 : 1;
+        }
+        return b.ratio.compareTo(a.ratio);
+      });
 
   /// Threshold newly crossed when spending goes from [before] to [after]
   /// minor units, or null. Used to warn right after saving an expense.

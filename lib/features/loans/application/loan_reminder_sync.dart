@@ -1,11 +1,13 @@
-import 'package:expensetrackerpro/core/l10n/l10n.dart';
-import 'package:expensetrackerpro/core/utils/dates.dart';
-import 'package:expensetrackerpro/core/utils/recurrence.dart';
-import 'package:expensetrackerpro/features/loans/application/loan_providers.dart';
-import 'package:expensetrackerpro/features/loans/domain/amortization.dart';
-import 'package:expensetrackerpro/features/loans/domain/loan.dart';
-import 'package:expensetrackerpro/features/reminders/application/reminder_providers.dart';
-import 'package:expensetrackerpro/features/reminders/domain/reminder.dart';
+import 'dart:async';
+
+import 'package:kept/core/l10n/l10n.dart';
+import 'package:kept/core/utils/dates.dart';
+import 'package:kept/core/utils/recurrence.dart';
+import 'package:kept/features/loans/application/loan_providers.dart';
+import 'package:kept/features/loans/domain/amortization.dart';
+import 'package:kept/features/loans/domain/loan.dart';
+import 'package:kept/features/reminders/application/reminder_providers.dart';
+import 'package:kept/features/reminders/domain/reminder.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 const _type = ReminderEntityType.loan;
@@ -74,7 +76,18 @@ class LoanReminderSync {
   LoanReminderSync(this._ref) {
     _ref.listen(loanSchedulesProvider, (_, _) => _run(), fireImmediately: true);
     _ref.listen(remindersProvider, (_, _) => _run(), fireImmediately: true);
+    // The reminder title is stored text: re-title it when the language
+    // changes (the title is part of what `_sameSchedule` compares). Deferred,
+    // because the change can arrive while widgets are building and providers
+    // must not be written to then.
+    _ref.listen(appLocaleProvider, (_, _) {
+      _languageChange?.cancel();
+      _languageChange = Timer(Duration.zero, _run);
+    });
+    _ref.onDispose(() => _languageChange?.cancel());
   }
+
+  Timer? _languageChange;
 
   final Ref _ref;
 

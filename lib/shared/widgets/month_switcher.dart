@@ -1,6 +1,6 @@
-import 'package:expensetrackerpro/core/l10n/l10n.dart';
-import 'package:expensetrackerpro/core/utils/dates.dart';
-import 'package:expensetrackerpro/features/transactions/application/transaction_providers.dart';
+import 'package:kept/core/l10n/l10n.dart';
+import 'package:kept/core/utils/dates.dart';
+import 'package:kept/features/transactions/application/transaction_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';

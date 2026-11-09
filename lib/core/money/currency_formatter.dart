@@ -1,4 +1,4 @@
-import 'package:expensetrackerpro/core/money/money.dart';
+import 'package:kept/core/money/money.dart';
 import 'package:intl/intl.dart';
 
 /// Currencies the app offers in settings. All use two minor digits, which

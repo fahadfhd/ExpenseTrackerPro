@@ -1,5 +1,5 @@
-import 'package:expensetrackerpro/core/utils/stable_hash.dart';
-import 'package:expensetrackerpro/features/reminders/domain/reminder.dart';
+import 'package:kept/core/utils/stable_hash.dart';
+import 'package:kept/features/reminders/domain/reminder.dart';
 
 class PlannedNotification {
   const PlannedNotification({
@@ -32,7 +32,9 @@ class PlannedNotification {
       '$reminderId|${fireAt.toIso8601String()}|${stableHash31(title)}|${stableHash31(body)}';
 
   static int idFor(String reminderId, int offsetMinutes, DateTime occurrence) =>
-      stableHash31('$reminderId|$offsetMinutes|${occurrence.toIso8601String()}');
+      stableHash31(
+        '$reminderId|$offsetMinutes|${occurrence.toIso8601String()}',
+      );
 }
 
 /// Turns reminders into the concrete notifications that should be pending on

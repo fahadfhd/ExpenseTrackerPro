@@ -1,14 +1,15 @@
-import 'package:expensetrackerpro/app/app_providers.dart';
-import 'package:expensetrackerpro/core/firebase/firebase_providers.dart';
-import 'package:expensetrackerpro/core/l10n/l10n.dart';
-import 'package:expensetrackerpro/core/routing/app_routes.dart';
-import 'package:expensetrackerpro/features/accounts/presentation/accounts_screen.dart';
-import 'package:expensetrackerpro/features/dashboard/presentation/dashboard_screen.dart';
-import 'package:expensetrackerpro/features/loans/presentation/loans_screen.dart';
-import 'package:expensetrackerpro/features/more/presentation/more_screen.dart';
-import 'package:expensetrackerpro/features/reminders/application/reminder_providers.dart';
-import 'package:expensetrackerpro/features/transactions/presentation/transaction_form_sheet.dart';
-import 'package:expensetrackerpro/features/transactions/presentation/transactions_screen.dart';
+import 'package:kept/app/app_providers.dart';
+import 'package:kept/core/ads/ad_free.dart';
+import 'package:kept/core/firebase/firebase_providers.dart';
+import 'package:kept/core/l10n/l10n.dart';
+import 'package:kept/core/routing/app_routes.dart';
+import 'package:kept/features/accounts/presentation/accounts_screen.dart';
+import 'package:kept/features/dashboard/presentation/dashboard_screen.dart';
+import 'package:kept/features/loans/presentation/loans_screen.dart';
+import 'package:kept/features/more/presentation/more_screen.dart';
+import 'package:kept/features/reminders/application/reminder_providers.dart';
+import 'package:kept/features/transactions/presentation/transaction_form_sheet.dart';
+import 'package:kept/features/transactions/presentation/transactions_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -31,12 +32,18 @@ class _MainShellState extends ConsumerState<MainShell> {
     });
     _lifecycle = AppLifecycleListener(
       onResume: () {
+        // A timer does not run while the app is suspended: check whether the
+        // 24 ad-free hours ended in the meantime.
+        ref.read(adFreeUntilProvider.notifier).refresh();
         // Refill the rolling notification window.
         ref.read(notificationSyncProvider).resync();
         // Record recurring entries that came due while in the background.
-        ref.read(startupTasksProvider).catchUpRecurring().catchError(
-          (Object e) => debugPrint('Recurring catch-up failed: $e'),
-        );
+        ref
+            .read(startupTasksProvider)
+            .catchUpRecurring()
+            .catchError(
+              (Object e) => debugPrint('Recurring catch-up failed: $e'),
+            );
       },
     );
   }

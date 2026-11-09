@@ -1,6 +1,6 @@
-import 'package:expensetrackerpro/core/utils/dates.dart';
-import 'package:expensetrackerpro/features/loans/domain/emi_engine.dart';
-import 'package:expensetrackerpro/features/loans/domain/loan.dart';
+import 'package:kept/core/utils/dates.dart';
+import 'package:kept/features/loans/domain/emi_engine.dart';
+import 'package:kept/features/loans/domain/loan.dart';
 
 enum InstallmentStatus { paid, skipped, overdue, upcoming }
 

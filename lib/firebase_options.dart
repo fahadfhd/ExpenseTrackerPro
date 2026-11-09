@@ -67,6 +67,6 @@ class DefaultFirebaseOptions {
         '1088101657864-il6d6lt30a5tjjadfj0qrseprk3fllmf.apps.googleusercontent.com',
     iosClientId:
         '1088101657864-27d3dch8m4hthp8nt33s2rifb87n8nov.apps.googleusercontent.com',
-    iosBundleId: 'com.example.expensetrackerpro',
+    iosBundleId: 'com.fahadt.kept',
   );
 }

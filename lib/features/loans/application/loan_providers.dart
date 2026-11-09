@@ -1,8 +1,8 @@
-import 'package:expensetrackerpro/core/firebase/firebase_providers.dart';
-import 'package:expensetrackerpro/features/loans/data/loan_repository.dart';
-import 'package:expensetrackerpro/features/loans/domain/amortization.dart';
-import 'package:expensetrackerpro/features/loans/domain/loan.dart';
-import 'package:expensetrackerpro/features/transactions/application/transaction_providers.dart';
+import 'package:kept/core/firebase/firebase_providers.dart';
+import 'package:kept/features/loans/data/loan_repository.dart';
+import 'package:kept/features/loans/domain/amortization.dart';
+import 'package:kept/features/loans/domain/loan.dart';
+import 'package:kept/features/transactions/application/transaction_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final loanRepositoryProvider = Provider<LoanRepository>((ref) {

@@ -1,7 +1,7 @@
-import 'package:expensetrackerpro/core/firebase/firebase_providers.dart';
-import 'package:expensetrackerpro/features/borrow_lend/data/debt_repository.dart';
-import 'package:expensetrackerpro/features/borrow_lend/domain/debt_record.dart';
-import 'package:expensetrackerpro/features/transactions/application/transaction_providers.dart';
+import 'package:kept/core/firebase/firebase_providers.dart';
+import 'package:kept/features/borrow_lend/data/debt_repository.dart';
+import 'package:kept/features/borrow_lend/domain/debt_record.dart';
+import 'package:kept/features/transactions/application/transaction_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final debtRepositoryProvider = Provider<DebtRepository>((ref) {

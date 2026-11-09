@@ -6,6 +6,10 @@ enum FailureKind {
   network,
   permissionDenied,
   unauthenticated,
+
+  /// The sign-in method (e.g. guest/anonymous) is disabled for this
+  /// Firebase project. Retrying cannot help.
+  signInMethodDisabled,
   notFound,
   invalidData,
   unsupportedSchema,
@@ -25,6 +29,8 @@ class AppFailure implements Exception {
       final kind = switch (error.code) {
         'permission-denied' => FailureKind.permissionDenied,
         'unauthenticated' => FailureKind.unauthenticated,
+        'operation-not-allowed' ||
+        'admin-restricted-operation' => FailureKind.signInMethodDisabled,
         'not-found' || 'object-not-found' => FailureKind.notFound,
         'unavailable' ||
         'deadline-exceeded' ||
@@ -53,5 +59,6 @@ class AppFailure implements Exception {
   final String? debugDetail;
 
   @override
-  String toString() => 'AppFailure($kind${debugDetail == null ? '' : ', $debugDetail'})';
+  String toString() =>
+      'AppFailure($kind${debugDetail == null ? '' : ', $debugDetail'})';
 }

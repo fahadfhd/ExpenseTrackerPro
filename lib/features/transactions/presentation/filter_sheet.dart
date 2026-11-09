@@ -1,12 +1,12 @@
-import 'package:expensetrackerpro/core/l10n/l10n.dart';
-import 'package:expensetrackerpro/core/money/money.dart';
-import 'package:expensetrackerpro/features/accounts/application/account_providers.dart';
-import 'package:expensetrackerpro/features/categories/domain/category.dart';
-import 'package:expensetrackerpro/features/credit_cards/application/card_providers.dart';
-import 'package:expensetrackerpro/features/transactions/application/transaction_providers.dart';
-import 'package:expensetrackerpro/features/transactions/domain/transaction.dart';
-import 'package:expensetrackerpro/features/transactions/domain/transaction_query.dart';
-import 'package:expensetrackerpro/shared/widgets/form_fields.dart';
+import 'package:kept/core/l10n/l10n.dart';
+import 'package:kept/core/money/money.dart';
+import 'package:kept/features/accounts/application/account_providers.dart';
+import 'package:kept/features/categories/domain/category.dart';
+import 'package:kept/features/credit_cards/application/card_providers.dart';
+import 'package:kept/features/transactions/application/transaction_providers.dart';
+import 'package:kept/features/transactions/domain/transaction.dart';
+import 'package:kept/features/transactions/domain/transaction_query.dart';
+import 'package:kept/shared/widgets/form_fields.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -60,7 +60,12 @@ class _TransactionFilterSheetState
 
     Widget heading(String text) => Padding(
       padding: const EdgeInsets.only(top: 18, bottom: 8),
-      child: Text(text, style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800)),
+      child: Text(
+        text,
+        style: theme.textTheme.titleSmall?.copyWith(
+          fontWeight: FontWeight.w800,
+        ),
+      ),
     );
 
     return DraggableScrollableSheet(
@@ -76,7 +81,9 @@ class _TransactionFilterSheetState
               children: [
                 Text(
                   l10n.filters,
-                  style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
                 heading(l10n.sortBy),
                 Wrap(
@@ -114,7 +121,16 @@ class _TransactionFilterSheetState
                   spacing: 8,
                   runSpacing: 8,
                   children: [
-                    for (final c in [...Categories.expense, ...Categories.income])
+                    for (final c in [
+                      ...Categories.selectable(
+                        CategoryKind.expense,
+                        includeArchived: true,
+                      ),
+                      ...Categories.selectable(
+                        CategoryKind.income,
+                        includeArchived: true,
+                      ),
+                    ])
                       FilterChip(
                         avatar: Icon(c.icon, size: 16, color: c.color),
                         label: Text(l10n.categoryLabel(c.id)),
@@ -200,7 +216,9 @@ class _TransactionFilterSheetState
                   Expanded(
                     child: OutlinedButton(
                       onPressed: () {
-                        ref.read(transactionFilterProvider.notifier).clearFilters();
+                        ref
+                            .read(transactionFilterProvider.notifier)
+                            .clearFilters();
                         Navigator.pop(context);
                       },
                       child: Text(l10n.clearFilters),
@@ -212,13 +230,15 @@ class _TransactionFilterSheetState
                       onPressed: () {
                         final min = Money.parse(_min.text);
                         final max = Money.parse(_max.text);
-                        ref.read(transactionFilterProvider.notifier).update(
-                          _filter.copyWith(
-                            text: ref.read(transactionFilterProvider).text,
-                            minAmountMinor: () => min,
-                            maxAmountMinor: () => max,
-                          ),
-                        );
+                        ref
+                            .read(transactionFilterProvider.notifier)
+                            .update(
+                              _filter.copyWith(
+                                text: ref.read(transactionFilterProvider).text,
+                                minAmountMinor: () => min,
+                                maxAmountMinor: () => max,
+                              ),
+                            );
                         Navigator.pop(context);
                       },
                       child: Text(l10n.apply),

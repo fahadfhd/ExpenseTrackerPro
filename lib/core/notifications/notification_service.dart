@@ -1,5 +1,5 @@
-import 'package:expensetrackerpro/core/errors/app_failure.dart';
-import 'package:expensetrackerpro/core/notifications/notification_planner.dart';
+import 'package:kept/core/errors/app_failure.dart';
+import 'package:kept/core/notifications/notification_planner.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
@@ -14,6 +14,14 @@ abstract class NotificationService {
   Future<bool> requestPermission();
 
   Future<bool> areEnabled();
+
+  /// Sets the name and description Android shows for the reminders channel in
+  /// the system's notification settings, in the app's current language. A
+  /// no-op elsewhere.
+  Future<void> setChannelText({
+    required String name,
+    required String description,
+  });
 
   /// Makes the device's pending notifications exactly match [desired]:
   /// cancels ones no longer planned, (re)schedules new or changed ones, and
@@ -43,8 +51,12 @@ class LocalNotificationService implements NotificationService {
   final FlutterLocalNotificationsPlugin _plugin;
   bool _ready = false;
 
+  static const _channelId = 'reminders';
+
+  // The channel's name and description are set in the app's language by
+  // `setChannelText`; these are only the fallback if that has not run yet.
   static const _channel = AndroidNotificationDetails(
-    'reminders',
+    _channelId,
     'Reminders',
     channelDescription: 'Bill, EMI, card and personal reminders',
     importance: Importance.high,
@@ -90,7 +102,9 @@ class LocalNotificationService implements NotificationService {
       >();
 
   IOSFlutterLocalNotificationsPlugin? get _ios => _plugin
-      .resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>();
+      .resolvePlatformSpecificImplementation<
+        IOSFlutterLocalNotificationsPlugin
+      >();
 
   @override
   Future<bool> requestPermission() async {
@@ -100,8 +114,30 @@ class LocalNotificationService implements NotificationService {
       final granted = await _android!.requestNotificationsPermission() ?? false;
       return granted;
     }
-    return await _ios?.requestPermissions(alert: true, badge: true, sound: true) ??
+    return await _ios?.requestPermissions(
+          alert: true,
+          badge: true,
+          sound: true,
+        ) ??
         false;
+  }
+
+  @override
+  Future<void> setChannelText({
+    required String name,
+    required String description,
+  }) async {
+    await init();
+    // Creating a channel that already exists only updates its name and
+    // description; the user's own sound/importance choices are kept.
+    await _android?.createNotificationChannel(
+      AndroidNotificationChannel(
+        _channelId,
+        name,
+        description: description,
+        importance: Importance.high,
+      ),
+    );
   }
 
   @override

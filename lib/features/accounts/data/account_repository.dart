@@ -1,9 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart' hide Transaction;
-import 'package:expensetrackerpro/core/firebase/collections.dart';
-import 'package:expensetrackerpro/core/firebase/entity_store.dart';
-import 'package:expensetrackerpro/core/firebase/firebase_providers.dart';
-import 'package:expensetrackerpro/features/accounts/domain/account.dart';
-import 'package:expensetrackerpro/features/transactions/data/transaction_repository.dart';
+import 'package:kept/core/firebase/collections.dart';
+import 'package:kept/core/firebase/entity_store.dart';
+import 'package:kept/core/firebase/firebase_providers.dart';
+import 'package:kept/features/accounts/domain/account.dart';
+import 'package:kept/features/transactions/data/transaction_repository.dart';
 
 class AccountRepository {
   AccountRepository({

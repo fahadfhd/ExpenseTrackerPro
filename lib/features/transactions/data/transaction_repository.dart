@@ -1,12 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart' hide Transaction;
-import 'package:expensetrackerpro/core/errors/app_failure.dart';
-import 'package:expensetrackerpro/core/firebase/collections.dart';
-import 'package:expensetrackerpro/core/firebase/entity_store.dart';
-import 'package:expensetrackerpro/core/firebase/firebase_providers.dart';
-import 'package:expensetrackerpro/core/utils/dates.dart';
-import 'package:expensetrackerpro/features/transactions/domain/ledger_effects.dart';
-import 'package:expensetrackerpro/features/transactions/domain/transaction.dart';
-import 'package:expensetrackerpro/features/transactions/domain/transaction_validator.dart';
+import 'package:kept/core/errors/app_failure.dart';
+import 'package:kept/core/firebase/collections.dart';
+import 'package:kept/core/firebase/entity_store.dart';
+import 'package:kept/core/firebase/firebase_providers.dart';
+import 'package:kept/core/utils/dates.dart';
+import 'package:kept/features/transactions/domain/ledger_effects.dart';
+import 'package:kept/features/transactions/domain/transaction.dart';
+import 'package:kept/features/transactions/domain/transaction_validator.dart';
 
 class TransactionValidationException implements Exception {
   const TransactionValidationException(this.issues);
@@ -52,19 +52,24 @@ class TransactionRepository {
         .where('date', isLessThan: Timestamp.fromDate(range.end))
         .orderBy('date', descending: true)
         .get();
-    return snapshot.docs.map((d) => Transaction.fromMap(d.id, d.data())).toList();
+    return snapshot.docs
+        .map((d) => Transaction.fromMap(d.id, d.data()))
+        .toList();
   }
 
   /// Latest transactions linked to an entity through [field] (accountId,
   /// creditCardId, loanId…). Needs the composite indexes in
   /// `firestore.indexes.json`.
-  Stream<List<Transaction>> watchLinked(String field, String id, {int limit = 50}) =>
-      store.watchQuery(
-        (c) => c
-            .where(field, isEqualTo: id)
-            .orderBy('date', descending: true)
-            .limit(limit),
-      );
+  Stream<List<Transaction>> watchLinked(
+    String field,
+    String id, {
+    int limit = 50,
+  }) => store.watchQuery(
+    (c) => c
+        .where(field, isEqualTo: id)
+        .orderBy('date', descending: true)
+        .limit(limit),
+  );
 
   Future<bool> hasLinked(String field, String id) async {
     final snapshot = await store.ref.where(field, isEqualTo: id).limit(1).get();
@@ -158,7 +163,9 @@ class TransactionRepository {
 
     final b = batch();
     for (final doc in accounts.docs) {
-      b.update(doc.reference, {'ledgerDeltaMinor': totals.accounts[doc.id] ?? 0});
+      b.update(doc.reference, {
+        'ledgerDeltaMinor': totals.accounts[doc.id] ?? 0,
+      });
     }
     for (final doc in cards.docs) {
       b.update(doc.reference, {'ledgerDeltaMinor': totals.cards[doc.id] ?? 0});

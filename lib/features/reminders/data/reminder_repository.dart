@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:expensetrackerpro/core/firebase/collections.dart';
-import 'package:expensetrackerpro/core/firebase/entity_store.dart';
-import 'package:expensetrackerpro/core/firebase/firebase_providers.dart';
-import 'package:expensetrackerpro/features/reminders/domain/reminder.dart';
+import 'package:kept/core/firebase/collections.dart';
+import 'package:kept/core/firebase/entity_store.dart';
+import 'package:kept/core/firebase/firebase_providers.dart';
+import 'package:kept/features/reminders/domain/reminder.dart';
 
 class ReminderRepository {
   ReminderRepository({

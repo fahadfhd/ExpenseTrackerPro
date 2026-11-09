@@ -1,9 +1,10 @@
-import 'package:expensetrackerpro/core/l10n/l10n.dart';
-import 'package:expensetrackerpro/features/accounts/application/account_providers.dart';
-import 'package:expensetrackerpro/features/categories/domain/category.dart';
-import 'package:expensetrackerpro/features/credit_cards/application/card_providers.dart';
-import 'package:expensetrackerpro/features/transactions/domain/transaction.dart';
-import 'package:expensetrackerpro/shared/widgets/money_text.dart';
+import 'package:kept/core/l10n/l10n.dart';
+import 'package:kept/features/accounts/application/account_providers.dart';
+import 'package:kept/features/categories/domain/category.dart';
+import 'package:kept/features/credit_cards/application/card_providers.dart';
+import 'package:kept/features/transactions/domain/transaction.dart';
+import 'package:kept/shared/widgets/money_text.dart';
+import 'package:kept/features/categories/application/category_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -41,6 +42,7 @@ class TransactionTile extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     final theme = Theme.of(context);
+    ref.watch(customCategoriesProvider);
     final category = Categories.byId(tx.categoryId);
     final accounts = ref.watch(accountsByIdProvider);
     final cards = ref.watch(cardsByIdProvider);

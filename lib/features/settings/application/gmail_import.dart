@@ -1,9 +1,9 @@
-import 'package:expensetrackerpro/core/transactions/email_transaction_parser.dart';
-import 'package:expensetrackerpro/core/transactions/transaction_deduplicator.dart';
-import 'package:expensetrackerpro/data/repositories/google_gmail_repository.dart';
-import 'package:expensetrackerpro/domain/repositories/gmail_repository.dart';
-import 'package:expensetrackerpro/features/transactions/application/transaction_providers.dart';
-import 'package:expensetrackerpro/features/transactions/domain/transaction.dart';
+import 'package:kept/core/transactions/email_transaction_parser.dart';
+import 'package:kept/core/transactions/transaction_deduplicator.dart';
+import 'package:kept/data/repositories/google_gmail_repository.dart';
+import 'package:kept/domain/repositories/gmail_repository.dart';
+import 'package:kept/features/transactions/application/transaction_providers.dart';
+import 'package:kept/features/transactions/domain/transaction.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final gmailRepositoryProvider = Provider<GmailRepository>(

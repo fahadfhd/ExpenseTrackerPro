@@ -1,5 +1,5 @@
-import 'package:expensetrackerpro/domain/entities/sms_permission_state.dart';
-import 'package:expensetrackerpro/domain/repositories/sms_permission_repository.dart';
+import 'package:kept/domain/entities/sms_permission_state.dart';
+import 'package:kept/domain/repositories/sms_permission_repository.dart';
 import 'package:flutter/foundation.dart';
 import 'package:permission_handler/permission_handler.dart';
 

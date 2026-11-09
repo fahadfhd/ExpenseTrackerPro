@@ -1,5 +1,5 @@
-import 'package:expensetrackerpro/domain/entities/email_message_item.dart';
-import 'package:expensetrackerpro/domain/entities/transaction_item.dart';
+import 'package:kept/domain/entities/email_message_item.dart';
+import 'package:kept/domain/entities/transaction_item.dart';
 
 class EmailTransactionParser {
   static final RegExp _amountPattern = RegExp(
@@ -78,7 +78,7 @@ class EmailTransactionParser {
     final merchant = _extractMerchant(message, content);
     final category = _inferCategory(content, merchant);
     final bankName = _extractBank(message, content);
-    final sourceLabel = bankName.isNotEmpty 
+    final sourceLabel = bankName.isNotEmpty
         ? '$bankName • ${isCredit ? 'Credited' : 'Debited'}'
         : 'Gmail • ${isCredit ? 'Credited' : 'Debited'}';
 
@@ -103,7 +103,8 @@ class EmailTransactionParser {
   }
 
   static String _extractBank(EmailMessageItem message, String content) {
-    final merged = '${message.subject} ${message.sender} ${message.snippet}'.toLowerCase();
+    final merged = '${message.subject} ${message.sender} ${message.snippet}'
+        .toLowerCase();
     for (final entry in _providerMap.entries) {
       if (merged.contains(entry.key)) {
         return entry.value;

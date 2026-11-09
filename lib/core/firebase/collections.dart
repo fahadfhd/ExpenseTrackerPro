@@ -12,11 +12,13 @@ abstract final class Collections {
   static const fuelLogs = 'fuel_logs';
   static const budgets = 'budgets';
   static const recurringTransactions = 'recurring_transactions';
+  static const categories = 'categories';
   static const settings = 'settings';
 
   /// Collections included in backups, in restore order (referenced entities
   /// before the entities that reference them).
   static const backedUp = [
+    categories,
     accounts,
     creditCards,
     loans,

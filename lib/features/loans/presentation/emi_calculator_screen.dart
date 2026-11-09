@@ -1,11 +1,11 @@
-import 'package:expensetrackerpro/core/l10n/l10n.dart';
-import 'package:expensetrackerpro/core/money/money.dart';
-import 'package:expensetrackerpro/features/loans/domain/amortization.dart';
-import 'package:expensetrackerpro/features/loans/domain/emi_engine.dart';
-import 'package:expensetrackerpro/shared/widgets/charts.dart';
-import 'package:expensetrackerpro/shared/widgets/form_fields.dart';
-import 'package:expensetrackerpro/shared/widgets/money_text.dart';
-import 'package:expensetrackerpro/shared/widgets/section_card.dart';
+import 'package:kept/core/l10n/l10n.dart';
+import 'package:kept/core/money/money.dart';
+import 'package:kept/features/loans/domain/amortization.dart';
+import 'package:kept/features/loans/domain/emi_engine.dart';
+import 'package:kept/shared/widgets/charts.dart';
+import 'package:kept/shared/widgets/form_fields.dart';
+import 'package:kept/shared/widgets/money_text.dart';
+import 'package:kept/shared/widgets/section_card.dart';
 import 'package:flutter/material.dart';
 
 /// Stand-alone EMI calculator and interest-rate finder (Financial tools).

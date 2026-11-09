@@ -1,17 +1,18 @@
-import 'package:expensetrackerpro/core/l10n/l10n.dart';
-import 'package:expensetrackerpro/core/routing/app_routes.dart';
-import 'package:expensetrackerpro/core/utils/dates.dart';
-import 'package:expensetrackerpro/features/accounts/application/account_providers.dart';
-import 'package:expensetrackerpro/features/accounts/domain/account.dart';
-import 'package:expensetrackerpro/features/transactions/application/transaction_providers.dart';
-import 'package:expensetrackerpro/features/transactions/domain/ledger_effects.dart';
-import 'package:expensetrackerpro/features/transactions/domain/transaction.dart';
-import 'package:expensetrackerpro/features/transactions/presentation/transaction_detail_sheet.dart';
-import 'package:expensetrackerpro/features/transactions/presentation/transaction_tile.dart';
-import 'package:expensetrackerpro/shared/widgets/dialogs.dart';
-import 'package:expensetrackerpro/shared/widgets/money_text.dart';
-import 'package:expensetrackerpro/shared/widgets/section_card.dart';
-import 'package:expensetrackerpro/shared/widgets/states.dart';
+import 'package:kept/core/l10n/l10n.dart';
+import 'package:kept/core/routing/app_routes.dart';
+import 'package:kept/core/utils/dates.dart';
+import 'package:kept/features/accounts/application/account_providers.dart';
+import 'package:kept/features/accounts/domain/account.dart';
+import 'package:kept/features/transactions/application/transaction_providers.dart';
+import 'package:kept/features/transactions/domain/ledger_effects.dart';
+import 'package:kept/features/transactions/domain/transaction.dart';
+import 'package:kept/features/transactions/presentation/transaction_detail_sheet.dart';
+import 'package:kept/features/transactions/presentation/transaction_form_sheet.dart';
+import 'package:kept/features/transactions/presentation/transaction_tile.dart';
+import 'package:kept/shared/widgets/dialogs.dart';
+import 'package:kept/shared/widgets/money_text.dart';
+import 'package:kept/shared/widgets/section_card.dart';
+import 'package:kept/shared/widgets/states.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -20,7 +21,11 @@ class AccountDetailScreen extends ConsumerWidget {
 
   final String accountId;
 
-  Future<void> _delete(BuildContext context, WidgetRef ref, Account account) async {
+  Future<void> _delete(
+    BuildContext context,
+    WidgetRef ref,
+    Account account,
+  ) async {
     final l10n = context.l10n;
     final repo = ref.read(accountRepositoryProvider);
     if (await repo.isInUse(account.id)) {
@@ -38,12 +43,24 @@ class AccountDetailScreen extends ConsumerWidget {
     final theme = Theme.of(context);
     final account = ref.watch(accountsByIdProvider)[accountId];
     if (account == null) {
-      return Scaffold(appBar: AppBar(), body: EmptyState(icon: Icons.search_off_rounded, message: l10n.failureNotFound));
+      return Scaffold(
+        appBar: AppBar(),
+        body: EmptyState(
+          icon: Icons.search_off_rounded,
+          message: l10n.failureNotFound,
+        ),
+      );
     }
-    final outgoing = ref.watch(linkedTransactionsProvider(('accountId', accountId)));
-    final incoming = ref.watch(linkedTransactionsProvider(('toAccountId', accountId)));
+    final outgoing = ref.watch(
+      linkedTransactionsProvider(('accountId', accountId)),
+    );
+    final incoming = ref.watch(
+      linkedTransactionsProvider(('toAccountId', accountId)),
+    );
     final month = Dates.monthOf(DateTime.now());
-    final monthTx = ref.watch(monthTransactionsProvider(month)).value ?? const <Transaction>[];
+    final monthTx =
+        ref.watch(monthTransactionsProvider(month)).value ??
+        const <Transaction>[];
     var monthIn = 0, monthOut = 0;
     for (final tx in monthTx) {
       final delta = LedgerEffects.of(tx).accounts[accountId] ?? 0;
@@ -52,8 +69,7 @@ class AccountDetailScreen extends ConsumerWidget {
     }
     final merged = {
       for (final t in [...?outgoing.value, ...?incoming.value]) t.id: t,
-    }.values.toList()
-      ..sort((a, b) => b.date.compareTo(a.date));
+    }.values.toList()..sort((a, b) => b.date.compareTo(a.date));
 
     return Scaffold(
       appBar: AppBar(
@@ -68,14 +84,25 @@ class AccountDetailScreen extends ConsumerWidget {
             onSelected: (v) {
               final repo = ref.read(accountRepositoryProvider);
               if (v == 'archive') {
-                repo.save(account.copyWith(archived: !account.archived, updatedAt: DateTime.now()));
-                showMessage(context, account.archived ? l10n.saved : l10n.accountArchived);
+                repo.save(
+                  account.copyWith(
+                    archived: !account.archived,
+                    updatedAt: DateTime.now(),
+                  ),
+                );
+                showMessage(
+                  context,
+                  account.archived ? l10n.saved : l10n.accountArchived,
+                );
               } else if (v == 'delete') {
                 _delete(context, ref, account);
               }
             },
             itemBuilder: (_) => [
-              PopupMenuItem(value: 'archive', child: Text(account.archived ? l10n.unarchive : l10n.archive)),
+              PopupMenuItem(
+                value: 'archive',
+                child: Text(account.archived ? l10n.unarchive : l10n.archive),
+              ),
               PopupMenuItem(value: 'delete', child: Text(l10n.delete)),
             ],
           ),
@@ -95,9 +122,13 @@ class AccountDetailScreen extends ConsumerWidget {
               children: [
                 MoneyText(
                   account.balanceMinor,
-                  tone: account.balanceMinor < 0 ? MoneyTone.negative : MoneyTone.neutral,
+                  tone: account.balanceMinor < 0
+                      ? MoneyTone.negative
+                      : MoneyTone.neutral,
                   signed: account.balanceMinor < 0,
-                  style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w900),
+                  style: theme.textTheme.headlineMedium?.copyWith(
+                    fontWeight: FontWeight.w900,
+                  ),
                 ),
                 const SizedBox(height: 12),
                 Row(
@@ -106,8 +137,15 @@ class AccountDetailScreen extends ConsumerWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(l10n.inThisMonth, style: theme.textTheme.labelMedium),
-                          MoneyText(monthIn, tone: MoneyTone.positive, signed: true),
+                          Text(
+                            l10n.inThisMonth,
+                            style: theme.textTheme.labelMedium,
+                          ),
+                          MoneyText(
+                            monthIn,
+                            tone: MoneyTone.positive,
+                            signed: true,
+                          ),
                         ],
                       ),
                     ),
@@ -115,8 +153,15 @@ class AccountDetailScreen extends ConsumerWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(l10n.outThisMonth, style: theme.textTheme.labelMedium),
-                          MoneyText(monthOut, tone: MoneyTone.negative, signed: true),
+                          Text(
+                            l10n.outThisMonth,
+                            style: theme.textTheme.labelMedium,
+                          ),
+                          MoneyText(
+                            monthOut,
+                            tone: MoneyTone.negative,
+                            signed: true,
+                          ),
                         ],
                       ),
                     ),
@@ -129,18 +174,38 @@ class AccountDetailScreen extends ConsumerWidget {
               ],
             ),
           ),
+          const SizedBox(height: 12),
+          FilledButton.icon(
+            icon: const Icon(Icons.add_rounded),
+            label: Text(l10n.addExpenseFromAccount),
+            onPressed: () =>
+                TransactionFormSheet.show(context, presetAccountId: accountId),
+          ),
           const SizedBox(height: 16),
-          Text(l10n.recentActivity, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
+          Text(
+            l10n.recentActivity,
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w800,
+            ),
+          ),
           const SizedBox(height: 8),
           if (outgoing.isLoading && merged.isEmpty)
             const SkeletonList(count: 3)
           else if (outgoing.hasError)
             ErrorState(error: outgoing.error!)
           else if (merged.isEmpty)
-            EmptyState(icon: Icons.receipt_long_rounded, message: l10n.noActivity, compact: true)
+            EmptyState(
+              icon: Icons.receipt_long_rounded,
+              message: l10n.noActivity,
+              compact: true,
+            )
           else
             for (final tx in merged.take(50))
-              TransactionTile(tx, showDate: true, onTap: () => TransactionDetailSheet.show(context, tx)),
+              TransactionTile(
+                tx,
+                showDate: true,
+                onTap: () => TransactionDetailSheet.show(context, tx),
+              ),
         ],
       ),
     );

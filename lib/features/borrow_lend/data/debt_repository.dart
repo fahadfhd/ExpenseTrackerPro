@@ -1,11 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart' hide Transaction;
-import 'package:expensetrackerpro/core/firebase/collections.dart';
-import 'package:expensetrackerpro/core/firebase/entity_store.dart';
-import 'package:expensetrackerpro/core/firebase/firebase_providers.dart';
-import 'package:expensetrackerpro/features/borrow_lend/domain/debt_record.dart';
-import 'package:expensetrackerpro/features/categories/domain/category.dart';
-import 'package:expensetrackerpro/features/transactions/data/transaction_repository.dart';
-import 'package:expensetrackerpro/features/transactions/domain/transaction.dart';
+import 'package:kept/core/firebase/collections.dart';
+import 'package:kept/core/firebase/entity_store.dart';
+import 'package:kept/core/firebase/firebase_providers.dart';
+import 'package:kept/features/borrow_lend/domain/debt_record.dart';
+import 'package:kept/features/categories/domain/category.dart';
+import 'package:kept/features/transactions/data/transaction_repository.dart';
+import 'package:kept/features/transactions/domain/transaction.dart';
 
 /// Borrow/lend records. When money moved through a tracked account, a linked
 /// transaction (deterministic id) is written in the same batch, so the
@@ -120,7 +120,10 @@ class DebtRepository {
     _transactions.commit(batch);
   }
 
-  Future<void> removeSettlement(DebtRecord record, Settlement settlement) async {
+  Future<void> removeSettlement(
+    DebtRecord record,
+    Settlement settlement,
+  ) async {
     final batch = _transactions.batch();
     if (settlement.transactionId != null) {
       final tx = await _transactions.fetch(settlement.transactionId!);

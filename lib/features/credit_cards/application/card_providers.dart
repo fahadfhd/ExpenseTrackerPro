@@ -1,9 +1,9 @@
-import 'package:expensetrackerpro/core/firebase/firebase_providers.dart';
-import 'package:expensetrackerpro/core/utils/dates.dart';
-import 'package:expensetrackerpro/features/credit_cards/data/credit_card_repository.dart';
-import 'package:expensetrackerpro/features/credit_cards/domain/credit_card.dart';
-import 'package:expensetrackerpro/features/transactions/application/transaction_providers.dart';
-import 'package:expensetrackerpro/features/transactions/domain/ledger_effects.dart';
+import 'package:kept/core/firebase/firebase_providers.dart';
+import 'package:kept/core/utils/dates.dart';
+import 'package:kept/features/credit_cards/data/credit_card_repository.dart';
+import 'package:kept/features/credit_cards/domain/credit_card.dart';
+import 'package:kept/features/transactions/application/transaction_providers.dart';
+import 'package:kept/features/transactions/domain/ledger_effects.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final creditCardRepositoryProvider = Provider<CreditCardRepository>((ref) {
@@ -42,7 +42,10 @@ final cardStatusesProvider = Provider.autoDispose<Map<String, CardStatus>>((
     (c) => c.lastStatementDate(now).add(const Duration(days: 1)),
   );
   final earliest = starts.reduce((a, b) => a.isBefore(b) ? a : b);
-  final range = DateRange(earliest, Dates.dayOf(now).add(const Duration(days: 1)));
+  final range = DateRange(
+    earliest,
+    Dates.dayOf(now).add(const Duration(days: 1)),
+  );
   final transactions =
       ref.watch(transactionsInRangeProvider(range)).value ?? const [];
 

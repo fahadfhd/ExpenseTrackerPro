@@ -1,4 +1,4 @@
-import 'package:expensetrackerpro/core/money/currency_formatter.dart';
+import 'package:kept/core/money/currency_formatter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -113,7 +113,8 @@ class SettingsController extends Notifier<AppSettings> {
 
   void setAutoBackup(bool value) => apply(state.copyWith(autoBackup: value));
 
-  void setBudgetAlerts(bool value) => apply(state.copyWith(budgetAlerts: value));
+  void setBudgetAlerts(bool value) =>
+      apply(state.copyWith(budgetAlerts: value));
 }
 
 final settingsProvider = NotifierProvider<SettingsController, AppSettings>(

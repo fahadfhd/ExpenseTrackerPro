@@ -48,6 +48,42 @@
           ]
         }
       }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1088101657864:android:1d8fa12dccf023d688d0bd",
+        "android_client_info": {
+          "package_name": "com.fahadt.kept"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1088101657864-bplla9lhlau50otglapapr2momqfpvn5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAJC-fWBhXWp4tK_cpmVdgUQD21NwoWrOU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1088101657864-bplla9lhlau50otglapapr2momqfpvn5.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "1088101657864-27d3dch8m4hthp8nt33s2rifb87n8nov.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.expensetrackerpro"
+              }
+            }
+          ]
+        }
+      }
     }
   ],
   "configuration_version": "1"

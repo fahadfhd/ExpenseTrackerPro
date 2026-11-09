@@ -2,11 +2,11 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:expensetrackerpro/core/errors/app_failure.dart';
-import 'package:expensetrackerpro/core/firebase/collections.dart';
-import 'package:expensetrackerpro/core/firebase/firestore_codec.dart';
-import 'package:expensetrackerpro/features/backup/domain/backup_codec.dart';
-import 'package:expensetrackerpro/features/transactions/data/transaction_repository.dart';
+import 'package:kept/core/errors/app_failure.dart';
+import 'package:kept/core/firebase/collections.dart';
+import 'package:kept/core/firebase/firestore_codec.dart';
+import 'package:kept/features/backup/domain/backup_codec.dart';
+import 'package:kept/features/transactions/data/transaction_repository.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
 class BackupEntry {
@@ -16,7 +16,11 @@ class BackupEntry {
 }
 
 class BackupStatus {
-  const BackupStatus({this.lastBackupAt, this.lastRestoreAt, this.documentCount});
+  const BackupStatus({
+    this.lastBackupAt,
+    this.lastRestoreAt,
+    this.documentCount,
+  });
   final DateTime? lastBackupAt;
   final DateTime? lastRestoreAt;
   final int? documentCount;
@@ -105,7 +109,9 @@ class BackupService {
       entries.add(
         BackupEntry(
           path: item.fullPath,
-          createdAt: DateTime.fromMillisecondsSinceEpoch(int.parse(match.group(1)!)),
+          createdAt: DateTime.fromMillisecondsSinceEpoch(
+            int.parse(match.group(1)!),
+          ),
         ),
       );
     }
@@ -125,7 +131,10 @@ class BackupService {
   /// restored history. Reminders stream back in and are rescheduled by the
   /// notification sync.
   Future<RestoreResult> restore(BackupEntry entry) async {
-    final bytes = await _storage.ref(entry.path).getData(_maxBytes).timeout(_timeout);
+    final bytes = await _storage
+        .ref(entry.path)
+        .getData(_maxBytes)
+        .timeout(_timeout);
     if (bytes == null) throw const AppFailure(FailureKind.notFound);
     final payload = BackupCodec.decode(utf8.decode(bytes));
 

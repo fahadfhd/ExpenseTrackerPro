@@ -1,5 +1,5 @@
-import 'package:expensetrackerpro/features/categories/domain/category.dart';
-import 'package:expensetrackerpro/features/transactions/domain/transaction.dart';
+import 'package:kept/features/categories/domain/category.dart';
+import 'package:kept/features/transactions/domain/transaction.dart';
 
 enum TransactionIssue {
   amountNotPositive,
@@ -32,7 +32,9 @@ abstract final class TransactionValidator {
     final category = Categories.byId(tx.categoryId);
     switch (tx.type) {
       case TransactionType.expense:
-        if (tx.creditCardId != null) issues.add(TransactionIssue.cardNotAllowed);
+        if (tx.creditCardId != null) {
+          issues.add(TransactionIssue.cardNotAllowed);
+        }
         if (category.kind != CategoryKind.expense) {
           issues.add(TransactionIssue.categoryMismatch);
         }
@@ -42,7 +44,9 @@ abstract final class TransactionValidator {
           issues.add(TransactionIssue.categoryMismatch);
         }
       case TransactionType.income:
-        if (tx.creditCardId != null) issues.add(TransactionIssue.cardNotAllowed);
+        if (tx.creditCardId != null) {
+          issues.add(TransactionIssue.cardNotAllowed);
+        }
         if (category.kind != CategoryKind.income) {
           issues.add(TransactionIssue.categoryMismatch);
         }

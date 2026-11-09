@@ -1,5 +1,5 @@
-import 'package:expensetrackerpro/core/transactions/email_due_parser.dart';
-import 'package:expensetrackerpro/domain/entities/email_message_item.dart';
+import 'package:kept/core/transactions/email_due_parser.dart';
+import 'package:kept/domain/entities/email_message_item.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

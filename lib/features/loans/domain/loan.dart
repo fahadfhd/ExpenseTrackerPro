@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart' show Timestamp;
-import 'package:expensetrackerpro/core/firebase/firestore_codec.dart';
-import 'package:expensetrackerpro/features/loans/domain/emi_engine.dart';
+import 'package:kept/core/firebase/firestore_codec.dart';
+import 'package:kept/features/loans/domain/emi_engine.dart';
 
 /// Status the user sets explicitly. `completed` and `prepaid` are derived
 /// from the schedule (see `LoanSchedule.effectiveStatus`), while `closed`

@@ -9,7 +9,7 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appTitle => 'ExpanseTrackerPro';
+  String get appTitle => 'Kept';
 
   @override
   String get save => 'Save';
@@ -219,6 +219,28 @@ class AppLocalizationsEn extends AppLocalizations {
   String syncLastSynced(String time) {
     return 'Last synced $time';
   }
+
+  @override
+  String get failureSignInMethodDisabled =>
+      'This sign-in option isn\'t available right now. Please use another option.';
+
+  @override
+  String get undo => 'Undo';
+
+  @override
+  String get discardTitle => 'Discard changes?';
+
+  @override
+  String get discardBody => 'You have unsaved changes that will be lost.';
+
+  @override
+  String get discard => 'Discard';
+
+  @override
+  String get keepEditing => 'Keep editing';
+
+  @override
+  String get restored => 'Restored';
 
   @override
   String get txTypeExpense => 'Expense';
@@ -1244,6 +1266,18 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get cardDueDate => 'Payment due date';
+
+  @override
+  String get cardDueDateHelp => 'Repeats every month on this day.';
+
+  @override
+  String get cardDueDateRequired => 'Choose the payment due date';
+
+  @override
+  String get cardMoreDetails => 'More details (optional)';
+
+  @override
   String get loansTitle => 'Loans';
 
   @override
@@ -1289,25 +1323,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get emiAmount => 'EMI amount';
 
   @override
-  String emiComputed(String amount) {
-    return 'Calculated EMI: $amount';
-  }
-
-  @override
-  String get emiOverride => 'Use the lender\'s EMI';
-
-  @override
-  String get emiOverrideHelp =>
-      'Lenders sometimes round the EMI. Enter their exact figure so the schedule matches your statements.';
-
-  @override
   String get payFromAccount => 'Pay EMIs from';
 
   @override
   String get loanReminder => 'Remind me before each EMI';
-
-  @override
-  String get findRate => 'Don\'t know the rate? Find it from the EMI';
 
   @override
   String get loansOutstanding => 'Total outstanding';
@@ -1524,6 +1543,61 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get emiFrequencyLabel => 'EMI frequency';
+
+  @override
+  String get loanRateCalculated => 'Interest rate (calculated)';
+
+  @override
+  String get loanRateFromEmi =>
+      'Worked out from the principal, EMI amount and number of EMIs, so you don\'t have to look it up.';
+
+  @override
+  String loanInterestSummary(String interest, String total) {
+    return 'Total interest $interest · total payable $total';
+  }
+
+  @override
+  String get loanEmisPaid => 'EMIs already paid';
+
+  @override
+  String get loanEmisPaidHelp =>
+      'How many EMIs you\'ve already paid. They\'re marked paid in the schedule; no account balance changes.';
+
+  @override
+  String loanEmisPaidInvalid(String max) {
+    return 'Enter a number from 0 to $max';
+  }
+
+  @override
+  String get loanFirstEmiDate => 'First EMI date';
+
+  @override
+  String get loanNextEmiDate => 'Next EMI date';
+
+  @override
+  String loanNextEmiHelp(String number) {
+    return 'Due date of EMI #$number';
+  }
+
+  @override
+  String get loanKnowRate => 'I know the interest rate instead';
+
+  @override
+  String get loanUseEmi => 'Use the EMI amount instead';
+
+  @override
+  String loanEmiCalculated(String amount) {
+    return 'Calculated EMI: $amount';
+  }
+
+  @override
+  String get loanPayFromHelp =>
+      'Optional. Used as the default account when you mark an EMI paid.';
+
+  @override
+  String loanSavedWithPaid(String count) {
+    return 'Loan saved. $count EMIs marked as paid.';
+  }
 
   @override
   String get borrowLendTitle => 'Borrow & lend';
@@ -2121,11 +2195,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get moreApp => 'App';
 
   @override
-  String get welcomeTitle => 'Welcome to ExpanseTrackerPro';
+  String get welcomeTitle => 'Your money, beautifully organised';
 
   @override
   String get welcomeBody =>
-      'Track spending, accounts, cards, loans and reminders in one place. Works offline; syncs securely when you\'re online.';
+      'Expenses, accounts, cards, loans and reminders — all in one calm, private place.';
 
   @override
   String get welcomePrivacy =>
@@ -2139,16 +2213,654 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get guestNote =>
-      'You can sign in with Google later to back up your data.';
+      'Start right away. Link Google later in Settings to back up and use your data on a new phone.';
 
   @override
   String get signInFailed => 'Sign-in didn\'t complete. Please try again.';
 
   @override
   String get firstLaunchOffline =>
-      'Connect to the internet once to set up your private space. After that, the app works offline.';
+      'You\'re offline. Connect to the internet once to set up your private space — after that the app works offline.';
 
   @override
   String get signOutBody =>
       'Your data stays in your account. Sign in again with the same Google account to see it.';
+
+  @override
+  String get welcomeFeatureTrack => 'Every rupee in one place';
+
+  @override
+  String get welcomeFeatureDues => 'Never miss a due date';
+
+  @override
+  String get welcomeFeatureLoans => 'Loans made clear';
+
+  @override
+  String get welcomeFeaturePrivate => 'Private and offline-first';
+
+  @override
+  String get googleNote =>
+      'Recommended: your data is backed up and follows you to a new phone.';
+
+  @override
+  String get signingIn => 'Signing you in…';
+
+  @override
+  String get signInCancelled => 'Sign-in was cancelled.';
+
+  @override
+  String get guestUnavailable =>
+      'Guest access is turned off for this app right now. Please continue with Google.';
+
+  @override
+  String get guestUnavailableDev =>
+      'Developer: enable Anonymous sign-in in Firebase Console → Authentication → Sign-in method.';
+
+  @override
+  String get backupConnectTitle => 'Back up your data';
+
+  @override
+  String get backupConnectBody =>
+      'Connect your Google account to back up automatically and restore on a new phone. Without it, your data lives only on this device.';
+
+  @override
+  String get backupConnect => 'Connect backup';
+
+  @override
+  String get backupConnectedTitle => 'Backup connected';
+
+  @override
+  String backupConnectedAs(String email) {
+    return 'Backing up to $email';
+  }
+
+  @override
+  String get backupConnectUnavailable =>
+      'Cloud backup needs Google sign-in, which isn\'t available on this device.';
+
+  @override
+  String get adPrivacyOptions => 'Ad privacy settings';
+
+  @override
+  String get adPrivacyOptionsHelp =>
+      'Review or change your choice about personalised ads.';
+
+  @override
+  String get categoriesTitle => 'Categories';
+
+  @override
+  String get categoriesManage => 'Manage categories';
+
+  @override
+  String get categoryBuiltIn => 'Built-in';
+
+  @override
+  String get categoryYours => 'Your categories';
+
+  @override
+  String get categoryYoursEmpty =>
+      'You haven\'t added any categories yet. Tap + to create one.';
+
+  @override
+  String get categoryAdd => 'New category';
+
+  @override
+  String get categoryEdit => 'Edit category';
+
+  @override
+  String get categoryNameLabel => 'Category name';
+
+  @override
+  String get categoryNameHint => 'e.g. Pets, Coffee, Freelance';
+
+  @override
+  String get categoryTypeLabel => 'Used for';
+
+  @override
+  String get categoryIconLabel => 'Icon';
+
+  @override
+  String get categoryColorLabel => 'Color';
+
+  @override
+  String get categoryNameEmpty => 'Enter a name';
+
+  @override
+  String categoryNameTooLong(String max) {
+    return 'Keep it under $max characters';
+  }
+
+  @override
+  String get categoryNameDuplicate =>
+      'A category with this name already exists';
+
+  @override
+  String get categoryTypeLocked => 'The type can\'t be changed after creation.';
+
+  @override
+  String get categoryArchived => 'Archived';
+
+  @override
+  String get categoryArchive => 'Archive';
+
+  @override
+  String get categoryRestore => 'Restore';
+
+  @override
+  String get categoryArchivedNote =>
+      'Archived categories are hidden when adding transactions, but existing transactions keep them.';
+
+  @override
+  String get categoryInUse =>
+      'This category is used by transactions, a budget or a recurring entry, so it can\'t be deleted. Archive it instead.';
+
+  @override
+  String get categoryDeleted => 'Category deleted';
+
+  @override
+  String get categoryNew => 'New';
+
+  @override
+  String get categoryRequired => 'Choose a category';
+
+  @override
+  String get categoryTapToClear =>
+      'Tap the selected category again to clear it';
+
+  @override
+  String get typeTapToClear => 'Tap again to switch back to Expense';
+
+  @override
+  String get paymentRequired => 'Choose how you paid';
+
+  @override
+  String get receivedRequired => 'Choose where the money went';
+
+  @override
+  String get paymentCash => 'Cash / not tracked';
+
+  @override
+  String get paymentCashHint => 'Doesn\'t change any balance';
+
+  @override
+  String get paymentNoneYet =>
+      'No accounts or cards yet. Add one to see balances update automatically, or continue with untracked cash.';
+
+  @override
+  String get paymentTapToClear => 'Tap again to clear';
+
+  @override
+  String get paymentPaidFrom => 'Paid from';
+
+  @override
+  String get paymentPayingAccount => 'Pay the bill from';
+
+  @override
+  String get paymentDestination => 'Add to account';
+
+  @override
+  String get addExpenseFromAccount => 'Add transaction';
+
+  @override
+  String get adLabel => 'Advertisement';
+
+  @override
+  String get notificationChannelName => 'Reminders';
+
+  @override
+  String get notificationChannelDescription =>
+      'Bill, EMI, card and personal reminders';
+
+  @override
+  String get settingsAds => 'Ads';
+
+  @override
+  String get adFreeTitle => 'No ads for 24 hours';
+
+  @override
+  String get adFreeShort => 'Watch a video, no ads for 24 hours';
+
+  @override
+  String get adFreeWatch => 'Watch a video';
+
+  @override
+  String get adFreeHelp =>
+      'Watch one short video and Kept shows no ads for the next 24 hours.';
+
+  @override
+  String adFreeActive(String time) {
+    return 'Ads are off until $time';
+  }
+
+  @override
+  String get adFreeLoading => 'Getting a video ready…';
+
+  @override
+  String get adFreeUnavailable =>
+      'No video is available right now. Please try again later.';
+
+  @override
+  String get adFreeThanks => 'Thanks! No ads for the next 24 hours.';
+
+  @override
+  String get adFreeNotCompleted =>
+      'Watch the video to the end to turn ads off.';
+
+  @override
+  String get paymentTypeAccount => 'Bank account';
+
+  @override
+  String get paymentTypeCash => 'Cash';
+
+  @override
+  String get txTypeRepayBorrow => 'Repay a borrow';
+
+  @override
+  String get repayWhich => 'Which borrow?';
+
+  @override
+  String repayLeft(String amount) {
+    return '$amount left';
+  }
+
+  @override
+  String get moreTypes => 'More';
+
+  @override
+  String get moreDetails => 'More details';
+
+  @override
+  String get moreCategories => 'More';
+
+  @override
+  String get debtPlanTitle => 'Debt-free plan';
+
+  @override
+  String get debtPlanEmpty =>
+      'No loans, card balances or borrowed money to clear. You\'re debt-free!';
+
+  @override
+  String get debtPlanDebtFreeBy => 'Debt-free by';
+
+  @override
+  String debtPlanIn(String duration) {
+    return 'in $duration';
+  }
+
+  @override
+  String debtPlanDurationMonths(String months) {
+    return '$months mo';
+  }
+
+  @override
+  String debtPlanDurationYears(String years, String months) {
+    return '$years yr $months mo';
+  }
+
+  @override
+  String get debtPlanTotalOwed => 'Total owed';
+
+  @override
+  String get debtPlanInterestAhead => 'Interest still to pay';
+
+  @override
+  String debtPlanSavings(String amount, String duration) {
+    return 'Saves $amount and $duration compared with paying only the minimums';
+  }
+
+  @override
+  String debtPlanSavingsInterestOnly(String amount) {
+    return 'Saves $amount compared with paying only the minimums';
+  }
+
+  @override
+  String get debtPlanNeverClears =>
+      'At this payment some debts never clear. Add more each month to finish them.';
+
+  @override
+  String get debtPlanChartTitle => 'Your debt going down';
+
+  @override
+  String debtPlanChartSemantics(String amount, String date) {
+    return 'Total debt falls from $amount to zero by $date';
+  }
+
+  @override
+  String get debtPlanMonthlyTitle => 'What you pay each month';
+
+  @override
+  String get debtPlanExtraLabel => 'Extra per month';
+
+  @override
+  String get debtPlanMinimums => 'Minimum payments';
+
+  @override
+  String get debtPlanExtra => 'Extra';
+
+  @override
+  String get debtPlanTotalMonthly => 'Total each month';
+
+  @override
+  String get debtPlanCommitNote =>
+      'Keep paying this total even after a debt closes. The freed-up money clears the next one.';
+
+  @override
+  String get debtPlanWhatIfTitle => 'What if you paid more?';
+
+  @override
+  String debtPlanWhatIfRow(String amount) {
+    return '+$amount a month';
+  }
+
+  @override
+  String debtPlanWhatIfDetail(String date, String amount) {
+    return 'Done by $date, saves $amount';
+  }
+
+  @override
+  String get debtPlanWhatIfStillOpen => 'Some debts still won\'t clear';
+
+  @override
+  String get debtPlanStrategyTitle => 'Which debt first?';
+
+  @override
+  String get debtPlanAvalanche => 'Highest interest first';
+
+  @override
+  String get debtPlanAvalancheHelp => 'Costs the least overall.';
+
+  @override
+  String get debtPlanSnowball => 'Smallest balance first';
+
+  @override
+  String get debtPlanSnowballHelp =>
+      'Closes debts sooner, so you see progress early.';
+
+  @override
+  String debtPlanStrategyResult(String date, String amount) {
+    return 'Done by $date · $amount interest';
+  }
+
+  @override
+  String get debtPlanCheapest => 'Lowest cost';
+
+  @override
+  String debtPlanThisMonthTitle(String month) {
+    return 'Pay this in $month';
+  }
+
+  @override
+  String get debtPlanFocus => 'Put your extra here';
+
+  @override
+  String get debtPlanRoadmapTitle => 'Your roadmap';
+
+  @override
+  String debtPlanStepCleared(String date) {
+    return 'Cleared by $date';
+  }
+
+  @override
+  String get debtPlanStepOpen => 'Not cleared at this payment';
+
+  @override
+  String debtPlanRate(String rate) {
+    return '$rate% a year';
+  }
+
+  @override
+  String debtPlanRateEstimated(String rate) {
+    return '$rate% a year (estimated)';
+  }
+
+  @override
+  String get debtPlanNoInterest => 'No interest';
+
+  @override
+  String get debtPlanSetRate => 'Set interest rate';
+
+  @override
+  String debtPlanSetRateTitle(String name) {
+    return 'Interest rate for $name';
+  }
+
+  @override
+  String debtPlanEstimatedWarning(String rate) {
+    return 'Some cards use an estimated $rate% interest rate. Set the real rate from your statement for an accurate plan.';
+  }
+
+  @override
+  String debtPlanLowPayment(String names) {
+    return '$names: the minimum payment doesn\'t cover the interest, so this balance grows unless you pay more.';
+  }
+
+  @override
+  String get debtPlanTipsTitle => 'Clear it faster';
+
+  @override
+  String get debtPlanTipOverdue =>
+      'Clear overdue payments first. Late fees and penalty interest cost more than anything in this plan.';
+
+  @override
+  String debtPlanTipCardInterest(String amount) {
+    return 'Your cards cost about $amount in interest this month. Avoid new spending on them until they are cleared.';
+  }
+
+  @override
+  String debtPlanTipUtilization(String names) {
+    return '$names: over 30% of the limit is in use. Bringing it lower can help your credit score.';
+  }
+
+  @override
+  String get debtPlanTipConsolidate =>
+      'Ask your bank about moving card dues to a lower-rate loan or EMI. Do it only if the total cost, with fees, is lower.';
+
+  @override
+  String get debtPlanAssumptions =>
+      'Estimate only. Assumes no new card spending, on-time payments and unchanged rates. Lenders may charge for prepayment, so check first.';
+
+  @override
+  String get cardAnnualRate => 'Interest rate (% a year)';
+
+  @override
+  String get cardAnnualRateHelp =>
+      'Shown on your statement. Used by the Debt-free plan.';
+
+  @override
+  String get extraMoneyTitle => 'Got extra money?';
+
+  @override
+  String get extraMoneySubtitle =>
+      'Bonus, arrears or side income: see which debt to close with it.';
+
+  @override
+  String get extraMoneyAction => 'See where to put it';
+
+  @override
+  String extraMoneyDetected(String amount) {
+    return '$amount more income than usual this month. Put it to work on your debt.';
+  }
+
+  @override
+  String get extraMoneyIntro =>
+      'Enter the extra amount you received and we\'ll show which loan, EMI or card to pay.';
+
+  @override
+  String get extraMoneyAmount => 'Extra money received';
+
+  @override
+  String get extraMoneyRecordIncome => 'Add it to my income';
+
+  @override
+  String get extraMoneyKeepReserve => 'Keep some as emergency money';
+
+  @override
+  String get extraMoneyKeepReserveHelp =>
+      'Your savings are below 3 months of expenses and payments. Up to 25% is set aside.';
+
+  @override
+  String get extraMoneyDoThis => 'Do this';
+
+  @override
+  String get extraMoneyCloses => 'Closes this debt';
+
+  @override
+  String get extraMoneyPartPayment => 'Part payment';
+
+  @override
+  String get extraMoneyKeep => 'Keep as emergency money';
+
+  @override
+  String get extraMoneyLeftover => 'Left over for you';
+
+  @override
+  String get extraMoneyResult => 'What this does';
+
+  @override
+  String get extraMoneyClearsAll => 'This clears all your debt!';
+
+  @override
+  String extraMoneyNewDate(String date) {
+    return 'Debt-free by $date';
+  }
+
+  @override
+  String get extraMoneyInterestSaved => 'Interest saved';
+
+  @override
+  String extraMoneySooner(String duration) {
+    return 'Finishes $duration sooner';
+  }
+
+  @override
+  String get extraMoneyFreed => 'Monthly payments that stop';
+
+  @override
+  String extraMoneyInstead(String name, String amount, String monthly) {
+    return 'Prefer one less EMI? $name can be closed outright for $amount, which stops $monthly a month.';
+  }
+
+  @override
+  String get extraMoneyCaution =>
+      'Tap a debt to record the payment. Ask your lender for the exact closing amount and any prepayment charges first.';
+
+  @override
+  String get debtProgressTitle => 'Your progress';
+
+  @override
+  String debtProgressPaid(String paid, String peak) {
+    return '$paid paid off of $peak';
+  }
+
+  @override
+  String debtProgressJustCleared(String names) {
+    return 'Well done! You cleared $names.';
+  }
+
+  @override
+  String get debtLoadTitle => 'Debt load';
+
+  @override
+  String debtLoadShare(String percent) {
+    return 'Required payments take $percent% of your usual income.';
+  }
+
+  @override
+  String get debtLoadHealthy => 'Healthy';
+
+  @override
+  String get debtLoadHealthyHelp =>
+      'You have room to pay extra and finish sooner.';
+
+  @override
+  String get debtLoadWatch => 'Be careful';
+
+  @override
+  String get debtLoadWatchHelp =>
+      'Avoid taking on new EMIs until this comes down.';
+
+  @override
+  String get debtLoadHigh => 'Too high';
+
+  @override
+  String get debtLoadHighHelp =>
+      'Above 40% is hard to sustain. Avoid new loans and consider asking your lender about restructuring.';
+
+  @override
+  String debtLoadOverBudget(String amount) {
+    return 'Usual spending and payments are $amount a month more than your usual income.';
+  }
+
+  @override
+  String debtPlanSuggestedExtra(String amount) {
+    return 'Your last few months suggest you can afford $amount extra a month.';
+  }
+
+  @override
+  String get debtPlanUseSuggested => 'Use this amount';
+
+  @override
+  String get debtPlanReminder => 'Remind me each month';
+
+  @override
+  String get debtPlanReminderHelp =>
+      'A notification on the 1st says what to pay.';
+
+  @override
+  String debtPlanReminderTitle(String amount, String name) {
+    return 'Debt plan: pay $amount to $name';
+  }
+
+  @override
+  String get debtPlanCompareSwitch => 'Compare the cost';
+
+  @override
+  String get debtSwitchTitle => 'Move to a cheaper loan?';
+
+  @override
+  String get debtSwitchIntro =>
+      'Compare keeping a balance at its current rate with a card-to-EMI plan, balance transfer or personal loan.';
+
+  @override
+  String get debtSwitchBalance => 'Amount to move';
+
+  @override
+  String get debtSwitchCurrentRate => 'Current interest rate (% a year)';
+
+  @override
+  String get debtSwitchNewRate => 'New interest rate (% a year)';
+
+  @override
+  String get debtSwitchMonths => 'Months to repay';
+
+  @override
+  String get debtSwitchFee => 'Processing fee';
+
+  @override
+  String get debtSwitchFeeHelp =>
+      'Include GST. Some EMI offers charge interest at a flat rate, so ask for the reducing-balance rate.';
+
+  @override
+  String get debtSwitchResult => 'Result';
+
+  @override
+  String debtSwitchWorthIt(String amount) {
+    return 'Worth it: saves $amount after the fee';
+  }
+
+  @override
+  String get debtSwitchNotWorthIt =>
+      'Not worth it: the fee cancels out the saving';
+
+  @override
+  String get debtSwitchKeepInterest => 'Interest if you stay';
+
+  @override
+  String get debtSwitchNewInterest => 'Interest if you move';
+
+  @override
+  String get debtSwitchFeeAmount => 'Fee';
+
+  @override
+  String get debtSwitchNewEmi => 'New monthly EMI';
 }

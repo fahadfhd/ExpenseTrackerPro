@@ -1,23 +1,24 @@
-import 'package:expensetrackerpro/core/l10n/l10n.dart';
-import 'package:expensetrackerpro/core/money/money.dart';
-import 'package:expensetrackerpro/core/routing/app_routes.dart';
-import 'package:expensetrackerpro/core/settings/app_settings.dart';
-import 'package:expensetrackerpro/core/theme/app_theme.dart';
-import 'package:expensetrackerpro/features/accounts/application/account_providers.dart';
-import 'package:expensetrackerpro/features/loans/application/loan_providers.dart';
-import 'package:expensetrackerpro/features/loans/data/loan_repository.dart';
-import 'package:expensetrackerpro/features/loans/domain/amortization.dart';
-import 'package:expensetrackerpro/features/loans/domain/loan.dart';
-import 'package:expensetrackerpro/features/loans/presentation/loans_screen.dart';
-import 'package:expensetrackerpro/features/reminders/application/reminder_providers.dart';
-import 'package:expensetrackerpro/features/reminders/domain/reminder.dart';
-import 'package:expensetrackerpro/features/transactions/application/transaction_providers.dart';
-import 'package:expensetrackerpro/shared/widgets/charts.dart';
-import 'package:expensetrackerpro/shared/widgets/dialogs.dart';
-import 'package:expensetrackerpro/shared/widgets/form_fields.dart';
-import 'package:expensetrackerpro/shared/widgets/money_text.dart';
-import 'package:expensetrackerpro/shared/widgets/section_card.dart';
-import 'package:expensetrackerpro/shared/widgets/states.dart';
+import 'package:kept/core/l10n/l10n.dart';
+import 'package:kept/core/money/money.dart';
+import 'package:kept/core/routing/app_routes.dart';
+import 'package:kept/core/settings/app_settings.dart';
+import 'package:kept/core/theme/app_theme.dart';
+import 'package:kept/features/accounts/application/account_providers.dart';
+import 'package:kept/features/loans/application/loan_providers.dart';
+import 'package:kept/features/loans/data/loan_repository.dart';
+import 'package:kept/features/loans/domain/amortization.dart';
+import 'package:kept/features/loans/domain/loan.dart';
+import 'package:kept/features/loans/presentation/loans_screen.dart';
+import 'package:kept/features/reminders/application/reminder_providers.dart';
+import 'package:kept/features/reminders/domain/reminder.dart';
+import 'package:kept/features/transactions/application/transaction_providers.dart';
+import 'package:kept/shared/widgets/charts.dart';
+import 'package:kept/shared/widgets/dialogs.dart';
+import 'package:kept/shared/widgets/form_fields.dart';
+import 'package:kept/shared/widgets/money_text.dart';
+import 'package:kept/shared/widgets/section_card.dart';
+import 'package:kept/shared/widgets/states.dart';
+import 'package:kept/shared/widgets/payment_source_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -174,14 +175,18 @@ class LoanDetailScreen extends ConsumerWidget {
                       color: context.finance.negative,
                     )
                   : null,
-              child: Row(
+              // A Wrap, not a Row: with a long button label (translations,
+              // large text) the amount used to be squeezed down to "₹1".
+              // Now the button drops to its own line when they don't fit.
+              child: Wrap(
+                alignment: WrapAlignment.spaceBetween,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                runSpacing: 12,
                 children: [
-                  Expanded(
-                    child: MoneyText(
-                      next.emiMinor,
-                      style: theme.textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w900,
-                      ),
+                  MoneyText(
+                    next.emiMinor,
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w900,
                     ),
                   ),
                   FilledButton.icon(
@@ -235,7 +240,7 @@ class LoanDetailScreen extends ConsumerWidget {
                       Expanded(child: Text(l10n.interestRate)),
                       FitAmount(
                         child: Text(
-                          '${loan.annualRatePercent}% · ${l10n.emiFrequency(loan.frequency)}',
+                          '${loan.annualRatePercent.toStringAsFixed(2)}% · ${l10n.emiFrequency(loan.frequency)}',
                           style: const TextStyle(fontWeight: FontWeight.w700),
                         ),
                       ),
@@ -306,7 +311,12 @@ class LoanDetailScreen extends ConsumerWidget {
             trailing: TextButton(
               onPressed: () =>
                   pushPage(context, LoanScheduleScreen(loanId: loanId)),
-              child: Text(l10n.seeAll),
+              child: Text(
+                l10n.seeAll,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.end,
+              ),
             ),
             child: Column(
               children: [
@@ -559,7 +569,12 @@ class _PayInstallmentSheetState extends ConsumerState<PayInstallmentSheet> {
     text: Money.toEditable(widget.row.emiMinor),
   );
   late DateTime _date = DateTime.now();
-  late String? _accountId = existingAccountId(ref, widget.loan.accountId);
+  late PaymentSource? _pay = paymentFor(
+    ref,
+    widget.loan.accountId,
+    known: false,
+  );
+  String? _payError;
 
   @override
   void dispose() {
@@ -583,6 +598,10 @@ class _PayInstallmentSheetState extends ConsumerState<PayInstallmentSheet> {
 
   Future<void> _persist() async {
     if (!_formKey.currentState!.validate()) return;
+    if (_pay == null && ref.read(activeAccountsProvider).isNotEmpty) {
+      setState(() => _payError = context.l10n.paymentRequired);
+      return;
+    }
     final txRepo = ref.read(transactionRepositoryProvider);
     final previous = await txRepo.fetch(
       LoanRepository.installmentTransactionId(
@@ -597,7 +616,7 @@ class _PayInstallmentSheetState extends ConsumerState<PayInstallmentSheet> {
           number: widget.row.number,
           amountMinor: Money.parse(_amount.text)!,
           date: _date,
-          accountId: _accountId,
+          accountId: _pay?.accountId,
           previousTransaction: previous,
         );
     if (!mounted) return;
@@ -613,6 +632,7 @@ class _PayInstallmentSheetState extends ConsumerState<PayInstallmentSheet> {
       child: Form(
         key: _formKey,
         child: ListView(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           shrinkWrap: true,
           padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
           children: [
@@ -631,20 +651,15 @@ class _PayInstallmentSheetState extends ConsumerState<PayInstallmentSheet> {
               onChanged: (d) => setState(() => _date = d ?? _date),
             ),
             const SizedBox(height: 12),
-            PickerField<String>(
+            PaymentSourceField(
               label: l10n.paidWith,
-              value: _accountId,
-              allowNone: true,
-              noneLabel: l10n.cashUntracked,
-              options: [
-                for (final a in accounts)
-                  PickerOption(
-                    a.id,
-                    a.displayName,
-                    icon: Icons.account_balance_rounded,
-                  ),
-              ],
-              onChanged: (v) => setState(() => _accountId = v),
+              value: _pay,
+              accounts: accounts,
+              errorText: _payError,
+              onChanged: (v) => setState(() {
+                _pay = v;
+                _payError = null;
+              }),
             ),
             const SizedBox(height: 16),
             FilledButton(
@@ -682,10 +697,12 @@ class _PrepaymentSheetState extends ConsumerState<PrepaymentSheet> {
   final _amount = TextEditingController();
   DateTime _date = DateTime.now();
   PrepaymentMode _mode = PrepaymentMode.reduceTenure;
-  late String? _accountId = existingAccountId(
+  late PaymentSource? _pay = paymentFor(
     ref,
     widget.schedule.loan.accountId,
+    known: false,
   );
+  String? _payError;
 
   @override
   void dispose() {
@@ -712,6 +729,10 @@ class _PrepaymentSheetState extends ConsumerState<PrepaymentSheet> {
 
   void _save() {
     if (!_formKey.currentState!.validate()) return;
+    if (_pay == null && ref.read(activeAccountsProvider).isNotEmpty) {
+      setState(() => _payError = context.l10n.paymentRequired);
+      return;
+    }
     ref
         .read(loanRepositoryProvider)
         .addPrepayment(
@@ -719,7 +740,7 @@ class _PrepaymentSheetState extends ConsumerState<PrepaymentSheet> {
           amountMinor: Money.parse(_amount.text)!,
           date: _date,
           mode: _mode,
-          accountId: _accountId,
+          accountId: _pay?.accountId,
         );
     Navigator.pop(context);
     showMessage(context, context.l10n.saved);
@@ -736,6 +757,7 @@ class _PrepaymentSheetState extends ConsumerState<PrepaymentSheet> {
       child: Form(
         key: _formKey,
         child: ListView(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           shrinkWrap: true,
           padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
           children: [
@@ -786,20 +808,15 @@ class _PrepaymentSheetState extends ConsumerState<PrepaymentSheet> {
                 ],
               ),
             ),
-            PickerField<String>(
+            PaymentSourceField(
               label: l10n.paidWith,
-              value: _accountId,
-              allowNone: true,
-              noneLabel: l10n.cashUntracked,
-              options: [
-                for (final a in accounts)
-                  PickerOption(
-                    a.id,
-                    a.displayName,
-                    icon: Icons.account_balance_rounded,
-                  ),
-              ],
-              onChanged: (v) => setState(() => _accountId = v),
+              value: _pay,
+              accounts: accounts,
+              errorText: _payError,
+              onChanged: (v) => setState(() {
+                _pay = v;
+                _payError = null;
+              }),
             ),
             if (after != null) ...[
               const SizedBox(height: 16),

@@ -1,4 +1,4 @@
-import 'package:expensetrackerpro/features/transactions/domain/transaction.dart';
+import 'package:kept/features/transactions/domain/transaction.dart';
 
 enum TransactionSort { newest, oldest, largest, smallest }
 
@@ -115,9 +115,12 @@ abstract final class TransactionQuery {
     result.sort(switch (filter.sort) {
       TransactionSort.newest => (a, b) => b.date.compareTo(a.date),
       TransactionSort.oldest => (a, b) => a.date.compareTo(b.date),
-      TransactionSort.largest => (a, b) => b.amountMinor.compareTo(a.amountMinor),
-      TransactionSort.smallest => (a, b) =>
-          a.amountMinor.compareTo(b.amountMinor),
+      TransactionSort.largest => (a, b) => b.amountMinor.compareTo(
+        a.amountMinor,
+      ),
+      TransactionSort.smallest => (a, b) => a.amountMinor.compareTo(
+        b.amountMinor,
+      ),
     });
     return result;
   }

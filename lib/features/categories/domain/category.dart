@@ -7,8 +7,10 @@ class Subcategory {
   final String id;
 }
 
-/// Built-in categories. Ids are persisted in transactions and budgets, so
-/// they must never be renamed; labels are localized separately.
+/// A transaction category: built-in (localized label, fixed id) or created
+/// by the user (stored in Firestore, [customName] holds its label).
+///
+/// Ids are persisted in transactions and budgets, so they must never change.
 class Category {
   const Category({
     required this.id,
@@ -16,6 +18,8 @@ class Category {
     required this.icon,
     required this.color,
     this.subcategories = const [],
+    this.customName,
+    this.archived = false,
   });
 
   final String id;
@@ -23,6 +27,15 @@ class Category {
   final IconData icon;
   final Color color;
   final List<Subcategory> subcategories;
+
+  /// Set only for user-created categories.
+  final String? customName;
+
+  /// Archived custom categories are hidden from pickers but still resolve,
+  /// so existing transactions keep their name and icon.
+  final bool archived;
+
+  bool get isCustom => customName != null;
 }
 
 abstract final class Categories {
@@ -220,17 +233,47 @@ abstract final class Categories {
     ),
   ];
 
-  static final Map<String, Category> _byId = {
+  static final Map<String, Category> _builtIn = {
     for (final c in [...expense, ...income, ...system]) c.id: c,
   };
 
+  /// User-created categories, mirrored from Firestore by
+  /// `customCategoriesProvider`. Domain code (validation, migration) needs
+  /// to resolve ids without a widget `ref`, hence this registry; widgets
+  /// that display categories also watch the provider so they rebuild.
+  static Map<String, Category> _custom = const {};
+
+  static void setCustom(Iterable<Category> categories) =>
+      _custom = {for (final c in categories) c.id: c};
+
+  /// Makes a just-saved category resolvable immediately, before its
+  /// Firestore snapshot arrives.
+  static void upsertCustom(Category category) =>
+      _custom = {..._custom, category.id: category};
+
   static Category byId(String? id) =>
-      _byId[id] ?? _byId[otherExpenseId]!;
+      _custom[id] ?? _builtIn[id] ?? _builtIn[otherExpenseId]!;
 
-  static bool exists(String? id) => _byId.containsKey(id);
+  static bool exists(String? id) =>
+      _custom.containsKey(id) || _builtIn.containsKey(id);
 
-  static List<Category> forKind(CategoryKind kind) =>
-      kind == CategoryKind.income ? income : expense;
+  /// Label of a user-created category, or null for built-ins.
+  static String? customName(String? id) => _custom[id]?.customName;
+
+  /// Categories offered when picking one for [kind]. Built-ins first, then
+  /// the user's own; archived ones only with [includeArchived] (filters and
+  /// reports still need to match old transactions).
+  static List<Category> selectable(
+    CategoryKind kind, {
+    bool includeArchived = false,
+  }) => [
+    ...(kind == CategoryKind.income ? income : expense),
+    ..._custom.values.where(
+      (c) => c.kind == kind && (includeArchived || !c.archived),
+    ),
+  ];
+
+  static List<Category> forKind(CategoryKind kind) => selectable(kind);
 
   /// Maps category names written by app versions before schema 2.
   static String fromLegacyName(String? name) =>

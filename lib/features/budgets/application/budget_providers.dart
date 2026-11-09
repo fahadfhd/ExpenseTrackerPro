@@ -1,7 +1,7 @@
-import 'package:expensetrackerpro/core/firebase/firebase_providers.dart';
-import 'package:expensetrackerpro/features/budgets/data/budget_repository.dart';
-import 'package:expensetrackerpro/features/budgets/domain/budget.dart';
-import 'package:expensetrackerpro/features/transactions/application/transaction_providers.dart';
+import 'package:kept/core/firebase/firebase_providers.dart';
+import 'package:kept/features/budgets/data/budget_repository.dart';
+import 'package:kept/features/budgets/domain/budget.dart';
+import 'package:kept/features/transactions/application/transaction_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final budgetRepositoryProvider = Provider<BudgetRepository>((ref) {
@@ -23,9 +23,9 @@ final budgetUsageProvider = Provider.autoDispose
     .family<AsyncValue<List<BudgetUsage>>, DateTime>((ref, month) {
       final budgets = ref.watch(budgetsProvider);
       final summary = ref.watch(monthlySummaryProvider(month));
-      if (budgets.hasError) return AsyncError(budgets.error!, budgets.stackTrace!);
+      if (budgets.hasError) {
+        return AsyncError(budgets.error!, budgets.stackTrace!);
+      }
       if (!budgets.hasValue) return const AsyncLoading();
-      return summary.whenData(
-        (s) => BudgetCalculator.usage(budgets.value!, s),
-      );
+      return summary.whenData((s) => BudgetCalculator.usage(budgets.value!, s));
     });

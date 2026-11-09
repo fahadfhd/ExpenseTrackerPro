@@ -1,11 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:expensetrackerpro/app/app.dart';
-import 'package:expensetrackerpro/core/settings/app_settings.dart';
-import 'package:expensetrackerpro/features/reminders/application/reminder_providers.dart';
-import 'package:expensetrackerpro/core/notifications/notification_service.dart';
-import 'package:expensetrackerpro/firebase_options.dart';
+import 'package:kept/app/app.dart';
+import 'package:kept/core/settings/app_settings.dart';
+import 'package:kept/features/reminders/application/reminder_providers.dart';
+import 'package:kept/core/notifications/notification_service.dart';
+import 'package:kept/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -20,6 +21,13 @@ Future<void> main() async {
     cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
   );
 
+  // A phone finance app is designed for portrait; landscape only stretches
+  // the layouts.
+  await SystemChrome.setPreferredOrientations(const [
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
+
   final prefs = await SharedPreferences.getInstance();
   final notifications = LocalNotificationService();
   await notifications.init();
@@ -30,7 +38,7 @@ Future<void> main() async {
         sharedPreferencesProvider.overrideWithValue(prefs),
         notificationServiceProvider.overrideWithValue(notifications),
       ],
-      child: const ExpanseTrackerProApp(),
+      child: const KeptApp(),
     ),
   );
 }

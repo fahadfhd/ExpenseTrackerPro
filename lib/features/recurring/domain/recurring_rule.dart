@@ -1,9 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart' show Timestamp;
-import 'package:expensetrackerpro/core/firebase/firestore_codec.dart';
-import 'package:expensetrackerpro/core/utils/dates.dart';
-import 'package:expensetrackerpro/core/utils/recurrence.dart';
-import 'package:expensetrackerpro/features/categories/domain/category.dart';
-import 'package:expensetrackerpro/features/transactions/domain/transaction.dart';
+import 'package:kept/core/firebase/firestore_codec.dart';
+import 'package:kept/core/utils/dates.dart';
+import 'package:kept/core/utils/recurrence.dart';
+import 'package:kept/features/categories/domain/category.dart';
+import 'package:kept/features/transactions/domain/transaction.dart';
 
 /// A template that produces a transaction on every occurrence (salary,
 /// rent, subscriptions…).

@@ -1,15 +1,17 @@
 import 'dart:async';
 
-import 'package:expensetrackerpro/core/firebase/firebase_providers.dart';
-import 'package:expensetrackerpro/core/l10n/l10n.dart';
-import 'package:expensetrackerpro/core/notifications/notification_planner.dart';
-import 'package:expensetrackerpro/core/notifications/notification_service.dart';
-import 'package:expensetrackerpro/core/settings/app_settings.dart';
-import 'package:expensetrackerpro/core/utils/recurrence.dart';
-import 'package:expensetrackerpro/features/borrow_lend/domain/debt_record.dart';
-import 'package:expensetrackerpro/features/credit_cards/domain/credit_card.dart';
-import 'package:expensetrackerpro/features/reminders/data/reminder_repository.dart';
-import 'package:expensetrackerpro/features/reminders/domain/reminder.dart';
+import 'package:kept/core/firebase/firebase_providers.dart';
+import 'package:kept/core/l10n/l10n.dart';
+import 'package:kept/core/notifications/notification_planner.dart';
+import 'package:kept/core/notifications/notification_service.dart';
+import 'package:kept/core/settings/app_settings.dart';
+import 'package:kept/core/utils/recurrence.dart';
+import 'package:kept/features/borrow_lend/application/debt_providers.dart';
+import 'package:kept/features/borrow_lend/domain/debt_record.dart';
+import 'package:kept/features/credit_cards/application/card_providers.dart';
+import 'package:kept/features/credit_cards/domain/credit_card.dart';
+import 'package:kept/features/reminders/data/reminder_repository.dart';
+import 'package:kept/features/reminders/domain/reminder.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -53,13 +55,13 @@ String notificationBody(AppLocalizations l10n, Reminder r, int offset) {
 /// creates duplicates.
 class NotificationSync {
   NotificationSync(this._ref) {
-    _ref.listen<AsyncValue<List<Reminder>>>(
-      remindersProvider,
-      (_, next) {
-        if (next.hasValue) _schedule();
-      },
-      fireImmediately: true,
-    );
+    _ref.listen<AsyncValue<List<Reminder>>>(remindersProvider, (_, next) {
+      if (next.hasValue) _schedule();
+    }, fireImmediately: true);
+    // Notification wording follows the app language, so re-plan when it
+    // changes. (This only starts a timer: the change can arrive while
+    // widgets are building, when providers must not be written to.)
+    _ref.listen(appLocaleProvider, (_, _) => _schedule());
   }
 
   final Ref _ref;
@@ -85,12 +87,26 @@ class NotificationSync {
     try {
       await _ensurePermission(reminders);
       final l10n = _ref.read(l10nProvider);
+      final service = _ref.read(notificationServiceProvider);
+      // Language polish: neither step may stop the notifications themselves
+      // from being scheduled, so a failure is only logged.
+      try {
+        // Titles stored on card and borrow/lend reminders keep the language
+        // they were written in; bring them in line with the current one.
+        _ref.read(entityRemindersProvider).relabel();
+        await service.setChannelText(
+          name: l10n.notificationChannelName,
+          description: l10n.notificationChannelDescription,
+        );
+      } catch (e) {
+        debugPrint('Updating reminder text for the language failed: $e');
+      }
       final plan = NotificationPlanner.plan(
         reminders,
         now: DateTime.now(),
         bodyFor: (r, offset) => notificationBody(l10n, r, offset),
       );
-      await _ref.read(notificationServiceProvider).reconcile(plan);
+      await service.reconcile(plan);
     } catch (e) {
       debugPrint('Notification sync failed: $e');
     } finally {
@@ -230,6 +246,30 @@ class EntityReminders {
 
   void remove(ReminderEntityType type, String id) =>
       _repo.syncEntityReminder(type, id, null);
+
+  /// Re-titles the card and borrow/lend reminders in the current language.
+  /// Their titles are stored text, so after a language change they would
+  /// otherwise stay in the old language until the card or record is next
+  /// edited. Only reminders whose title actually differs are rewritten.
+  /// (Loan reminders are re-titled by `LoanReminderSync`.)
+  void relabel() {
+    for (final card in _ref.read(cardsProvider).value ?? const <CreditCard>[]) {
+      final existing = _existing(ReminderEntityType.creditCard, card.id);
+      if (existing != null &&
+          existing.title != _l10n.reminderCardTitle(card.displayName)) {
+        syncCard(card);
+      }
+    }
+    final debts = _ref.read(debtsProvider).value ?? const <DebtRecord>[];
+    for (final record in debts) {
+      final existing = _existing(ReminderEntityType.borrowLend, record.id);
+      if (existing == null) continue;
+      final title = record.direction == DebtDirection.borrowed
+          ? _l10n.reminderBorrowedTitle(record.personName)
+          : _l10n.reminderLentTitle(record.personName);
+      if (existing.title != title) syncDebt(record);
+    }
+  }
 }
 
 final entityRemindersProvider = Provider<EntityReminders>(EntityReminders.new);

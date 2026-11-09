@@ -1,4 +1,4 @@
-name: expensetrackerpro
+name: kept
 description: "Personal finance manager: expenses, accounts, cards, loans, reminders and more."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
@@ -51,8 +51,11 @@ dependencies:
   firebase_storage: ^13.6.0
   flutter_localizations:
     sdk: flutter
+  google_mobile_ads: ^8.0.0
 
 dev_dependencies:
+  integration_test:
+    sdk: flutter
   flutter_test:
     sdk: flutter
 
@@ -64,6 +67,22 @@ dev_dependencies:
   flutter_lints: ^5.0.0
   fake_cloud_firestore: ^4.3.0
   firebase_auth_mocks: ^0.15.2
+  flutter_launcher_icons: ^0.14.4
+
+# App icon: regenerate with `dart run flutter_launcher_icons` after editing
+# assets/icon/*.png.
+flutter_launcher_icons:
+  ios: true
+  android: true
+  image_path: assets/icon/icon.png
+  remove_alpha_ios: true
+  adaptive_icon_background: "#0E7C66"
+  adaptive_icon_foreground: assets/icon/icon_foreground.png
+  web:
+    generate: true
+    image_path: assets/icon/icon.png
+    background_color: "#0E7C66"
+    theme_color: "#0E7C66"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

@@ -1,6 +1,6 @@
 {
   "@@locale": "en",
-  "appTitle": "ExpanseTrackerPro",
+  "appTitle": "Kept",
   "save": "Save",
   "cancel": "Cancel",
   "delete": "Delete",
@@ -65,6 +65,13 @@
   "syncAllSynced": "All changes synced",
   "syncPending": "{count} change(s) waiting to sync",
   "syncLastSynced": "Last synced {time}",
+  "failureSignInMethodDisabled": "This sign-in option isn't available right now. Please use another option.",
+  "undo": "Undo",
+  "discardTitle": "Discard changes?",
+  "discardBody": "You have unsaved changes that will be lost.",
+  "discard": "Discard",
+  "keepEditing": "Keep editing",
+  "restored": "Restored",
   "txTypeExpense": "Expense",
   "txTypeIncome": "Income",
   "txTypeTransfer": "Transfer",
@@ -376,6 +383,10 @@
   "accountTypeLabel": "Account type",
   "outstandingWhenAdded": "Outstanding when added",
   "outstandingWhenAddedHelp": "The card's current outstanding is {current}, which already includes transactions recorded in the app. Only change this to correct the starting amount.",
+  "cardDueDate": "Payment due date",
+  "cardDueDateHelp": "Repeats every month on this day.",
+  "cardDueDateRequired": "Choose the payment due date",
+  "cardMoreDetails": "More details (optional)",
   "loansTitle": "Loans",
   "loansEmpty": "No loans yet. Add a loan to track EMIs, interest and what's left to pay.",
   "addLoan": "Add loan",
@@ -390,12 +401,8 @@
   "tenureMonthsHelp": "{months} months",
   "firstEmiDate": "First EMI date",
   "emiAmount": "EMI amount",
-  "emiComputed": "Calculated EMI: {amount}",
-  "emiOverride": "Use the lender's EMI",
-  "emiOverrideHelp": "Lenders sometimes round the EMI. Enter their exact figure so the schedule matches your statements.",
   "payFromAccount": "Pay EMIs from",
   "loanReminder": "Remind me before each EMI",
-  "findRate": "Don't know the rate? Find it from the EMI",
   "loansOutstanding": "Total outstanding",
   "loansMonthlyEmi": "Monthly EMIs",
   "loansActive": "{count} active",
@@ -455,6 +462,20 @@
   "useThisRate": "Use this rate",
   "calcEnterValues": "Enter the values to see the result.",
   "emiFrequencyLabel": "EMI frequency",
+  "loanRateCalculated": "Interest rate (calculated)",
+  "loanRateFromEmi": "Worked out from the principal, EMI amount and number of EMIs, so you don't have to look it up.",
+  "loanInterestSummary": "Total interest {interest} · total payable {total}",
+  "loanEmisPaid": "EMIs already paid",
+  "loanEmisPaidHelp": "How many EMIs you've already paid. They're marked paid in the schedule; no account balance changes.",
+  "loanEmisPaidInvalid": "Enter a number from 0 to {max}",
+  "loanFirstEmiDate": "First EMI date",
+  "loanNextEmiDate": "Next EMI date",
+  "loanNextEmiHelp": "Due date of EMI #{number}",
+  "loanKnowRate": "I know the interest rate instead",
+  "loanUseEmi": "Use the EMI amount instead",
+  "loanEmiCalculated": "Calculated EMI: {amount}",
+  "loanPayFromHelp": "Optional. Used as the default account when you mark an EMI paid.",
+  "loanSavedWithPaid": "Loan saved. {count} EMIs marked as paid.",
   "borrowLendTitle": "Borrow & lend",
   "debtsEmpty": "Nothing here yet. Record money you've borrowed from or lent to someone.",
   "newDebt": "New record",
@@ -637,15 +658,69 @@
   "moreMoney": "Money",
   "moreTools": "Tools",
   "moreApp": "App",
-  "welcomeTitle": "Welcome to ExpanseTrackerPro",
-  "welcomeBody": "Track spending, accounts, cards, loans and reminders in one place. Works offline; syncs securely when you're online.",
+  "welcomeTitle": "Your money, beautifully organised",
+  "welcomeBody": "Expenses, accounts, cards, loans and reminders — all in one calm, private place.",
   "welcomePrivacy": "Your data is private to your account. We never ask for bank passwords, PINs or card numbers.",
   "continueWithGoogle": "Continue with Google",
   "continueAsGuest": "Continue without an account",
-  "guestNote": "You can sign in with Google later to back up your data.",
+  "guestNote": "Start right away. Link Google later in Settings to back up and use your data on a new phone.",
   "signInFailed": "Sign-in didn't complete. Please try again.",
-  "firstLaunchOffline": "Connect to the internet once to set up your private space. After that, the app works offline.",
+  "firstLaunchOffline": "You're offline. Connect to the internet once to set up your private space — after that the app works offline.",
   "signOutBody": "Your data stays in your account. Sign in again with the same Google account to see it.",
+  "welcomeFeatureTrack": "Every rupee in one place",
+  "welcomeFeatureDues": "Never miss a due date",
+  "welcomeFeatureLoans": "Loans made clear",
+  "welcomeFeaturePrivate": "Private and offline-first",
+  "googleNote": "Recommended: your data is backed up and follows you to a new phone.",
+  "signingIn": "Signing you in…",
+  "signInCancelled": "Sign-in was cancelled.",
+  "guestUnavailable": "Guest access is turned off for this app right now. Please continue with Google.",
+  "guestUnavailableDev": "Developer: enable Anonymous sign-in in Firebase Console → Authentication → Sign-in method.",
+  "backupConnectTitle": "Back up your data",
+  "backupConnectBody": "Connect your Google account to back up automatically and restore on a new phone. Without it, your data lives only on this device.",
+  "backupConnect": "Connect backup",
+  "backupConnectedTitle": "Backup connected",
+  "backupConnectedAs": "Backing up to {email}",
+  "backupConnectUnavailable": "Cloud backup needs Google sign-in, which isn't available on this device.",
+  "adPrivacyOptions": "Ad privacy settings",
+  "adPrivacyOptionsHelp": "Review or change your choice about personalised ads.",
+  "categoriesTitle": "Categories",
+  "categoriesManage": "Manage categories",
+  "categoryBuiltIn": "Built-in",
+  "categoryYours": "Your categories",
+  "categoryYoursEmpty": "You haven't added any categories yet. Tap + to create one.",
+  "categoryAdd": "New category",
+  "categoryEdit": "Edit category",
+  "categoryNameLabel": "Category name",
+  "categoryNameHint": "e.g. Pets, Coffee, Freelance",
+  "categoryTypeLabel": "Used for",
+  "categoryIconLabel": "Icon",
+  "categoryColorLabel": "Color",
+  "categoryNameEmpty": "Enter a name",
+  "categoryNameTooLong": "Keep it under {max} characters",
+  "categoryNameDuplicate": "A category with this name already exists",
+  "categoryTypeLocked": "The type can't be changed after creation.",
+  "categoryArchived": "Archived",
+  "categoryArchive": "Archive",
+  "categoryRestore": "Restore",
+  "categoryArchivedNote": "Archived categories are hidden when adding transactions, but existing transactions keep them.",
+  "categoryInUse": "This category is used by transactions, a budget or a recurring entry, so it can't be deleted. Archive it instead.",
+  "categoryDeleted": "Category deleted",
+  "categoryNew": "New",
+  "categoryRequired": "Choose a category",
+  "categoryTapToClear": "Tap the selected category again to clear it",
+  "typeTapToClear": "Tap again to switch back to Expense",
+  "paymentRequired": "Choose how you paid",
+  "receivedRequired": "Choose where the money went",
+  "paymentCash": "Cash / not tracked",
+  "paymentCashHint": "Doesn't change any balance",
+  "paymentNoneYet": "No accounts or cards yet. Add one to see balances update automatically, or continue with untracked cash.",
+  "paymentTapToClear": "Tap again to clear",
+  "paymentPaidFrom": "Paid from",
+  "paymentPayingAccount": "Pay the bill from",
+  "paymentDestination": "Add to account",
+  "addExpenseFromAccount": "Add transaction",
+  "adLabel": "Advertisement",
   "@deleteConfirmTitle": {
     "placeholders": {
       "item": {
@@ -947,13 +1022,6 @@
       }
     }
   },
-  "@emiComputed": {
-    "placeholders": {
-      "amount": {
-        "type": "String"
-      }
-    }
-  },
   "@loansActive": {
     "placeholders": {
       "count": {
@@ -1074,6 +1142,44 @@
   "@calcRateValue": {
     "placeholders": {
       "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "@loanInterestSummary": {
+    "placeholders": {
+      "interest": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "@loanEmisPaidInvalid": {
+    "placeholders": {
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "@loanNextEmiHelp": {
+    "placeholders": {
+      "number": {
+        "type": "String"
+      }
+    }
+  },
+  "@loanEmiCalculated": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@loanSavedWithPaid": {
+    "placeholders": {
+      "count": {
         "type": "String"
       }
     }
@@ -1202,5 +1308,388 @@
         "type": "String"
       }
     }
-  }
+  },
+  "@backupConnectedAs": {
+    "placeholders": {
+      "email": {
+        "type": "String"
+      }
+    }
+  },
+  "@categoryNameTooLong": {
+    "placeholders": {
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationChannelName": "Reminders",
+  "notificationChannelDescription": "Bill, EMI, card and personal reminders",
+  "settingsAds": "Ads",
+  "adFreeTitle": "No ads for 24 hours",
+  "adFreeShort": "Watch a video, no ads for 24 hours",
+  "adFreeWatch": "Watch a video",
+  "adFreeHelp": "Watch one short video and Kept shows no ads for the next 24 hours.",
+  "adFreeActive": "Ads are off until {time}",
+  "@adFreeActive": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "adFreeLoading": "Getting a video ready…",
+  "adFreeUnavailable": "No video is available right now. Please try again later.",
+  "adFreeThanks": "Thanks! No ads for the next 24 hours.",
+  "adFreeNotCompleted": "Watch the video to the end to turn ads off.",
+  "paymentTypeAccount": "Bank account",
+  "paymentTypeCash": "Cash",
+  "txTypeRepayBorrow": "Repay a borrow",
+  "repayWhich": "Which borrow?",
+  "repayLeft": "{amount} left",
+  "@repayLeft": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "moreTypes": "More",
+  "moreDetails": "More details",
+  "moreCategories": "More",
+  "debtPlanTitle": "Debt-free plan",
+  "debtPlanEmpty": "No loans, card balances or borrowed money to clear. You're debt-free!",
+  "debtPlanDebtFreeBy": "Debt-free by",
+  "debtPlanIn": "in {duration}",
+  "@debtPlanIn": {
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "debtPlanDurationMonths": "{months} mo",
+  "@debtPlanDurationMonths": {
+    "placeholders": {
+      "months": {
+        "type": "String"
+      }
+    }
+  },
+  "debtPlanDurationYears": "{years} yr {months} mo",
+  "@debtPlanDurationYears": {
+    "placeholders": {
+      "years": {
+        "type": "String"
+      },
+      "months": {
+        "type": "String"
+      }
+    }
+  },
+  "debtPlanTotalOwed": "Total owed",
+  "debtPlanInterestAhead": "Interest still to pay",
+  "debtPlanSavings": "Saves {amount} and {duration} compared with paying only the minimums",
+  "@debtPlanSavings": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "debtPlanSavingsInterestOnly": "Saves {amount} compared with paying only the minimums",
+  "@debtPlanSavingsInterestOnly": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "debtPlanNeverClears": "At this payment some debts never clear. Add more each month to finish them.",
+  "debtPlanChartTitle": "Your debt going down",
+  "debtPlanChartSemantics": "Total debt falls from {amount} to zero by {date}",
+  "@debtPlanChartSemantics": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "debtPlanMonthlyTitle": "What you pay each month",
+  "debtPlanExtraLabel": "Extra per month",
+  "debtPlanMinimums": "Minimum payments",
+  "debtPlanExtra": "Extra",
+  "debtPlanTotalMonthly": "Total each month",
+  "debtPlanCommitNote": "Keep paying this total even after a debt closes. The freed-up money clears the next one.",
+  "debtPlanWhatIfTitle": "What if you paid more?",
+  "debtPlanWhatIfRow": "+{amount} a month",
+  "@debtPlanWhatIfRow": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "debtPlanWhatIfDetail": "Done by {date}, saves {amount}",
+  "@debtPlanWhatIfDetail": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "debtPlanWhatIfStillOpen": "Some debts still won't clear",
+  "debtPlanStrategyTitle": "Which debt first?",
+  "debtPlanAvalanche": "Highest interest first",
+  "debtPlanAvalancheHelp": "Costs the least overall.",
+  "debtPlanSnowball": "Smallest balance first",
+  "debtPlanSnowballHelp": "Closes debts sooner, so you see progress early.",
+  "debtPlanStrategyResult": "Done by {date} · {amount} interest",
+  "@debtPlanStrategyResult": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "debtPlanCheapest": "Lowest cost",
+  "debtPlanThisMonthTitle": "Pay this in {month}",
+  "@debtPlanThisMonthTitle": {
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "debtPlanFocus": "Put your extra here",
+  "debtPlanRoadmapTitle": "Your roadmap",
+  "debtPlanStepCleared": "Cleared by {date}",
+  "@debtPlanStepCleared": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "debtPlanStepOpen": "Not cleared at this payment",
+  "debtPlanRate": "{rate}% a year",
+  "@debtPlanRate": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "debtPlanRateEstimated": "{rate}% a year (estimated)",
+  "@debtPlanRateEstimated": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "debtPlanNoInterest": "No interest",
+  "debtPlanSetRate": "Set interest rate",
+  "debtPlanSetRateTitle": "Interest rate for {name}",
+  "@debtPlanSetRateTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "debtPlanEstimatedWarning": "Some cards use an estimated {rate}% interest rate. Set the real rate from your statement for an accurate plan.",
+  "@debtPlanEstimatedWarning": {
+    "placeholders": {
+      "rate": {
+        "type": "String"
+      }
+    }
+  },
+  "debtPlanLowPayment": "{names}: the minimum payment doesn't cover the interest, so this balance grows unless you pay more.",
+  "@debtPlanLowPayment": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "debtPlanTipsTitle": "Clear it faster",
+  "debtPlanTipOverdue": "Clear overdue payments first. Late fees and penalty interest cost more than anything in this plan.",
+  "debtPlanTipCardInterest": "Your cards cost about {amount} in interest this month. Avoid new spending on them until they are cleared.",
+  "@debtPlanTipCardInterest": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "debtPlanTipUtilization": "{names}: over 30% of the limit is in use. Bringing it lower can help your credit score.",
+  "@debtPlanTipUtilization": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "debtPlanTipConsolidate": "Ask your bank about moving card dues to a lower-rate loan or EMI. Do it only if the total cost, with fees, is lower.",
+  "debtPlanAssumptions": "Estimate only. Assumes no new card spending, on-time payments and unchanged rates. Lenders may charge for prepayment, so check first.",
+  "cardAnnualRate": "Interest rate (% a year)",
+  "cardAnnualRateHelp": "Shown on your statement. Used by the Debt-free plan.",
+  "extraMoneyTitle": "Got extra money?",
+  "extraMoneySubtitle": "Bonus, arrears or side income: see which debt to close with it.",
+  "extraMoneyAction": "See where to put it",
+  "extraMoneyDetected": "{amount} more income than usual this month. Put it to work on your debt.",
+  "@extraMoneyDetected": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "extraMoneyIntro": "Enter the extra amount you received and we'll show which loan, EMI or card to pay.",
+  "extraMoneyAmount": "Extra money received",
+  "extraMoneyRecordIncome": "Add it to my income",
+  "extraMoneyKeepReserve": "Keep some as emergency money",
+  "extraMoneyKeepReserveHelp": "Your savings are below 3 months of expenses and payments. Up to 25% is set aside.",
+  "extraMoneyDoThis": "Do this",
+  "extraMoneyCloses": "Closes this debt",
+  "extraMoneyPartPayment": "Part payment",
+  "extraMoneyKeep": "Keep as emergency money",
+  "extraMoneyLeftover": "Left over for you",
+  "extraMoneyResult": "What this does",
+  "extraMoneyClearsAll": "This clears all your debt!",
+  "extraMoneyNewDate": "Debt-free by {date}",
+  "@extraMoneyNewDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "extraMoneyInterestSaved": "Interest saved",
+  "extraMoneySooner": "Finishes {duration} sooner",
+  "@extraMoneySooner": {
+    "placeholders": {
+      "duration": {
+        "type": "String"
+      }
+    }
+  },
+  "extraMoneyFreed": "Monthly payments that stop",
+  "extraMoneyInstead": "Prefer one less EMI? {name} can be closed outright for {amount}, which stops {monthly} a month.",
+  "@extraMoneyInstead": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      },
+      "monthly": {
+        "type": "String"
+      }
+    }
+  },
+  "extraMoneyCaution": "Tap a debt to record the payment. Ask your lender for the exact closing amount and any prepayment charges first.",
+  "debtProgressTitle": "Your progress",
+  "debtProgressPaid": "{paid} paid off of {peak}",
+  "@debtProgressPaid": {
+    "placeholders": {
+      "paid": {
+        "type": "String"
+      },
+      "peak": {
+        "type": "String"
+      }
+    }
+  },
+  "debtProgressJustCleared": "Well done! You cleared {names}.",
+  "@debtProgressJustCleared": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      }
+    }
+  },
+  "debtLoadTitle": "Debt load",
+  "debtLoadShare": "Required payments take {percent}% of your usual income.",
+  "@debtLoadShare": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "debtLoadHealthy": "Healthy",
+  "debtLoadHealthyHelp": "You have room to pay extra and finish sooner.",
+  "debtLoadWatch": "Be careful",
+  "debtLoadWatchHelp": "Avoid taking on new EMIs until this comes down.",
+  "debtLoadHigh": "Too high",
+  "debtLoadHighHelp": "Above 40% is hard to sustain. Avoid new loans and consider asking your lender about restructuring.",
+  "debtLoadOverBudget": "Usual spending and payments are {amount} a month more than your usual income.",
+  "@debtLoadOverBudget": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "debtPlanSuggestedExtra": "Your last few months suggest you can afford {amount} extra a month.",
+  "@debtPlanSuggestedExtra": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "debtPlanUseSuggested": "Use this amount",
+  "debtPlanReminder": "Remind me each month",
+  "debtPlanReminderHelp": "A notification on the 1st says what to pay.",
+  "debtPlanReminderTitle": "Debt plan: pay {amount} to {name}",
+  "@debtPlanReminderTitle": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "debtPlanCompareSwitch": "Compare the cost",
+  "debtSwitchTitle": "Move to a cheaper loan?",
+  "debtSwitchIntro": "Compare keeping a balance at its current rate with a card-to-EMI plan, balance transfer or personal loan.",
+  "debtSwitchBalance": "Amount to move",
+  "debtSwitchCurrentRate": "Current interest rate (% a year)",
+  "debtSwitchNewRate": "New interest rate (% a year)",
+  "debtSwitchMonths": "Months to repay",
+  "debtSwitchFee": "Processing fee",
+  "debtSwitchFeeHelp": "Include GST. Some EMI offers charge interest at a flat rate, so ask for the reducing-balance rate.",
+  "debtSwitchResult": "Result",
+  "debtSwitchWorthIt": "Worth it: saves {amount} after the fee",
+  "@debtSwitchWorthIt": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "debtSwitchNotWorthIt": "Not worth it: the fee cancels out the saving",
+  "debtSwitchKeepInterest": "Interest if you stay",
+  "debtSwitchNewInterest": "Interest if you move",
+  "debtSwitchFeeAmount": "Fee",
+  "debtSwitchNewEmi": "New monthly EMI"
 }

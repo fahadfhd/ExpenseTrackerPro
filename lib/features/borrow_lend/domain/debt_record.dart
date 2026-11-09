@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart' show Timestamp;
-import 'package:expensetrackerpro/core/firebase/firestore_codec.dart';
-import 'package:expensetrackerpro/core/utils/dates.dart';
+import 'package:kept/core/firebase/firestore_codec.dart';
+import 'package:kept/core/utils/dates.dart';
 
 enum DebtDirection {
   /// I borrowed from someone; I owe them.

@@ -1,6 +1,6 @@
 import 'package:intl/intl.dart';
-import 'package:expensetrackerpro/domain/entities/due_item.dart';
-import 'package:expensetrackerpro/domain/entities/email_message_item.dart';
+import 'package:kept/domain/entities/due_item.dart';
+import 'package:kept/domain/entities/email_message_item.dart';
 
 class EmailDueParser {
   static final RegExp _amountPattern = RegExp(

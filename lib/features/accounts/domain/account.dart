@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart' show Timestamp;
-import 'package:expensetrackerpro/core/firebase/firestore_codec.dart';
+import 'package:kept/core/firebase/firestore_codec.dart';
 
 enum AccountType { savings, current, cash, wallet, other }
 
@@ -82,7 +82,11 @@ class Account {
       id: id,
       name: Codec.string(map['name']),
       bankName: Codec.string(map['bankName']),
-      type: Codec.enumByName(AccountType.values, map['type'], AccountType.other),
+      type: Codec.enumByName(
+        AccountType.values,
+        map['type'],
+        AccountType.other,
+      ),
       openingBalanceMinor: Codec.integer(map['openingBalanceMinor']),
       ledgerDeltaMinor: Codec.integer(map['ledgerDeltaMinor']),
       notes: Codec.string(map['notes']),

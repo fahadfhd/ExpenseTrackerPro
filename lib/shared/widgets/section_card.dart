@@ -1,4 +1,4 @@
-import 'package:expensetrackerpro/core/theme/app_theme.dart';
+import 'package:kept/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 
 class SectionCard extends StatelessWidget {
@@ -27,36 +27,48 @@ class SectionCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             if (title != null) ...[
-              Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Semantics(
-                          header: true,
-                          child: Text(
-                            title!,
-                            style: theme.textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
-                        ),
-                        if (subtitle != null)
-                          Padding(
-                            padding: const EdgeInsets.only(top: 2),
+              LayoutBuilder(
+                builder: (context, constraints) => Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Semantics(
+                            header: true,
                             child: Text(
-                              subtitle!,
-                              style: theme.textTheme.bodySmall?.copyWith(
-                                color: theme.colorScheme.onSurfaceVariant,
+                              title!,
+                              style: theme.textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.w800,
                               ),
                             ),
                           ),
-                      ],
+                          if (subtitle != null)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 2),
+                              child: Text(
+                                subtitle!,
+                                style: theme.textTheme.bodySmall?.copyWith(
+                                  color: theme.colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
                     ),
-                  ),
-                  ?trailing,
-                ],
+                    // A chip, percentage or button keeps its natural width,
+                    // but never more than half the row: a long label (common
+                    // in translations, or at large text sizes) must not push
+                    // the title out or overflow the card.
+                    if (trailing != null)
+                      ConstrainedBox(
+                        constraints: BoxConstraints(
+                          maxWidth: constraints.maxWidth / 2,
+                        ),
+                        child: trailing,
+                      ),
+                  ],
+                ),
               ),
               const SizedBox(height: 14),
             ],
@@ -82,7 +94,9 @@ class KpiGrid extends StatelessWidget {
       children: [
         for (var i = 0; i < children.length; i += 2)
           Padding(
-            padding: EdgeInsets.only(bottom: i + 2 < children.length ? spacing : 0),
+            padding: EdgeInsets.only(
+              bottom: i + 2 < children.length ? spacing : 0,
+            ),
             child: IntrinsicHeight(
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.stretch,

@@ -1,4 +1,4 @@
-import 'package:expensetrackerpro/features/transactions/domain/transaction.dart';
+import 'package:kept/features/transactions/domain/transaction.dart';
 
 /// How transactions move account balances and card outstanding.
 ///

@@ -1,12 +1,12 @@
-import 'package:expensetrackerpro/core/l10n/l10n.dart';
-import 'package:expensetrackerpro/core/routing/app_routes.dart';
-import 'package:expensetrackerpro/features/accounts/application/account_providers.dart';
-import 'package:expensetrackerpro/features/accounts/domain/account.dart';
-import 'package:expensetrackerpro/features/credit_cards/application/card_providers.dart';
-import 'package:expensetrackerpro/features/credit_cards/domain/credit_card.dart';
-import 'package:expensetrackerpro/shared/widgets/money_text.dart';
-import 'package:expensetrackerpro/shared/widgets/section_card.dart';
-import 'package:expensetrackerpro/shared/widgets/states.dart';
+import 'package:kept/core/l10n/l10n.dart';
+import 'package:kept/core/routing/app_routes.dart';
+import 'package:kept/features/accounts/application/account_providers.dart';
+import 'package:kept/features/accounts/domain/account.dart';
+import 'package:kept/features/credit_cards/application/card_providers.dart';
+import 'package:kept/features/credit_cards/domain/credit_card.dart';
+import 'package:kept/shared/widgets/money_text.dart';
+import 'package:kept/shared/widgets/section_card.dart';
+import 'package:kept/shared/widgets/states.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -44,7 +44,10 @@ class _AccountsScreenState extends ConsumerState<AccountsScreen>
         title: Text(l10n.accountsTitle),
         bottom: TabBar(
           controller: _tabs,
-          tabs: [Tab(text: l10n.accountsTab), Tab(text: l10n.cardsTab)],
+          tabs: [
+            Tab(text: l10n.accountsTab),
+            Tab(text: l10n.cardsTab),
+          ],
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
@@ -52,7 +55,8 @@ class _AccountsScreenState extends ConsumerState<AccountsScreen>
         icon: const Icon(Icons.add_rounded),
         label: AnimatedBuilder(
           animation: _tabs,
-          builder: (_, _) => Text(_tabs.index == 0 ? l10n.addAccount : l10n.addCard),
+          builder: (_, _) =>
+              Text(_tabs.index == 0 ? l10n.addAccount : l10n.addCard),
         ),
         onPressed: () => _tabs.index == 0
             ? AppRoutes.newAccount(context)
@@ -98,15 +102,26 @@ class _AccountsTabState extends ConsumerState<_AccountsTab> {
                 children: [
                   MoneyText(
                     worth.netMinor,
-                    tone: worth.netMinor < 0 ? MoneyTone.negative : MoneyTone.neutral,
+                    tone: worth.netMinor < 0
+                        ? MoneyTone.negative
+                        : MoneyTone.neutral,
                     signed: worth.netMinor < 0,
-                    style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900),
+                    style: theme.textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.w900,
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      Expanded(child: _LabeledAmount(l10n.assets, worth.assetsMinor)),
-                      Expanded(child: _LabeledAmount(l10n.cardDebt, worth.cardDebtMinor)),
+                      Expanded(
+                        child: _LabeledAmount(l10n.assets, worth.assetsMinor),
+                      ),
+                      Expanded(
+                        child: _LabeledAmount(
+                          l10n.cardDebt,
+                          worth.cardDebtMinor,
+                        ),
+                      ),
                     ],
                   ),
                 ],
@@ -114,15 +129,23 @@ class _AccountsTabState extends ConsumerState<_AccountsTab> {
             ),
             const SizedBox(height: 12),
             if (active.isEmpty)
-              EmptyState(icon: Icons.account_balance_rounded, message: l10n.accountsEmpty),
+              EmptyState(
+                icon: Icons.account_balance_rounded,
+                message: l10n.accountsEmpty,
+              ),
             for (final a in active) _AccountTile(a),
             if (archived.isNotEmpty)
               TextButton.icon(
-                icon: Icon(_showArchived ? Icons.expand_less_rounded : Icons.expand_more_rounded),
+                icon: Icon(
+                  _showArchived
+                      ? Icons.expand_less_rounded
+                      : Icons.expand_more_rounded,
+                ),
                 label: Text(l10n.showArchived('${archived.length}')),
                 onPressed: () => setState(() => _showArchived = !_showArchived),
               ),
-            if (_showArchived) for (final a in archived) _AccountTile(a),
+            if (_showArchived)
+              for (final a in archived) _AccountTile(a),
           ],
         );
       },
@@ -141,8 +164,18 @@ class _LabeledAmount extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
-        MoneyText(amountMinor, style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700)),
+        Text(
+          label,
+          style: theme.textTheme.labelMedium?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ),
+        MoneyText(
+          amountMinor,
+          style: theme.textTheme.titleSmall?.copyWith(
+            fontWeight: FontWeight.w700,
+          ),
+        ),
       ],
     );
   }
@@ -164,9 +197,15 @@ class _AccountTile extends StatelessWidget {
         onTap: () => AppRoutes.account(context, account.id),
         leading: CircleAvatar(
           backgroundColor: theme.colorScheme.primaryContainer,
-          child: Icon(accountIcon(account.type), color: theme.colorScheme.onPrimaryContainer),
+          child: Icon(
+            accountIcon(account.type),
+            color: theme.colorScheme.onPrimaryContainer,
+          ),
         ),
-        title: Text(account.name, style: const TextStyle(fontWeight: FontWeight.w700)),
+        title: Text(
+          account.name,
+          style: const TextStyle(fontWeight: FontWeight.w700),
+        ),
         subtitle: Text(
           [
             if (account.bankName.isNotEmpty) account.bankName,
@@ -178,7 +217,9 @@ class _AccountTile extends StatelessWidget {
           account.balanceMinor,
           tone: negative ? MoneyTone.negative : MoneyTone.neutral,
           signed: negative,
-          style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800),
+          style: theme.textTheme.titleSmall?.copyWith(
+            fontWeight: FontWeight.w800,
+          ),
         ),
       ),
     );
@@ -199,7 +240,10 @@ class _CardsTab extends ConsumerWidget {
       data: (list) {
         final visible = list.where((c) => !c.archived).toList();
         if (visible.isEmpty) {
-          return EmptyState(icon: Icons.credit_card_rounded, message: l10n.cardsEmpty);
+          return EmptyState(
+            icon: Icons.credit_card_rounded,
+            message: l10n.cardsEmpty,
+          );
         }
         return ListView(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
@@ -242,7 +286,9 @@ class CardSummaryTile extends StatelessWidget {
                   Expanded(
                     child: Text(
                       card.displayName,
-                      style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w800,
+                      ),
                     ),
                   ),
                   if (card.bankName.isNotEmpty)
@@ -252,9 +298,21 @@ class CardSummaryTile extends StatelessWidget {
               const SizedBox(height: 14),
               Row(
                 children: [
-                  Expanded(child: _LabeledAmount(l10n.outstanding, card.outstandingMinor)),
-                  Expanded(child: _LabeledAmount(l10n.available, card.availableMinor)),
-                  Expanded(child: _LabeledAmount(l10n.creditLimit, card.creditLimitMinor)),
+                  Expanded(
+                    child: _LabeledAmount(
+                      l10n.outstanding,
+                      card.outstandingMinor,
+                    ),
+                  ),
+                  Expanded(
+                    child: _LabeledAmount(l10n.available, card.availableMinor),
+                  ),
+                  Expanded(
+                    child: _LabeledAmount(
+                      l10n.creditLimit,
+                      card.creditLimitMinor,
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(height: 12),
@@ -267,12 +325,17 @@ class CardSummaryTile extends StatelessWidget {
               const SizedBox(height: 6),
               Row(
                 children: [
-                  Text(l10n.utilizationValue('$percent'), style: theme.textTheme.labelMedium),
+                  Text(
+                    l10n.utilizationValue('$percent'),
+                    style: theme.textTheme.labelMedium,
+                  ),
                   const Spacer(),
                   if (status != null && status!.totalDueMinor > 0)
                     Text(
                       '${l10n.totalDue}: ${DateFormat.MMMd(locale).format(status!.dueDate)}',
-                      style: theme.textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w700),
+                      style: theme.textTheme.labelMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                 ],
               ),

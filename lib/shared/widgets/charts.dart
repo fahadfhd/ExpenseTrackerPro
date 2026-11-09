@@ -1,8 +1,8 @@
 import 'dart:math' as math;
 
-import 'package:expensetrackerpro/core/money/currency_formatter.dart';
-import 'package:expensetrackerpro/core/settings/app_settings.dart';
-import 'package:expensetrackerpro/core/theme/app_theme.dart';
+import 'package:kept/core/money/currency_formatter.dart';
+import 'package:kept/core/settings/app_settings.dart';
+import 'package:kept/core/theme/app_theme.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -31,7 +31,12 @@ class BarItem {
 /// Ranked horizontal bars with labels and values written out. Single hue:
 /// the job is magnitude, so color does not encode identity.
 class RankedBars extends ConsumerWidget {
-  const RankedBars({super.key, required this.items, this.maxItems = 6, this.otherLabel});
+  const RankedBars({
+    super.key,
+    required this.items,
+    this.maxItems = 6,
+    this.otherLabel,
+  });
 
   final List<BarItem> items;
   final int maxItems;
@@ -46,10 +51,16 @@ class RankedBars extends ConsumerWidget {
     final color = context.finance.series1;
     var shown = items;
     if (items.length > maxItems && otherLabel != null) {
-      final rest = items.skip(maxItems - 1).fold<int>(0, (s, i) => s + i.valueMinor);
+      final rest = items
+          .skip(maxItems - 1)
+          .fold<int>(0, (s, i) => s + i.valueMinor);
       shown = [
         ...items.take(maxItems - 1),
-        BarItem(label: otherLabel!, valueMinor: rest, icon: Icons.more_horiz_rounded),
+        BarItem(
+          label: otherLabel!,
+          valueMinor: rest,
+          icon: Icons.more_horiz_rounded,
+        ),
       ];
     }
     final max = shown.fold<int>(0, (m, i) => math.max(m, i.valueMinor));
@@ -70,7 +81,13 @@ class RankedBars extends ConsumerWidget {
                 child: Row(
                   children: [
                     if (item.icon != null) ...[
-                      Icon(item.icon, size: 20, color: item.iconColor ?? theme.colorScheme.onSurfaceVariant),
+                      Icon(
+                        item.icon,
+                        size: 20,
+                        color:
+                            item.iconColor ??
+                            theme.colorScheme.onSurfaceVariant,
+                      ),
                       const SizedBox(width: 10),
                     ],
                     Expanded(
@@ -96,15 +113,21 @@ class RankedBars extends ConsumerWidget {
                                     text: money.format(item.valueMinor),
                                     style: theme.textTheme.bodyMedium?.copyWith(
                                       fontWeight: FontWeight.w700,
-                                      fontFeatures: const [FontFeature.tabularFigures()],
+                                      fontFeatures: const [
+                                        FontFeature.tabularFigures(),
+                                      ],
                                     ),
                                     children: [
                                       if (total != 0)
                                         TextSpan(
-                                          text: '  ${(item.valueMinor * 100 / total).round()}%',
-                                          style: theme.textTheme.labelSmall?.copyWith(
-                                            color: theme.colorScheme.onSurfaceVariant,
-                                          ),
+                                          text:
+                                              '  ${(item.valueMinor * 100 / total).round()}%',
+                                          style: theme.textTheme.labelSmall
+                                              ?.copyWith(
+                                                color: theme
+                                                    .colorScheme
+                                                    .onSurfaceVariant,
+                                              ),
                                         ),
                                     ],
                                   ),
@@ -144,24 +167,25 @@ FlGridData _grid(BuildContext context) => FlGridData(
   ),
 );
 
-AxisTitles _moneyAxis(BuildContext context, CurrencyFormatter money) => AxisTitles(
-  sideTitles: SideTitles(
-    showTitles: true,
-    reservedSize: 48,
-    getTitlesWidget: (value, meta) {
-      if (value == meta.max && value != 0) return const SizedBox.shrink();
-      return SideTitleWidget(
-        meta: meta,
-        child: Text(
-          money.compact(value.round()),
-          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
-        ),
-      );
-    },
-  ),
-);
+AxisTitles _moneyAxis(BuildContext context, CurrencyFormatter money) =>
+    AxisTitles(
+      sideTitles: SideTitles(
+        showTitles: true,
+        reservedSize: 48,
+        getTitlesWidget: (value, meta) {
+          if (value == meta.max && value != 0) return const SizedBox.shrink();
+          return SideTitleWidget(
+            meta: meta,
+            child: Text(
+              money.compact(value.round()),
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+          );
+        },
+      ),
+    );
 
 const _hidden = AxisTitles(sideTitles: SideTitles(showTitles: false));
 
@@ -212,8 +236,13 @@ class DailyBarChart extends ConsumerWidget {
                   reservedSize: 22,
                   getTitlesWidget: (value, meta) {
                     final day = value.toInt();
-                    if (day != 1 && day % 5 != 0) return const SizedBox.shrink();
-                    return SideTitleWidget(meta: meta, child: Text('$day', style: labelStyle));
+                    if (day != 1 && day % 5 != 0) {
+                      return const SizedBox.shrink();
+                    }
+                    return SideTitleWidget(
+                      meta: meta,
+                      child: Text('$day', style: labelStyle),
+                    );
                   },
                 ),
               ),
@@ -236,7 +265,9 @@ class DailyBarChart extends ConsumerWidget {
                       toY: (byDay[d] ?? 0).toDouble(),
                       width: 6,
                       color: color,
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(4),
+                      ),
                     ),
                   ],
                 ),
@@ -264,7 +295,14 @@ class _LegendDot extends StatelessWidget {
   Widget build(BuildContext context) => Row(
     mainAxisSize: MainAxisSize.min,
     children: [
-      Container(width: 10, height: 10, decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(3))),
+      Container(
+        width: 10,
+        height: 10,
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(3),
+        ),
+      ),
       const SizedBox(width: 6),
       Text(label, style: Theme.of(context).textTheme.labelMedium),
     ],
@@ -303,7 +341,10 @@ class MonthlyBarChart extends ConsumerWidget {
           if (twoSeries) ...[
             Wrap(
               spacing: 16,
-              children: [_LegendDot(colors.series1, aLabel), _LegendDot(colors.series2, bLabel!)],
+              children: [
+                _LegendDot(colors.series1, aLabel),
+                _LegendDot(colors.series2, bLabel!),
+              ],
             ),
             const SizedBox(height: 12),
           ],
@@ -323,8 +364,13 @@ class MonthlyBarChart extends ConsumerWidget {
                       reservedSize: 22,
                       getTitlesWidget: (value, meta) {
                         final i = value.toInt();
-                        if (i < 0 || i >= months.length) return const SizedBox.shrink();
-                        return SideTitleWidget(meta: meta, child: Text(months[i].label, style: labelStyle));
+                        if (i < 0 || i >= months.length) {
+                          return const SizedBox.shrink();
+                        }
+                        return SideTitleWidget(
+                          meta: meta,
+                          child: Text(months[i].label, style: labelStyle),
+                        );
                       },
                     ),
                   ),
@@ -348,14 +394,18 @@ class MonthlyBarChart extends ConsumerWidget {
                           toY: months[i].a.toDouble(),
                           width: twoSeries ? 9 : 16,
                           color: colors.series1,
-                          borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
+                          borderRadius: const BorderRadius.vertical(
+                            top: Radius.circular(4),
+                          ),
                         ),
                         if (twoSeries)
                           BarChartRodData(
                             toY: (months[i].b ?? 0).toDouble(),
                             width: 9,
                             color: colors.series2,
-                            borderRadius: const BorderRadius.vertical(top: Radius.circular(4)),
+                            borderRadius: const BorderRadius.vertical(
+                              top: Radius.circular(4),
+                            ),
                           ),
                       ],
                     ),
@@ -386,7 +436,9 @@ class TrendLineChart extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final money = ref.watch(currencyFormatterProvider);
     final color = context.finance.series1;
-    final surface = Theme.of(context).cardTheme.color ?? Theme.of(context).colorScheme.surface;
+    final surface =
+        Theme.of(context).cardTheme.color ??
+        Theme.of(context).colorScheme.surface;
     final labelStyle = Theme.of(context).textTheme.labelSmall?.copyWith(
       color: Theme.of(context).colorScheme.onSurfaceVariant,
     );
@@ -410,8 +462,13 @@ class TrendLineChart extends ConsumerWidget {
                   interval: 1,
                   getTitlesWidget: (value, meta) {
                     final i = value.toInt();
-                    if (i < 0 || i >= labels.length || value != i) return const SizedBox.shrink();
-                    return SideTitleWidget(meta: meta, child: Text(labels[i], style: labelStyle));
+                    if (i < 0 || i >= labels.length || value != i) {
+                      return const SizedBox.shrink();
+                    }
+                    return SideTitleWidget(
+                      meta: meta,
+                      child: Text(labels[i], style: labelStyle),
+                    );
                   },
                 ),
               ),
@@ -481,7 +538,9 @@ class SplitBar extends ConsumerWidget {
     final total = aMinor + bMinor;
     final aFlex = total == 0 ? 1 : math.max(1, (aMinor * 1000 / total).round());
     final bFlex = total == 0 ? 1 : math.max(1, (bMinor * 1000 / total).round());
-    final surface = Theme.of(context).cardTheme.color ?? Theme.of(context).colorScheme.surface;
+    final surface =
+        Theme.of(context).cardTheme.color ??
+        Theme.of(context).colorScheme.surface;
     return Semantics(
       label: '$aLabel ${money.format(aMinor)}, $bLabel ${money.format(bMinor)}',
       excludeSemantics: true,
@@ -493,11 +552,20 @@ class SplitBar extends ConsumerWidget {
             child: SizedBox(
               height: 14,
               child: Row(
+                // Without this the childless ColoredBoxes get a loose height
+                // and shrink to nothing: the bar was invisible.
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Expanded(flex: aFlex, child: ColoredBox(color: colors.series1)),
+                  Expanded(
+                    flex: aFlex,
+                    child: ColoredBox(color: colors.series1),
+                  ),
                   // 2px surface gap between segments.
                   SizedBox(width: 2, child: ColoredBox(color: surface)),
-                  Expanded(flex: bFlex, child: ColoredBox(color: colors.series2)),
+                  Expanded(
+                    flex: bFlex,
+                    child: ColoredBox(color: colors.series2),
+                  ),
                 ],
               ),
             ),

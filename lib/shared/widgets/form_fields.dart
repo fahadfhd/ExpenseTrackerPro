@@ -1,6 +1,6 @@
-import 'package:expensetrackerpro/core/l10n/l10n.dart';
-import 'package:expensetrackerpro/core/money/money.dart';
-import 'package:expensetrackerpro/core/settings/app_settings.dart';
+import 'package:kept/core/l10n/l10n.dart';
+import 'package:kept/core/money/money.dart';
+import 'package:kept/core/settings/app_settings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -32,31 +32,44 @@ class AmountField extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
-    final symbol = ref.watch(currencyFormatterProvider).symbol;
-    return TextFormField(
-      controller: controller,
-      autofocus: autofocus,
-      onChanged: onChanged,
-      keyboardType: const TextInputType.numberWithOptions(decimal: true),
-      inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]'))],
-      decoration: InputDecoration(
-        labelText: label ?? l10n.amount,
-        prefixText: '$symbol ',
-      ),
-      validator: (value) {
-        final text = value?.trim() ?? '';
-        if (text.isEmpty) return required ? l10n.invalidAmount : null;
-        final minor = Money.parse(text);
-        if (minor == null || (!allowZero && minor <= 0)) {
-          return l10n.invalidAmount;
-        }
-        if (maxMinor != null && minor > maxMinor!) {
-          return l10n.valueBetween(
-            ref.read(currencyFormatterProvider).format(allowZero ? 0 : 1),
-            ref.read(currencyFormatterProvider).format(maxMinor!),
-          );
-        }
-        return null;
+    final formatter = ref.watch(currencyFormatterProvider);
+    // A live preview of the amount as it will be shown (grouping, symbol),
+    // so a missing or extra zero is obvious before saving.
+    return ValueListenableBuilder<TextEditingValue>(
+      valueListenable: controller,
+      builder: (context, value, _) {
+        final minor = Money.parse(value.text);
+        return TextFormField(
+          controller: controller,
+          autofocus: autofocus,
+          onChanged: onChanged,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          inputFormatters: [
+            FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
+          ],
+          decoration: InputDecoration(
+            labelText: label ?? l10n.amount,
+            prefixText: '${formatter.symbol} ',
+            helperText: minor != null && minor > 0
+                ? formatter.format(minor)
+                : null,
+          ),
+          validator: (value) {
+            final text = value?.trim() ?? '';
+            if (text.isEmpty) return required ? l10n.invalidAmount : null;
+            final minor = Money.parse(text);
+            if (minor == null || (!allowZero && minor <= 0)) {
+              return l10n.invalidAmount;
+            }
+            if (maxMinor != null && minor > maxMinor!) {
+              return l10n.valueBetween(
+                formatter.format(allowZero ? 0 : 1),
+                formatter.format(maxMinor!),
+              );
+            }
+            return null;
+          },
+        );
       },
     );
   }
@@ -149,8 +162,9 @@ class DateField extends StatelessWidget {
     final l10n = context.l10n;
     final text = value == null
         ? l10n.noDate
-        : DateFormat.yMMMEd(Localizations.localeOf(context).toString())
-              .format(value!);
+        : DateFormat.yMMMEd(
+            Localizations.localeOf(context).toString(),
+          ).format(value!);
     return InkWell(
       borderRadius: BorderRadius.circular(16),
       onTap: () async {
@@ -197,7 +211,10 @@ class TimeField extends StatelessWidget {
     return InkWell(
       borderRadius: BorderRadius.circular(16),
       onTap: () async {
-        final picked = await showTimePicker(context: context, initialTime: value);
+        final picked = await showTimePicker(
+          context: context,
+          initialTime: value,
+        );
         if (picked != null) onChanged(picked);
       },
       child: InputDecorator(
@@ -309,16 +326,18 @@ class _PickerSheet<T> extends StatelessWidget {
             padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
             child: Text(
               title,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w800,
-              ),
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
             ),
           ),
           if (noneLabel != null)
             ListTile(
               leading: const Icon(Icons.block_rounded),
               title: Text(noneLabel!),
-              trailing: selected == null ? const Icon(Icons.check_rounded) : null,
+              trailing: selected == null
+                  ? const Icon(Icons.check_rounded)
+                  : null,
               onTap: () => Navigator.pop(context, _Picked<T>(null)),
             ),
           for (final option in options)

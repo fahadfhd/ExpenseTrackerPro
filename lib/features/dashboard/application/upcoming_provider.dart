@@ -1,10 +1,10 @@
-import 'package:expensetrackerpro/core/utils/dates.dart';
-import 'package:expensetrackerpro/features/borrow_lend/application/debt_providers.dart';
-import 'package:expensetrackerpro/features/borrow_lend/domain/debt_record.dart';
-import 'package:expensetrackerpro/features/credit_cards/application/card_providers.dart';
-import 'package:expensetrackerpro/features/loans/application/loan_providers.dart';
-import 'package:expensetrackerpro/features/loans/domain/loan.dart';
-import 'package:expensetrackerpro/features/reminders/application/reminder_providers.dart';
+import 'package:kept/core/utils/dates.dart';
+import 'package:kept/features/borrow_lend/application/debt_providers.dart';
+import 'package:kept/features/borrow_lend/domain/debt_record.dart';
+import 'package:kept/features/credit_cards/application/card_providers.dart';
+import 'package:kept/features/loans/application/loan_providers.dart';
+import 'package:kept/features/loans/domain/loan.dart';
+import 'package:kept/features/reminders/application/reminder_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 enum UpcomingKind { card, loan, borrowed, lent, reminder }
@@ -34,7 +34,9 @@ const upcomingReminderDays = 7;
 /// Everything due soon or overdue across modules, soonest first.
 final upcomingProvider = Provider.autoDispose<List<UpcomingItem>>((ref) {
   final now = DateTime.now();
-  final horizon = Dates.dayOf(now).add(const Duration(days: upcomingWindowDays));
+  final horizon = Dates.dayOf(
+    now,
+  ).add(const Duration(days: upcomingWindowDays));
   final items = <UpcomingItem>[];
 
   final cards = ref.watch(cardsByIdProvider);

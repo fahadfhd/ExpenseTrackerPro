@@ -1,26 +1,29 @@
-import 'package:expensetrackerpro/core/firebase/firebase_providers.dart';
-import 'package:expensetrackerpro/core/l10n/l10n.dart';
-import 'package:expensetrackerpro/core/routing/app_routes.dart';
-import 'package:expensetrackerpro/core/settings/app_settings.dart';
-import 'package:expensetrackerpro/core/theme/app_theme.dart';
-import 'package:expensetrackerpro/core/utils/dates.dart';
-import 'package:expensetrackerpro/features/accounts/application/account_providers.dart';
-import 'package:expensetrackerpro/features/budgets/application/budget_providers.dart';
-import 'package:expensetrackerpro/features/categories/domain/category.dart';
-import 'package:expensetrackerpro/features/credit_cards/application/card_providers.dart';
-import 'package:expensetrackerpro/features/dashboard/application/upcoming_provider.dart';
-import 'package:expensetrackerpro/features/reminders/application/reminder_providers.dart';
-import 'package:expensetrackerpro/features/transactions/application/transaction_providers.dart';
-import 'package:expensetrackerpro/features/transactions/domain/monthly_summary.dart';
-import 'package:expensetrackerpro/features/transactions/domain/transaction_query.dart';
-import 'package:expensetrackerpro/features/transactions/presentation/transaction_detail_sheet.dart';
-import 'package:expensetrackerpro/features/transactions/presentation/transaction_form_sheet.dart';
-import 'package:expensetrackerpro/features/transactions/presentation/transaction_tile.dart';
-import 'package:expensetrackerpro/shared/widgets/charts.dart';
-import 'package:expensetrackerpro/shared/widgets/money_text.dart';
-import 'package:expensetrackerpro/shared/widgets/month_switcher.dart';
-import 'package:expensetrackerpro/shared/widgets/section_card.dart';
-import 'package:expensetrackerpro/shared/widgets/states.dart';
+import 'package:kept/core/firebase/firebase_providers.dart';
+import 'package:kept/core/l10n/l10n.dart';
+import 'package:kept/core/routing/app_routes.dart';
+import 'package:kept/core/settings/app_settings.dart';
+import 'package:kept/core/theme/app_theme.dart';
+import 'package:kept/core/utils/dates.dart';
+import 'package:kept/features/accounts/application/account_providers.dart';
+import 'package:kept/features/budgets/application/budget_providers.dart';
+import 'package:kept/features/categories/domain/category.dart';
+import 'package:kept/features/credit_cards/application/card_providers.dart';
+import 'package:kept/features/debt_plan/presentation/debt_free_card.dart';
+import 'package:kept/features/dashboard/application/upcoming_provider.dart';
+import 'package:kept/features/reminders/application/reminder_providers.dart';
+import 'package:kept/features/transactions/application/transaction_providers.dart';
+import 'package:kept/features/transactions/domain/monthly_summary.dart';
+import 'package:kept/features/transactions/domain/transaction_query.dart';
+import 'package:kept/features/transactions/presentation/transaction_detail_sheet.dart';
+import 'package:kept/features/transactions/presentation/transaction_form_sheet.dart';
+import 'package:kept/features/transactions/presentation/transaction_tile.dart';
+import 'package:kept/shared/widgets/charts.dart';
+import 'package:kept/shared/widgets/money_text.dart';
+import 'package:kept/shared/widgets/month_switcher.dart';
+import 'package:kept/shared/widgets/section_card.dart';
+import 'package:kept/shared/widgets/states.dart';
+import 'package:kept/features/categories/application/category_providers.dart';
+import 'package:kept/shared/widgets/banner_ad_slot.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -105,7 +108,9 @@ class _SyncIndicator extends ConsumerWidget {
         label: text,
         excludeSemantics: true,
         child: Icon(
-          status.isSynced ? Icons.cloud_done_rounded : Icons.cloud_upload_rounded,
+          status.isSynced
+              ? Icons.cloud_done_rounded
+              : Icons.cloud_upload_rounded,
           size: 20,
           color: status.isSynced
               ? theme.colorScheme.onSurfaceVariant
@@ -145,7 +150,8 @@ class _ScopeSelector extends ConsumerWidget {
                 avatar: const Icon(Icons.account_balance_rounded, size: 16),
                 label: Text(a.name),
                 selected: scope.accountId == a.id,
-                onSelected: (_) => notifier.set(DashboardScope(accountId: a.id)),
+                onSelected: (_) =>
+                    notifier.set(DashboardScope(accountId: a.id)),
               ),
             ),
           for (final c in cards)
@@ -175,7 +181,8 @@ class _DashboardBody extends ConsumerWidget {
     final l10n = context.l10n;
     final accounts = ref.watch(accountsProvider).value ?? const [];
     final cards = ref.watch(cardsProvider).value ?? const [];
-    final isFresh = summary.transactionCount == 0 && accounts.isEmpty && cards.isEmpty;
+    final isFresh =
+        summary.transactionCount == 0 && accounts.isEmpty && cards.isEmpty;
     final pending = ref.watch(pendingPaymentsProvider(month)) + summary.pending;
     final finance = context.finance;
 
@@ -185,13 +192,15 @@ class _DashboardBody extends ConsumerWidget {
         if (isFresh) ...[const _Onboarding(), const SizedBox(height: 12)],
         _HeroCard(summary: summary, month: month),
         const SizedBox(height: 12),
+        const DebtFreeCard(),
         KpiGrid(
           children: [
             StatTile(
               label: l10n.dashboardEmi,
               icon: Icons.account_balance_wallet_rounded,
               value: MoneyText(summary.emi),
-              onTap: () => ref.read(shellTabProvider.notifier).select(ShellTab.loans),
+              onTap: () =>
+                  ref.read(shellTabProvider.notifier).select(ShellTab.loans),
             ),
             StatTile(
               label: l10n.dashboardCardSpending,
@@ -220,7 +229,8 @@ class _DashboardBody extends ConsumerWidget {
               label: l10n.netWorth,
               icon: Icons.savings_rounded,
               value: MoneyText(ref.watch(netWorthProvider).netMinor),
-              onTap: () => ref.read(shellTabProvider.notifier).select(ShellTab.accounts),
+              onTap: () =>
+                  ref.read(shellTabProvider.notifier).select(ShellTab.accounts),
             ),
           ],
         ),
@@ -232,6 +242,8 @@ class _DashboardBody extends ConsumerWidget {
         _Charts(summary: summary, month: month),
         const SizedBox(height: 12),
         const _RecentTransactions(),
+        // Inline at the very end, away from the money figures.
+        const BannerAdSlot(),
       ],
     );
   }
@@ -288,7 +300,9 @@ class _HeroCard extends ConsumerWidget {
     final l10n = context.l10n;
     final theme = Theme.of(context);
     final money = ref.watch(currencyFormatterProvider);
-    final monthName = DateFormat.MMMM(Localizations.localeOf(context).toString()).format(month);
+    final monthName = DateFormat.MMMM(
+      Localizations.localeOf(context).toString(),
+    ).format(month);
     final savings = summary.savings;
     final rate = summary.savingsRate;
     const onHero = Colors.white;
@@ -311,7 +325,9 @@ class _HeroCard extends ConsumerWidget {
                   label,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: theme.textTheme.labelMedium?.copyWith(color: onHero.withValues(alpha: 0.85)),
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    color: onHero.withValues(alpha: 0.85),
+                  ),
                 ),
               ),
             ],
@@ -319,7 +335,10 @@ class _HeroCard extends ConsumerWidget {
           const SizedBox(height: 2),
           MoneyText(
             value,
-            style: theme.textTheme.titleMedium?.copyWith(color: onHero, fontWeight: FontWeight.w800),
+            style: theme.textTheme.titleMedium?.copyWith(
+              color: onHero,
+              fontWeight: FontWeight.w800,
+            ),
           ),
         ],
       ),
@@ -340,7 +359,9 @@ class _HeroCard extends ConsumerWidget {
         children: [
           Text(
             l10n.dashboardSpentThisMonth(monthName),
-            style: theme.textTheme.titleSmall?.copyWith(color: onHero.withValues(alpha: 0.9)),
+            style: theme.textTheme.titleSmall?.copyWith(
+              color: onHero.withValues(alpha: 0.9),
+            ),
           ),
           const SizedBox(height: 4),
           MoneyText(
@@ -355,20 +376,29 @@ class _HeroCard extends ConsumerWidget {
           Row(
             children: [
               Icon(
-                savings >= 0 ? Icons.trending_up_rounded : Icons.trending_down_rounded,
+                savings >= 0
+                    ? Icons.trending_up_rounded
+                    : Icons.trending_down_rounded,
                 size: 18,
                 color: onHero,
               ),
               const SizedBox(width: 6),
               Expanded(
-                child: Text(verdict, style: theme.textTheme.bodyMedium?.copyWith(color: onHero)),
+                child: Text(
+                  verdict,
+                  style: theme.textTheme.bodyMedium?.copyWith(color: onHero),
+                ),
               ),
             ],
           ),
           const SizedBox(height: 16),
           Row(
             children: [
-              figure(l10n.dashboardIncome, summary.income, Icons.south_west_rounded),
+              figure(
+                l10n.dashboardIncome,
+                summary.income,
+                Icons.south_west_rounded,
+              ),
               figure(l10n.dashboardSavings, savings, Icons.savings_outlined),
             ],
           ),
@@ -386,8 +416,9 @@ class _NotificationsOffBanner extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
-    final hasReminders = (ref.watch(remindersProvider).value ?? const [])
-        .any((r) => r.enabled);
+    final hasReminders = (ref.watch(remindersProvider).value ?? const []).any(
+      (r) => r.enabled,
+    );
     final enabled = ref.watch(notificationsEnabledProvider).value;
     if (!hasReminders || enabled != false) return const SizedBox.shrink();
     final theme = Theme.of(context);
@@ -396,8 +427,14 @@ class _NotificationsOffBanner extends ConsumerWidget {
       child: Card(
         color: theme.colorScheme.errorContainer,
         child: ListTile(
-          leading: Icon(Icons.notifications_off_rounded, color: theme.colorScheme.onErrorContainer),
-          title: Text(l10n.notificationsOff, style: TextStyle(color: theme.colorScheme.onErrorContainer)),
+          leading: Icon(
+            Icons.notifications_off_rounded,
+            color: theme.colorScheme.onErrorContainer,
+          ),
+          title: Text(
+            l10n.notificationsOff,
+            style: TextStyle(color: theme.colorScheme.onErrorContainer),
+          ),
           trailing: TextButton(
             onPressed: () async {
               await ref.read(notificationServiceProvider).requestPermission();
@@ -443,8 +480,12 @@ class _BudgetCard extends ConsumerWidget {
               const SizedBox(height: 8),
               Text(
                 overall.isOver
-                    ? l10n.dashboardBudgetOver(money.format(-overall.remainingMinor))
-                    : l10n.dashboardBudgetLeft(money.format(overall.remainingMinor)),
+                    ? l10n.dashboardBudgetOver(
+                        money.format(-overall.remainingMinor),
+                      )
+                    : l10n.dashboardBudgetLeft(
+                        money.format(overall.remainingMinor),
+                      ),
               ),
             ],
           ),
@@ -469,7 +510,12 @@ class _UpcomingCard extends ConsumerWidget {
       title: l10n.dashboardUpcoming,
       trailing: TextButton(
         onPressed: () => AppRoutes.reminders(context),
-        child: Text(l10n.remindersTitle),
+        child: Text(
+          l10n.remindersTitle,
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+          textAlign: TextAlign.end,
+        ),
       ),
       padding: const EdgeInsets.fromLTRB(18, 18, 18, 8),
       child: items.isEmpty
@@ -490,21 +536,43 @@ class _UpcomingCard extends ConsumerWidget {
                       UpcomingKind.lent => Icons.call_made_rounded,
                       UpcomingKind.reminder => Icons.notifications_rounded,
                     }),
-                    title: Text(item.title, maxLines: 1, overflow: TextOverflow.ellipsis),
+                    title: Text(
+                      item.title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                     subtitle: item.isOverdue(now)
                         ? Row(
                             children: [
-                              Icon(Icons.error_rounded, size: 14, color: finance.negative),
+                              Icon(
+                                Icons.error_rounded,
+                                size: 14,
+                                color: finance.negative,
+                              ),
                               const SizedBox(width: 4),
-                              Text(l10n.dashboardOverdue, style: TextStyle(color: finance.negative, fontWeight: FontWeight.w700)),
+                              Expanded(
+                                child: Text(
+                                  l10n.dashboardOverdue,
+                                  style: TextStyle(
+                                    color: finance.negative,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ),
                             ],
                           )
-                        : Text(l10n.dashboardDueOn(DateFormat.MMMEd(locale).format(item.date))),
+                        : Text(
+                            l10n.dashboardDueOn(
+                              DateFormat.MMMEd(locale).format(item.date),
+                            ),
+                          ),
                     trailing: item.amountMinor == null
                         ? null
                         : MoneyText(
                             item.amountMinor!,
-                            style: theme.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800),
+                            style: theme.textTheme.titleSmall?.copyWith(
+                              fontWeight: FontWeight.w800,
+                            ),
                           ),
                   ),
               ],
@@ -521,9 +589,9 @@ class _Charts extends ConsumerWidget {
 
   void _showCategory(WidgetRef ref, String categoryId) {
     ref.read(customRangeProvider.notifier).set(null);
-    ref.read(transactionFilterProvider.notifier).update(
-      TransactionFilter(categoryIds: {categoryId}),
-    );
+    ref
+        .read(transactionFilterProvider.notifier)
+        .update(TransactionFilter(categoryIds: {categoryId}));
     ref.read(shellTabProvider.notifier).select(ShellTab.transactions);
   }
 
@@ -531,6 +599,7 @@ class _Charts extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = context.l10n;
     final money = ref.watch(currencyFormatterProvider);
+    ref.watch(customCategoriesProvider);
     final accounts = ref.watch(accountsByIdProvider);
     final cards = ref.watch(cardsByIdProvider);
     final trend = ref.watch(dashboardTrendProvider).value;
@@ -672,21 +741,33 @@ class _RecentTransactions extends ConsumerWidget {
                 header: true,
                 child: Text(
                   l10n.dashboardRecent,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
               ),
             ),
             TextButton(
-              onPressed: () => ref.read(shellTabProvider.notifier).select(ShellTab.transactions),
+              onPressed: () => ref
+                  .read(shellTabProvider.notifier)
+                  .select(ShellTab.transactions),
               child: Text(l10n.seeAll),
             ),
           ],
         ),
         if (list.isEmpty)
-          EmptyState(icon: Icons.receipt_long_rounded, message: l10n.noTransactions, compact: true)
+          EmptyState(
+            icon: Icons.receipt_long_rounded,
+            message: l10n.noTransactions,
+            compact: true,
+          )
         else
           for (final tx in list.take(5))
-            TransactionTile(tx, showDate: true, onTap: () => TransactionDetailSheet.show(context, tx)),
+            TransactionTile(
+              tx,
+              showDate: true,
+              onTap: () => TransactionDetailSheet.show(context, tx),
+            ),
       ],
     );
   }

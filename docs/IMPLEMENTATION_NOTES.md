@@ -1,4 +1,4 @@
-# ExpanseTrackerPro — implementation notes
+# Kept — implementation notes
 
 How the app is put together, the rules behind every number it shows, and
 what has to be configured in Firebase.
@@ -145,6 +145,41 @@ passed), partially settled, pending. Settlements are embedded in the record;
 when money moved through an account, linked transactions
 (`borrowed`/`lent`/`debtRepayment`/`debtCollection`) keep the balance right.
 
+## Debt-free plan (`DebtPlan`, `PayoffSchedule`)
+
+Combines active loans, card balances and money borrowed from people, and
+simulates month by month in minor units. Each month interest accrues, every
+minimum is paid, then the rest of a constant budget (first month's minimums +
+the user's extra) goes to debts in strategy order, so a closed debt's payment
+rolls onto the next.
+
+* **Strategies.** Avalanche: highest rate, then smallest balance. Snowball:
+  smallest balance, then highest rate. The order is fixed at the start.
+* **Loans** use outstanding principal and the current EMI normalised to a
+  month, so quarterly/yearly loans are approximate.
+* **Cards** pay `minimumDuePercent` of the balance, floored at 1% of the
+  starting balance. `annualRatePercent` is optional; while unset the plan uses
+  `CreditCard.typicalAnnualRatePercent` and labels it an estimate.
+* **Borrowed from people** has no interest or required payment; it is paid from
+  extra or freed-up money and left out of the minimums-only comparison.
+* **Unfinished plans.** A plan open after 600 months, or whose balance reaches
+  100x its start, is reported as never clearing rather than given a date.
+* **Extra money (`LumpSumAdvice`).** A one-off sum goes down the plan's order,
+  closing debts where it can; up to 25% is kept when savings are below 3 months
+  of spending plus required payments. The monthly budget is held constant
+  afterwards. Payments are recorded by the user on the debt's own screen.
+* **Income signals (`FinancialProfile`).** Averages use the last 3 complete
+  months with activity. Income 20%+ above average this month counts as extra
+  money. The suggested extra is half of income - spending - required payments.
+  Debt load bands: under 30% healthy, 30-40% watch, over 40% high.
+* **History (`DebtProgress`).** One snapshot per month in
+  `settings/debt_progress` (already allowed by the security rules, not part of
+  backups), written by `DebtPlanSync`. A debt deleted from the app counts as
+  cleared. The opt-in monthly reminder is `debt_plan_monthly`, kept by the same
+  sync.
+* The plan assumes no new card spending, on-time payments and unchanged rates;
+  the screen says so. The extra amount and strategy are device preferences.
+
 ## Recurring transactions
 
 Rules expand with the shared `Recurrence` (daily/weekly/monthly/yearly,
@@ -182,6 +217,14 @@ that crosses one shows a warning (toggle in Settings).
 * Loan reminders are derived from the live schedule by `LoanReminderSync`:
   anchored on the next unpaid EMI, removed when the loan is completed,
   prepaid, closed or deleted, and restored if a payment is undone.
+* The background syncs (`NotificationSync`, `LoanReminderSync` and the
+  custom-category registry) are started by `StartupTasks` and held open with
+  container-level listeners. Riverpod pauses a stream once the widgets
+  watching it are hidden (any pushed screen does that), and a provider that is
+  only `read`, or only listened to by another provider, does not keep its
+  sources running; without the explicit listeners a restore or a reminder
+  change made while a screen was open would only be noticed after leaving it.
+  `test/widgets/background_sync_test.dart` covers this.
 * `NotificationSync` re-plans whenever reminders change (including when they
   stream in after a restore or reinstall), on app resume and on demand, and
   `LocalNotificationService.reconcile` cancels stale ids, schedules new or
@@ -228,11 +271,51 @@ that crosses one shows a warning (toggle in Settings).
 
 ## Localization
 
-All UI strings are in `lib/l10n/app_en.arb` (gen-l10n). To add Malayalam or
-Arabic, add `app_ml.arb` / `app_ar.arb` with the same keys; they appear in
-Settings → Language automatically. Layouts use directional padding where
-direction matters. Currency and number formats come from the selected
-currency's locale.
+English (`en`, the template) and Malayalam (`ml`) ship in the app. Strings
+live in `lib/l10n/app_<code>.arb` (gen-l10n; run `flutter gen-l10n` after
+editing). Enum and id labels (categories, account types, statuses, …) are
+mapped to localized text in one place, the `DomainLabels` extension in
+`lib/core/l10n/l10n.dart`, so domain classes stay free of UI strings.
+
+* **Choosing a language.** Settings → Language offers "Device language",
+  English and മലയാളം (each language is listed by its own name, see
+  `languageNativeName`). The welcome screen has the same switcher
+  (`LanguageButton`) so people can choose before signing in. The choice is
+  kept in `SharedPreferences` (`settings.locale`); null follows the phone.
+* **What is not translated:** amounts and dates keep Latin digits, `₹` and
+  the currency's grouping (e.g. `₹1,23,456.78`) in every language, so figures
+  look the same everywhere. Brand and acronym terms stay Latin (Kept, EMI,
+  Google, CNG, kWh). Text the user typed (account names, custom categories,
+  descriptions) is never translated.
+* **Text stored in the data.** Reminder titles for cards and borrow/lend
+  records, and the loan reminder title, are saved as text. When the language
+  changes they are re-titled (`EntityReminders.relabel`, `LoanReminderSync`),
+  and `NotificationSync` re-plans so scheduled notification wording follows
+  the new language. Writes are deferred out of the build phase because the
+  change can arrive while widgets are building.
+* **Platform registration.** `ios/Runner/Info.plist` (`CFBundleLocalizations`)
+  and `android/app/src/main/res/xml/locales_config.xml` list the languages so
+  the OS offers them in its per-app language settings.
+* **Checking how it looks.** Widget tests render every glyph in the Ahem
+  test font, so they catch overflow errors but not a label squeezed to a
+  sliver or a word broken in the middle. To see real Malayalam shaping, load
+  a system font in a throwaway test (`FontLoader('Roboto')` with
+  `/System/Library/Fonts/Supplemental/Malayalam Sangam MN.ttc` and
+  `MaterialIcons` from the Flutter SDK's `material_fonts`) and write goldens
+  with `flutter test --update-goldens`. That is how the tab labels, the next
+  EMI row and the interest-rate display were found and fixed.
+* **Adding a language** (e.g. Arabic): copy `app_en.arb` to `app_<code>.arb`
+  and set `@@locale`; translate every value, keeping the `{placeholders}`;
+  add the code to `_languages` in `test/domain/l10n_parity_test.dart`, to
+  `CFBundleLocalizations` and to `locales_config.xml`; add its name to
+  `languageNativeName`. The parity test fails on a missing key, a changed
+  placeholder, a blank value or a copied-over English message. For a
+  right-to-left language also check the layouts (they use directional
+  padding where direction matters).
+* The Android notification channel's name and description (shown in the
+  system's notification settings) are set in the app's language by
+  `NotificationService.setChannelText`, and refreshed when the language
+  changes.
 
 ## Testing
 
@@ -241,14 +324,99 @@ currency's locale.
 * `test/domain`: EMI, rate solver, amortization (paid/skipped/prepayments),
   ledger effects, validation, monthly summary, filters/search, legacy
   migration, cards, budgets, vehicles, borrow/lend, recurrence, recurring
-  generation, notification planning, backup codec, legacy Gmail parsers.
+  generation, notification planning, backup codec, legacy Gmail parsers, and
+  translation parity (`l10n_parity_test.dart`: same keys and placeholders in
+  every language, nothing blank or left in English).
 * `test/data`: repositories against `fake_cloud_firestore` (balances on
   create/edit/delete, transfers, cards, recalculation, idempotent recurring
   generation, loan payments, settlements, fuel expenses, migration).
 * `test/widgets`: the full app with fake Firebase: onboarding, add account,
   expense (with balance update and validation), card, loan, reminder
   (notifications scheduled), month switching, search, global search,
-  dashboard charts, dark mode.
+  dashboard charts, dark mode, the same screens in Malayalam (layout at 2x
+  text size and on a 320 dp phone, a full add-expense flow, switching the
+  language from Settings and from the welcome screen, re-titled reminders),
+  and the background syncs running while another screen is open.
+
+## UX polish
+
+* Tapping empty space hides the keyboard (a translucent `GestureDetector`
+  above the navigator; buttons and fields still win their own taps), and
+  dragging a form dismisses it too. Number keyboards on iPhone have no
+  "Done" key, so this is the only way out of them.
+* Deleting a transaction (detail sheet or swipe left in the list) shows an
+  Undo snackbar. Undo saves the same record again, which re-applies its
+  balance effect. Records owned by loans, borrow/lend or vehicles can't be
+  swiped away.
+* Leaving a half-filled new entry (system back, swipe-back, tapping outside
+  a sheet) asks "Discard changes?" (`UnsavedChangesGuard`). Saving pops
+  directly and never prompts.
+* Add-transaction: Today / Yesterday chips, categories can be cleared, and
+  amount fields preview the formatted value (₹1,23,456) as you type.
+* Light haptics on selections and saves (`Haptics`); snackbars float above
+  the bottom bar; the app is portrait-only.
+* App icon and launch screens use the Kept mark. Regenerate the icons with
+  `dart run flutter_launcher_icons` after editing `assets/icon/`.
+
+## Ads (AdMob)
+
+* `lib/core/ads/ad_config.dart` holds the banner and rewarded unit ids.
+  Debug/profile builds always use Google's **test** units; release builds use
+  the production ids there and show **no ads** (or, for the rewarded ids, no
+  video offer) while they are empty.
+* App ids live in `AndroidManifest.xml` (`com.google.android.gms.ads.APPLICATION_ID`)
+  and `ios/Runner/Info.plist` (`GADApplicationIdentifier`). Both are set to
+  the real AdMob app ids for `com.fahadt.kept`, as are the banner unit ids in
+  `ad_config.dart`. Only release builds use them; debug/profile still serve
+  Google's test units.
+* `startAds()` (ad_service.dart) sets mild content limits (PG), runs Google's
+  User Messaging Platform consent flow (GDPR/UK form only where it applies)
+  and only then initializes the SDK. Any failure just means "no ads".
+  Settings shows "Ad privacy settings" where the law requires that entry.
+* `BannerAdSlot` is an inline adaptive banner that takes no space until an ad
+  loads. It appears only at the end of the dashboard and below the
+  transactions list, never on forms or beside money-entry controls.
+* **Rewarded video: "no ads for 24 hours".** Users who dislike ads can
+  watch one short video of their own choice.
+  * Where: a small "Watch a video, no ads for 24 hours" line under every
+    loaded banner (dashboard, transactions list) and Settings → Ads. The
+    inline line appears only once a video is loaded, so it is never a dead
+    button; nothing ever plays without a tap.
+  * `RewardedAdController` (`rewarded_ads.dart`) loads one video on demand
+    (when a banner has loaded or Settings opens), replaces it before Google's
+    one-hour expiry, retries a failed request after 30 s (or at once from
+    Settings' "Retry") and plays it. `RewardedAdGateway` is the seam over the
+    SDK, so tests use a fake.
+  * The reward (`AdFreeController`, `ad_free.dart`) is an expiry time kept in
+    `SharedPreferences` on this device only: not in the settings, so it is
+    never backed up or restored onto another phone. Banners hide while it
+    lasts and return by themselves (a timer, plus a re-check when the app
+    comes back to the foreground). A stored expiry further ahead than 24 h
+    (clock moved back) is cut to 24 h. There is no stacking: the offer
+    returns when the time has run out.
+  * Release builds need `prodRewardedAndroid` / `prodRewardedIos` in
+    `ad_config.dart` (create a *Rewarded* ad unit per platform in AdMob);
+    until then they simply don't show the offer.
+  * Tests: `test/domain/ad_free_test.dart`, `rewarded_ads_test.dart`,
+    `test/widgets/ad_free_test.dart` (Settings flow, early close, load
+    failure, expiry, Malayalam, narrow screens).
+* The plugin is pinned to `google_mobile_ads` **8.x**. Version 9.x imports a
+  private beta header of Google's SDK that Xcode 26 rejects ("Include of
+  non-modular header inside framework module"), so the iOS build fails.
+  Re-test before upgrading to 9.x.
+* Before release also: declare "Advertising" data use in the App Store
+  privacy labels and the Play Data safety form, and add the full SKAdNetwork
+  id list from AdMob's iOS guide to `Info.plist`.
+
+## Store images
+
+`tool/store_images/` renders the app, with generated demo data, into the
+screenshots, feature graphic and icons the stores ask for, in English and
+Malayalam; the results are in `store/` (see `store/README.md` for which file
+goes where and how to regenerate them). Making them also exposed two real UI
+bugs, both fixed: the principal/interest bar was invisible (a childless
+`ColoredBox` in a loose-height `Row`) and the app bar title did not take the
+theme's font family.
 
 ## Known limitations
 
@@ -260,7 +428,7 @@ currency's locale.
   full-text search); the transactions tab can search any custom date range.
 * Attachments: the `attachmentUrl` field exists, but there is no upload UI yet.
 * App lock / biometric unlock is not implemented yet.
-* Only English is shipped; Malayalam and Arabic need translated ARB files.
+* English and Malayalam are shipped; other languages (e.g. Arabic) need a translated ARB file and a layout check, see Localization. The Malayalam text was written without a native-speaker review: please have one read through it before release.
 * SMS/Gmail auto-import remains disabled (`kAutoImportEnabled = false`).
   The Gmail importer is wired into Settings when enabled. The SMS code reads
   the inbox but never parsed transactions; `READ_SMS`/`RECEIVE_SMS` in the

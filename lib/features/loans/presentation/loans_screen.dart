@@ -1,12 +1,12 @@
-import 'package:expensetrackerpro/core/l10n/l10n.dart';
-import 'package:expensetrackerpro/core/routing/app_routes.dart';
-import 'package:expensetrackerpro/core/theme/app_theme.dart';
-import 'package:expensetrackerpro/features/loans/application/loan_providers.dart';
-import 'package:expensetrackerpro/features/loans/domain/amortization.dart';
-import 'package:expensetrackerpro/features/loans/domain/loan.dart';
-import 'package:expensetrackerpro/shared/widgets/money_text.dart';
-import 'package:expensetrackerpro/shared/widgets/section_card.dart';
-import 'package:expensetrackerpro/shared/widgets/states.dart';
+import 'package:kept/core/l10n/l10n.dart';
+import 'package:kept/core/routing/app_routes.dart';
+import 'package:kept/core/theme/app_theme.dart';
+import 'package:kept/features/loans/application/loan_providers.dart';
+import 'package:kept/features/loans/domain/amortization.dart';
+import 'package:kept/features/loans/domain/loan.dart';
+import 'package:kept/shared/widgets/money_text.dart';
+import 'package:kept/shared/widgets/section_card.dart';
+import 'package:kept/shared/widgets/states.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -24,6 +24,11 @@ class LoansScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(l10n.loansTitle),
         actions: [
+          IconButton(
+            tooltip: l10n.debtPlanTitle,
+            icon: const Icon(Icons.flag_rounded),
+            onPressed: () => AppRoutes.debtPlan(context),
+          ),
           IconButton(
             tooltip: l10n.emiCalculator,
             icon: const Icon(Icons.calculate_rounded),

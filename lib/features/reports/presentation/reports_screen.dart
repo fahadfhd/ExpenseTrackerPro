@@ -1,21 +1,22 @@
-import 'package:expensetrackerpro/core/l10n/l10n.dart';
-import 'package:expensetrackerpro/core/settings/app_settings.dart';
-import 'package:expensetrackerpro/core/utils/dates.dart';
-import 'package:expensetrackerpro/features/accounts/application/account_providers.dart';
-import 'package:expensetrackerpro/features/borrow_lend/application/debt_providers.dart';
-import 'package:expensetrackerpro/features/borrow_lend/domain/debt_record.dart';
-import 'package:expensetrackerpro/features/categories/domain/category.dart';
-import 'package:expensetrackerpro/features/credit_cards/application/card_providers.dart';
-import 'package:expensetrackerpro/features/loans/application/loan_providers.dart';
-import 'package:expensetrackerpro/features/transactions/application/transaction_providers.dart';
-import 'package:expensetrackerpro/features/transactions/domain/monthly_summary.dart';
-import 'package:expensetrackerpro/features/transactions/domain/transaction.dart';
-import 'package:expensetrackerpro/features/vehicles/application/vehicle_providers.dart';
-import 'package:expensetrackerpro/shared/widgets/charts.dart';
-import 'package:expensetrackerpro/shared/widgets/form_fields.dart';
-import 'package:expensetrackerpro/shared/widgets/money_text.dart';
-import 'package:expensetrackerpro/shared/widgets/section_card.dart';
-import 'package:expensetrackerpro/shared/widgets/states.dart';
+import 'package:kept/core/l10n/l10n.dart';
+import 'package:kept/core/settings/app_settings.dart';
+import 'package:kept/core/utils/dates.dart';
+import 'package:kept/features/accounts/application/account_providers.dart';
+import 'package:kept/features/borrow_lend/application/debt_providers.dart';
+import 'package:kept/features/borrow_lend/domain/debt_record.dart';
+import 'package:kept/features/categories/domain/category.dart';
+import 'package:kept/features/credit_cards/application/card_providers.dart';
+import 'package:kept/features/loans/application/loan_providers.dart';
+import 'package:kept/features/transactions/application/transaction_providers.dart';
+import 'package:kept/features/transactions/domain/monthly_summary.dart';
+import 'package:kept/features/transactions/domain/transaction.dart';
+import 'package:kept/features/vehicles/application/vehicle_providers.dart';
+import 'package:kept/shared/widgets/charts.dart';
+import 'package:kept/shared/widgets/form_fields.dart';
+import 'package:kept/shared/widgets/money_text.dart';
+import 'package:kept/shared/widgets/section_card.dart';
+import 'package:kept/shared/widgets/states.dart';
+import 'package:kept/features/categories/application/category_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -244,7 +245,16 @@ class _FilterBar extends ConsumerWidget {
                 : l10n.categoryLabel(filter.categoryId),
             selected: filter.categoryId != null,
             options: [
-              for (final c in [...Categories.expense, ...Categories.income])
+              for (final c in [
+                ...Categories.selectable(
+                  CategoryKind.expense,
+                  includeArchived: true,
+                ),
+                ...Categories.selectable(
+                  CategoryKind.income,
+                  includeArchived: true,
+                ),
+              ])
                 PickerOption(c.id, l10n.categoryLabel(c.id)),
             ],
             noneLabel: l10n.reportAllCategories,
@@ -387,12 +397,13 @@ class _SummaryTab extends ConsumerWidget {
   }
 }
 
-class _CategoriesTab extends StatelessWidget {
+class _CategoriesTab extends ConsumerWidget {
   const _CategoriesTab(this.data);
   final ReportData data;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(customCategoriesProvider);
     final l10n = context.l10n;
     return ListView(
       padding: const EdgeInsets.all(16),

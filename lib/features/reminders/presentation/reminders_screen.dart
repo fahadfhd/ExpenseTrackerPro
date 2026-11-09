@@ -1,11 +1,11 @@
-import 'package:expensetrackerpro/core/l10n/l10n.dart';
-import 'package:expensetrackerpro/core/utils/recurrence.dart';
-import 'package:expensetrackerpro/features/reminders/application/reminder_providers.dart';
-import 'package:expensetrackerpro/features/reminders/domain/reminder.dart';
-import 'package:expensetrackerpro/shared/widgets/dialogs.dart';
-import 'package:expensetrackerpro/shared/widgets/form_fields.dart';
-import 'package:expensetrackerpro/shared/widgets/offset_selector.dart';
-import 'package:expensetrackerpro/shared/widgets/states.dart';
+import 'package:kept/core/l10n/l10n.dart';
+import 'package:kept/core/utils/recurrence.dart';
+import 'package:kept/features/reminders/application/reminder_providers.dart';
+import 'package:kept/features/reminders/domain/reminder.dart';
+import 'package:kept/shared/widgets/dialogs.dart';
+import 'package:kept/shared/widgets/form_fields.dart';
+import 'package:kept/shared/widgets/offset_selector.dart';
+import 'package:kept/shared/widgets/states.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -60,7 +60,9 @@ class RemindersScreen extends ConsumerWidget {
                     title: Text(l10n.notificationsOff),
                     trailing: TextButton(
                       onPressed: () async {
-                        await ref.read(notificationServiceProvider).requestPermission();
+                        await ref
+                            .read(notificationServiceProvider)
+                            .requestPermission();
                         ref.invalidate(notificationsEnabledProvider);
                         ref.read(notificationSyncProvider).resync();
                       },
@@ -69,11 +71,16 @@ class RemindersScreen extends ConsumerWidget {
                   ),
                 ),
               if (list.isEmpty)
-                EmptyState(icon: Icons.notifications_none_rounded, message: l10n.remindersEmpty),
+                EmptyState(
+                  icon: Icons.notifications_none_rounded,
+                  message: l10n.remindersEmpty,
+                ),
               if (upcoming.isNotEmpty) _Header(l10n.remindersUpcoming),
-              for (final (r, next) in upcoming) _ReminderTile(reminder: r, next: next),
+              for (final (r, next) in upcoming)
+                _ReminderTile(reminder: r, next: next),
               if (inactive.isNotEmpty) _Header(l10n.remindersInactive),
-              for (final (r, _) in inactive) _ReminderTile(reminder: r, next: null),
+              for (final (r, _) in inactive)
+                _ReminderTile(reminder: r, next: null),
             ],
           );
         },
@@ -91,7 +98,12 @@ class _Header extends StatelessWidget {
     padding: const EdgeInsets.fromLTRB(4, 16, 4, 8),
     child: Semantics(
       header: true,
-      child: Text(text, style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800)),
+      child: Text(
+        text,
+        style: Theme.of(
+          context,
+        ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800),
+      ),
     ),
   );
 }
@@ -112,18 +124,25 @@ class _ReminderTile extends ConsumerWidget {
       child: ListTile(
         onTap: () => pushPage(context, ReminderFormScreen(initial: reminder)),
         leading: CircleAvatar(child: Icon(reminderIcon(reminder.type))),
-        title: Text(reminder.title, style: const TextStyle(fontWeight: FontWeight.w700)),
-        subtitle: Text([
-          l10n.recurrence(reminder.recurrence),
-          next == null
-              ? l10n.reminderEnded
-              : l10n.reminderNext(DateFormat.MMMEd(locale).add_jm().format(next!)),
-        ].join(' · ')),
+        title: Text(
+          reminder.title,
+          style: const TextStyle(fontWeight: FontWeight.w700),
+        ),
+        subtitle: Text(
+          [
+            l10n.recurrence(reminder.recurrence),
+            next == null
+                ? l10n.reminderEnded
+                : l10n.reminderNext(
+                    DateFormat.MMMEd(locale).add_jm().format(next!),
+                  ),
+          ].join(' · '),
+        ),
         trailing: Switch(
           value: reminder.enabled,
-          onChanged: (v) => ref.read(reminderRepositoryProvider).save(
-            reminder.copyWith(enabled: v, updatedAt: DateTime.now()),
-          ),
+          onChanged: (v) => ref
+              .read(reminderRepositoryProvider)
+              .save(reminder.copyWith(enabled: v, updatedAt: DateTime.now())),
         ),
       ),
     );
@@ -141,14 +160,19 @@ class ReminderFormScreen extends ConsumerStatefulWidget {
 class _ReminderFormScreenState extends ConsumerState<ReminderFormScreen> {
   final _formKey = GlobalKey<FormState>();
   late final _title = TextEditingController(text: widget.initial?.title);
-  late final _description = TextEditingController(text: widget.initial?.description);
-  late final _interval = TextEditingController(text: '${widget.initial?.recurrence.interval ?? 1}');
+  late final _description = TextEditingController(
+    text: widget.initial?.description,
+  );
+  late final _interval = TextEditingController(
+    text: '${widget.initial?.recurrence.interval ?? 1}',
+  );
   late ReminderType _type = widget.initial?.type ?? ReminderType.custom;
   late DateTime _date = widget.initial?.date ?? DateTime.now();
   late TimeOfDay _time = widget.initial == null
       ? const TimeOfDay(hour: 9, minute: 0)
       : TimeOfDay(hour: widget.initial!.hour, minute: widget.initial!.minute);
-  late RecurrenceFrequency _frequency = widget.initial?.recurrence.frequency ?? RecurrenceFrequency.once;
+  late RecurrenceFrequency _frequency =
+      widget.initial?.recurrence.frequency ?? RecurrenceFrequency.once;
   late DateTime? _until = widget.initial?.recurrence.until;
   late List<int> _offsets = widget.initial?.offsetsMinutes ?? const [0];
   late bool _enabled = widget.initial?.enabled ?? true;
@@ -228,7 +252,12 @@ class _ReminderFormScreenState extends ConsumerState<ReminderFormScreen> {
       _ => null,
     };
     final userTypes = ReminderType.values.where(
-      (t) => !{ReminderType.loanEmi, ReminderType.creditCardPayment, ReminderType.borrowed, ReminderType.lent}.contains(t),
+      (t) => !{
+        ReminderType.loanEmi,
+        ReminderType.creditCardPayment,
+        ReminderType.borrowed,
+        ReminderType.lent,
+      }.contains(t),
     );
     return Scaffold(
       appBar: AppBar(
@@ -249,25 +278,40 @@ class _ReminderFormScreenState extends ConsumerState<ReminderFormScreen> {
       body: Form(
         key: _formKey,
         child: ListView(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           padding: const EdgeInsets.all(16),
           children: [
             if (module != null)
               Card(
-                child: ListTile(leading: const Icon(Icons.link_rounded), title: Text(l10n.reminderLinked(module))),
+                child: ListTile(
+                  leading: const Icon(Icons.link_rounded),
+                  title: Text(l10n.reminderLinked(module)),
+                ),
               ),
             TextFormField(
               controller: _title,
               enabled: !_isEntity,
               textCapitalization: TextCapitalization.sentences,
-              decoration: InputDecoration(labelText: l10n.reminderTitleLabel, hintText: l10n.reminderTitleHint),
-              validator: (v) => (v ?? '').trim().isEmpty ? l10n.nameRequired : null,
+              decoration: InputDecoration(
+                labelText: l10n.reminderTitleLabel,
+                hintText: l10n.reminderTitleHint,
+              ),
+              validator: (v) =>
+                  (v ?? '').trim().isEmpty ? l10n.nameRequired : null,
             ),
             const SizedBox(height: 12),
             if (!_isEntity) ...[
               PickerField<ReminderType>(
                 label: l10n.reminderTypeLabel,
                 value: _type,
-                options: [for (final t in userTypes) PickerOption(t, l10n.reminderType(t), icon: reminderIcon(t))],
+                options: [
+                  for (final t in userTypes)
+                    PickerOption(
+                      t,
+                      l10n.reminderType(t),
+                      icon: reminderIcon(t),
+                    ),
+                ],
                 onChanged: (v) => setState(() => _type = v ?? _type),
               ),
               const SizedBox(height: 12),
@@ -276,13 +320,24 @@ class _ReminderFormScreenState extends ConsumerState<ReminderFormScreen> {
                 decoration: InputDecoration(labelText: l10n.description),
               ),
               const SizedBox(height: 12),
-              DateField(label: l10n.date, value: _date, onChanged: (d) => setState(() => _date = d ?? _date)),
+              DateField(
+                label: l10n.date,
+                value: _date,
+                onChanged: (d) => setState(() => _date = d ?? _date),
+              ),
               const SizedBox(height: 12),
             ],
-            TimeField(label: l10n.time, value: _time, onChanged: (t) => setState(() => _time = t)),
+            TimeField(
+              label: l10n.time,
+              value: _time,
+              onChanged: (t) => setState(() => _time = t),
+            ),
             if (!_isEntity) ...[
               const SizedBox(height: 16),
-              Text(l10n.reminderRepeat, style: Theme.of(context).textTheme.labelLarge),
+              Text(
+                l10n.reminderRepeat,
+                style: Theme.of(context).textTheme.labelLarge,
+              ),
               const SizedBox(height: 8),
               Wrap(
                 spacing: 8,
@@ -307,7 +362,12 @@ class _ReminderFormScreenState extends ConsumerState<ReminderFormScreen> {
                         integer: true,
                         min: 1,
                         max: 365,
-                        helper: l10n.recurrence(Recurrence(frequency: _frequency, interval: int.tryParse(_interval.text) ?? 1)),
+                        helper: l10n.recurrence(
+                          Recurrence(
+                            frequency: _frequency,
+                            interval: int.tryParse(_interval.text) ?? 1,
+                          ),
+                        ),
                         onChanged: (_) => setState(() {}),
                       ),
                     ),
@@ -325,9 +385,15 @@ class _ReminderFormScreenState extends ConsumerState<ReminderFormScreen> {
               ],
             ],
             const SizedBox(height: 16),
-            Text(l10n.reminderNotify, style: Theme.of(context).textTheme.labelLarge),
+            Text(
+              l10n.reminderNotify,
+              style: Theme.of(context).textTheme.labelLarge,
+            ),
             const SizedBox(height: 8),
-            OffsetSelector(selected: _offsets, onChanged: (v) => setState(() => _offsets = v)),
+            OffsetSelector(
+              selected: _offsets,
+              onChanged: (v) => setState(() => _offsets = v),
+            ),
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
               title: Text(l10n.reminderEnabled),
@@ -336,7 +402,9 @@ class _ReminderFormScreenState extends ConsumerState<ReminderFormScreen> {
             ),
             const SizedBox(height: 12),
             FilledButton(
-              style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
+              style: FilledButton.styleFrom(
+                minimumSize: const Size.fromHeight(52),
+              ),
               onPressed: _save,
               child: Text(l10n.save),
             ),

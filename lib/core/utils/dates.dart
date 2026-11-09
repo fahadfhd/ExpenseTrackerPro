@@ -18,14 +18,7 @@ abstract final class Dates {
       1,
       daysInMonth(target.year, target.month),
     );
-    return DateTime(
-      target.year,
-      target.month,
-      day,
-      d.hour,
-      d.minute,
-      d.second,
-    );
+    return DateTime(target.year, target.month, day, d.hour, d.minute, d.second);
   }
 
   static bool sameDay(DateTime a, DateTime b) =>

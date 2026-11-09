@@ -1,4 +1,4 @@
-import 'package:expensetrackerpro/core/l10n/l10n.dart';
+import 'package:kept/core/l10n/l10n.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -15,7 +15,11 @@ String offsetLabel(AppLocalizations l10n, int minutes) {
 /// Multi-select chips for "notify me N before". Supports custom day
 /// offsets in addition to the presets.
 class OffsetSelector extends StatelessWidget {
-  const OffsetSelector({super.key, required this.selected, required this.onChanged});
+  const OffsetSelector({
+    super.key,
+    required this.selected,
+    required this.onChanged,
+  });
 
   final List<int> selected;
   final ValueChanged<List<int>> onChanged;
@@ -34,9 +38,13 @@ class OffsetSelector extends StatelessWidget {
           inputFormatters: [FilteringTextInputFormatter.digitsOnly],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: Text(l10n.cancel)),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(l10n.cancel),
+          ),
           FilledButton(
-            onPressed: () => Navigator.pop(context, int.tryParse(controller.text)),
+            onPressed: () =>
+                Navigator.pop(context, int.tryParse(controller.text)),
             child: Text(l10n.add),
           ),
         ],

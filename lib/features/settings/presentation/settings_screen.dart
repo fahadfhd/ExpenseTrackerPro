@@ -1,16 +1,17 @@
-import 'package:expensetrackerpro/app/app_providers.dart';
-import 'package:expensetrackerpro/core/config/feature_flags.dart';
-import 'package:expensetrackerpro/core/firebase/firebase_providers.dart';
-import 'package:expensetrackerpro/core/l10n/l10n.dart';
-import 'package:expensetrackerpro/core/money/currency_formatter.dart';
-import 'package:expensetrackerpro/core/settings/app_settings.dart';
-import 'package:expensetrackerpro/features/auth/data/auth_repository.dart';
-import 'package:expensetrackerpro/features/backup/data/backup_service.dart';
-import 'package:expensetrackerpro/features/reminders/application/reminder_providers.dart';
-import 'package:expensetrackerpro/features/settings/application/gmail_import.dart';
-import 'package:expensetrackerpro/features/transactions/application/transaction_providers.dart';
-import 'package:expensetrackerpro/shared/widgets/dialogs.dart';
-import 'package:expensetrackerpro/shared/widgets/form_fields.dart';
+import 'package:kept/app/app_providers.dart';
+import 'package:kept/core/config/feature_flags.dart';
+import 'package:kept/core/firebase/firebase_providers.dart';
+import 'package:kept/core/l10n/l10n.dart';
+import 'package:kept/core/money/currency_formatter.dart';
+import 'package:kept/core/settings/app_settings.dart';
+import 'package:kept/features/auth/data/auth_repository.dart';
+import 'package:kept/features/backup/data/backup_service.dart';
+import 'package:kept/features/reminders/application/reminder_providers.dart';
+import 'package:kept/features/settings/presentation/ads_section.dart';
+import 'package:kept/features/settings/application/gmail_import.dart';
+import 'package:kept/features/transactions/application/transaction_providers.dart';
+import 'package:kept/shared/widgets/dialogs.dart';
+import 'package:kept/shared/widgets/form_fields.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -105,15 +106,25 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       context: context,
       builder: (context) => SafeArea(
         child: entries.isEmpty
-            ? Padding(padding: const EdgeInsets.all(24), child: Text(l10n.backupEmpty))
+            ? Padding(
+                padding: const EdgeInsets.all(24),
+                child: Text(l10n.backupEmpty),
+              )
             : ListView(
                 shrinkWrap: true,
                 children: [
-                  ListTile(title: Text(l10n.backupList, style: const TextStyle(fontWeight: FontWeight.w800))),
+                  ListTile(
+                    title: Text(
+                      l10n.backupList,
+                      style: const TextStyle(fontWeight: FontWeight.w800),
+                    ),
+                  ),
                   for (final e in entries)
                     ListTile(
                       leading: const Icon(Icons.restore_rounded),
-                      title: Text(DateFormat.yMMMd(locale).add_jm().format(e.createdAt)),
+                      title: Text(
+                        DateFormat.yMMMd(locale).add_jm().format(e.createdAt),
+                      ),
                       onTap: () => Navigator.pop(context, e),
                     ),
                 ],
@@ -141,7 +152,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 6),
       child: Semantics(
         header: true,
-        child: Text(text, style: theme.textTheme.titleSmall?.copyWith(color: theme.colorScheme.primary, fontWeight: FontWeight.w800)),
+        child: Text(
+          text,
+          style: theme.textTheme.titleSmall?.copyWith(
+            color: theme.colorScheme.primary,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
       ),
     );
 
@@ -149,16 +166,102 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       appBar: AppBar(
         title: Text(l10n.settingsTitle),
         bottom: _busy
-            ? const PreferredSize(preferredSize: Size.fromHeight(4), child: LinearProgressIndicator())
+            ? const PreferredSize(
+                preferredSize: Size.fromHeight(4),
+                child: LinearProgressIndicator(),
+              )
             : null,
       ),
       body: ListView(
         padding: const EdgeInsets.only(bottom: 32),
         children: [
+          // Backup first: it is what most people come to Settings for.
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+            child: Card(
+              color: isGuest
+                  ? theme.colorScheme.primaryContainer
+                  : theme.colorScheme.surfaceContainerHighest,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          isGuest
+                              ? Icons.cloud_off_rounded
+                              : Icons.cloud_done_rounded,
+                          color: isGuest
+                              ? theme.colorScheme.onPrimaryContainer
+                              : theme.colorScheme.primary,
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            isGuest
+                                ? l10n.backupConnectTitle
+                                : l10n.backupConnectedTitle,
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      isGuest
+                          ? (GoogleSignInBootstrap.isSupported
+                                ? l10n.backupConnectBody
+                                : l10n.backupConnectUnavailable)
+                          : [
+                              l10n.backupConnectedAs(user?.email ?? ''),
+                              backup?.lastBackupAt == null
+                                  ? l10n.backupNever
+                                  : l10n.backupLast(
+                                      timeFmt.format(backup!.lastBackupAt!),
+                                    ),
+                            ].join('\n'),
+                    ),
+                    if (isGuest && GoogleSignInBootstrap.isSupported) ...[
+                      const SizedBox(height: 12),
+                      FilledButton.icon(
+                        icon: const Icon(Icons.cloud_upload_rounded),
+                        label: Text(l10n.backupConnect),
+                        onPressed: _busy ? null : _linkGoogle,
+                      ),
+                    ] else if (!isGuest) ...[
+                      const SizedBox(height: 12),
+                      FilledButton.tonalIcon(
+                        icon: const Icon(Icons.cloud_upload_rounded),
+                        label: Text(l10n.backupNow),
+                        onPressed: _busy
+                            ? null
+                            : () => _run(() async {
+                                final count = await ref
+                                    .read(backupServiceProvider)
+                                    .backupNow(settings: settings.toMap());
+                                return l10n.backupDone('$count');
+                              }),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+          ),
           header(l10n.settingsAccount),
           ListTile(
-            leading: Icon(isGuest ? Icons.person_outline_rounded : Icons.verified_user_rounded),
-            title: Text(isGuest ? l10n.guestAccount : l10n.signedInAs(user?.email ?? '')),
+            leading: Icon(
+              isGuest
+                  ? Icons.person_outline_rounded
+                  : Icons.verified_user_rounded,
+            ),
+            title: Text(
+              isGuest ? l10n.guestAccount : l10n.signedInAs(user?.email ?? ''),
+            ),
             subtitle: isGuest ? Text(l10n.guestWarning) : null,
           ),
           if (isGuest && GoogleSignInBootstrap.isSupported)
@@ -181,9 +284,21 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: SegmentedButton<ThemeMode>(
               segments: [
-                ButtonSegment(value: ThemeMode.system, label: Text(l10n.themeSystem), icon: const Icon(Icons.brightness_auto_rounded)),
-                ButtonSegment(value: ThemeMode.light, label: Text(l10n.themeLight), icon: const Icon(Icons.light_mode_rounded)),
-                ButtonSegment(value: ThemeMode.dark, label: Text(l10n.themeDark), icon: const Icon(Icons.dark_mode_rounded)),
+                ButtonSegment(
+                  value: ThemeMode.system,
+                  label: Text(l10n.themeSystem),
+                  icon: const Icon(Icons.brightness_auto_rounded),
+                ),
+                ButtonSegment(
+                  value: ThemeMode.light,
+                  label: Text(l10n.themeLight),
+                  icon: const Icon(Icons.light_mode_rounded),
+                ),
+                ButtonSegment(
+                  value: ThemeMode.dark,
+                  label: Text(l10n.themeDark),
+                  icon: const Icon(Icons.dark_mode_rounded),
+                ),
               ],
               selected: {settings.themeMode},
               onSelectionChanged: (s) => controller.setThemeMode(s.first),
@@ -197,9 +312,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               value: settings.currencyCode,
               options: [
                 for (final code in supportedCurrencies.keys)
-                  PickerOption(code, '$code · ${CurrencyFormatter(currencyCode: code).symbol}'),
+                  PickerOption(
+                    code,
+                    '$code · ${CurrencyFormatter(currencyCode: code).symbol}',
+                  ),
               ],
-              onChanged: (v) => controller.setCurrency(v ?? settings.currencyCode),
+              onChanged: (v) =>
+                  controller.setCurrency(v ?? settings.currencyCode),
             ),
           ),
           if (AppLocalizations.supportedLocales.length > 1) ...[
@@ -213,7 +332,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 noneLabel: l10n.languageSystem,
                 options: [
                   for (final l in AppLocalizations.supportedLocales)
-                    PickerOption(l.languageCode, l.languageCode.toUpperCase()),
+                    PickerOption(
+                      l.languageCode,
+                      languageNativeName(l.languageCode),
+                    ),
                 ],
                 onChanged: controller.setLocale,
               ),
@@ -228,13 +350,23 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
           header(l10n.settingsNotifications),
           ListTile(
-            leading: Icon(notificationsOn == true ? Icons.notifications_active_rounded : Icons.notifications_off_rounded),
-            title: Text(notificationsOn == true ? l10n.notificationsStatusOn : l10n.notificationsStatusOff),
+            leading: Icon(
+              notificationsOn == true
+                  ? Icons.notifications_active_rounded
+                  : Icons.notifications_off_rounded,
+            ),
+            title: Text(
+              notificationsOn == true
+                  ? l10n.notificationsStatusOn
+                  : l10n.notificationsStatusOff,
+            ),
             trailing: notificationsOn == true
                 ? null
                 : TextButton(
                     onPressed: () async {
-                      await ref.read(notificationServiceProvider).requestPermission();
+                      await ref
+                          .read(notificationServiceProvider)
+                          .requestPermission();
                       ref.invalidate(notificationsEnabledProvider);
                       ref.read(notificationSyncProvider).resync();
                     },
@@ -252,20 +384,19 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
 
           header(l10n.settingsData),
           ListTile(
-            leading: Icon(sync.isSynced ? Icons.cloud_done_rounded : Icons.cloud_upload_rounded),
-            title: Text(sync.isSynced ? l10n.syncAllSynced : l10n.syncPending('${sync.pending}')),
-            subtitle: sync.lastSyncedAt == null ? null : Text(l10n.syncLastSynced(timeFmt.format(sync.lastSyncedAt!))),
-          ),
-          ListTile(
-            leading: const Icon(Icons.backup_rounded),
-            title: Text(l10n.backupTitle),
-            subtitle: Text(
-              isGuest
-                  ? l10n.backupNeedsAccount
-                  : backup?.lastBackupAt == null
-                  ? l10n.backupNever
-                  : l10n.backupLast(timeFmt.format(backup!.lastBackupAt!)),
+            leading: Icon(
+              sync.isSynced
+                  ? Icons.cloud_done_rounded
+                  : Icons.cloud_upload_rounded,
             ),
+            title: Text(
+              sync.isSynced
+                  ? l10n.syncAllSynced
+                  : l10n.syncPending('${sync.pending}'),
+            ),
+            subtitle: sync.lastSyncedAt == null
+                ? null
+                : Text(l10n.syncLastSynced(timeFmt.format(sync.lastSyncedAt!))),
           ),
           if (!isGuest) ...[
             SwitchListTile(
@@ -285,7 +416,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       onPressed: _busy
                           ? null
                           : () => _run(() async {
-                              final count = await ref.read(backupServiceProvider).backupNow(settings: settings.toMap());
+                              final count = await ref
+                                  .read(backupServiceProvider)
+                                  .backupNow(settings: settings.toMap());
                               return l10n.backupDone('$count');
                             }),
                     ),
@@ -309,7 +442,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             onTap: _busy
                 ? null
                 : () => _run(() async {
-                    await ref.read(transactionRepositoryProvider).recalculateBalances();
+                    await ref
+                        .read(transactionRepositoryProvider)
+                        .recalculateBalances();
                     return l10n.recalcDone;
                   }),
           ),
@@ -325,6 +460,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                       return l10n.importDone('$count');
                     }),
             ),
+          AdsSection(header: header),
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
             child: Row(
@@ -332,7 +468,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               children: [
                 Icon(Icons.shield_outlined, color: theme.colorScheme.primary),
                 const SizedBox(width: 10),
-                Expanded(child: Text(l10n.privacyNote, style: theme.textTheme.bodySmall)),
+                Expanded(
+                  child: Text(
+                    l10n.privacyNote,
+                    style: theme.textTheme.bodySmall,
+                  ),
+                ),
               ],
             ),
           ),

@@ -1,6 +1,6 @@
-import 'package:expensetrackerpro/features/loans/domain/amortization.dart';
-import 'package:expensetrackerpro/features/loans/domain/emi_engine.dart';
-import 'package:expensetrackerpro/features/loans/domain/loan.dart';
+import 'package:kept/features/loans/domain/amortization.dart';
+import 'package:kept/features/loans/domain/emi_engine.dart';
+import 'package:kept/features/loans/domain/loan.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Loan _loan({
@@ -65,28 +65,47 @@ void main() {
 
     test('zero interest splits principal evenly', () {
       expect(
-        EmiEngine.emi(principalMinor: 120000, periodicRate: 0, installments: 12),
+        EmiEngine.emi(
+          principalMinor: 120000,
+          periodicRate: 0,
+          installments: 12,
+        ),
         10000,
       );
     });
 
     test('rejects invalid input', () {
       expect(
-        () => EmiEngine.emi(principalMinor: 0, periodicRate: .01, installments: 12),
+        () => EmiEngine.emi(
+          principalMinor: 0,
+          periodicRate: .01,
+          installments: 12,
+        ),
         throwsArgumentError,
       );
       expect(
-        () => EmiEngine.emi(principalMinor: 100, periodicRate: .01, installments: 0),
+        () => EmiEngine.emi(
+          principalMinor: 100,
+          periodicRate: .01,
+          installments: 0,
+        ),
         throwsArgumentError,
       );
       expect(
-        () => EmiEngine.emi(principalMinor: 100, periodicRate: -1, installments: 2),
+        () => EmiEngine.emi(
+          principalMinor: 100,
+          periodicRate: -1,
+          installments: 2,
+        ),
         throwsArgumentError,
       );
     });
 
     test('quarterly frequency uses a quarterly periodic rate', () {
-      expect(EmiEngine.periodicRate(12, EmiFrequency.quarterly), closeTo(.03, 1e-12));
+      expect(
+        EmiEngine.periodicRate(12, EmiFrequency.quarterly),
+        closeTo(.03, 1e-12),
+      );
       expect(EmiFrequency.quarterly.monthsPerPeriod, 3);
     });
   });
@@ -98,7 +117,10 @@ void main() {
         emiMinor: 1321507,
         installments: 120,
       )!;
-      expect(EmiEngine.annualPercent(r, EmiFrequency.monthly), closeTo(10, 0.001));
+      expect(
+        EmiEngine.annualPercent(r, EmiFrequency.monthly),
+        closeTo(10, 0.001),
+      );
     });
 
     test('returns 0 when payments equal principal', () {
@@ -149,7 +171,11 @@ void main() {
     });
 
     test('due dates keep the day of month, clamped to short months', () {
-      final s = LoanSchedule.build(_loan(n: 3), const [], today: DateTime(2026));
+      final s = LoanSchedule.build(
+        _loan(n: 3),
+        const [],
+        today: DateTime(2026),
+      );
       expect(s.rows.map((r) => r.dueDate), [
         DateTime(2026, 1, 31),
         DateTime(2026, 2, 28),
@@ -158,11 +184,10 @@ void main() {
     });
 
     test('paid installments reduce outstanding and count interest paid', () {
-      final s = LoanSchedule.build(
-        _loan(),
-        [_paid(1), _paid(2)],
-        today: DateTime(2026, 3, 1),
-      );
+      final s = LoanSchedule.build(_loan(), [
+        _paid(1),
+        _paid(2),
+      ], today: DateTime(2026, 3, 1));
       expect(s.paidCount, 2);
       expect(s.remainingCount, 118);
       expect(s.outstandingPrincipalMinor, s.rows[1].closingMinor);
@@ -177,50 +202,39 @@ void main() {
     });
 
     test('unpaid past installments are overdue; skipped stays owed', () {
-      final s = LoanSchedule.build(
-        _loan(),
-        [
-          _paid(1),
-          LoanEvent(
-            id: 's2',
-            loanId: 'l1',
-            kind: LoanEventKind.skipped,
-            installmentNumber: 2,
-            date: DateTime(2026, 2, 28),
-            createdAt: DateTime(2026),
-          ),
-        ],
-        today: DateTime(2026, 4, 15),
-      );
+      final s = LoanSchedule.build(_loan(), [
+        _paid(1),
+        LoanEvent(
+          id: 's2',
+          loanId: 'l1',
+          kind: LoanEventKind.skipped,
+          installmentNumber: 2,
+          date: DateTime(2026, 2, 28),
+          createdAt: DateTime(2026),
+        ),
+      ], today: DateTime(2026, 4, 15));
       expect(s.rows[1].status, InstallmentStatus.skipped);
       expect(s.rows[2].status, InstallmentStatus.overdue);
       expect(s.rows[3].status, InstallmentStatus.upcoming);
       expect(s.nextDue!.number, 3);
       // Skipped principal is still outstanding.
-      expect(
-        s.outstandingPrincipalMinor,
-        100000000 - s.rows[0].principalMinor,
-      );
+      expect(s.outstandingPrincipalMinor, 100000000 - s.rows[0].principalMinor);
     });
 
     test('reduce-tenure prepayment keeps EMI and shortens the loan', () {
       final base = LoanSchedule.build(_loan(), const [], today: DateTime(2026));
-      final s = LoanSchedule.build(
-        _loan(),
-        [
-          for (var k = 1; k <= 12; k++) _paid(k),
-          LoanEvent(
-            id: 'pp',
-            loanId: 'l1',
-            kind: LoanEventKind.prepayment,
-            amountMinor: 20000000,
-            prepaymentMode: PrepaymentMode.reduceTenure,
-            date: DateTime(2027, 1, 5),
-            createdAt: DateTime(2027),
-          ),
-        ],
-        today: DateTime(2027, 1, 6),
-      );
+      final s = LoanSchedule.build(_loan(), [
+        for (var k = 1; k <= 12; k++) _paid(k),
+        LoanEvent(
+          id: 'pp',
+          loanId: 'l1',
+          kind: LoanEventKind.prepayment,
+          amountMinor: 20000000,
+          prepaymentMode: PrepaymentMode.reduceTenure,
+          date: DateTime(2027, 1, 5),
+          createdAt: DateTime(2027),
+        ),
+      ], today: DateTime(2027, 1, 6));
       expect(s.rows.length, lessThan(120));
       expect(s.rows[12].emiMinor, base.rows[12].emiMinor);
       expect(s.rows[12].prepaidBeforeMinor, 20000000);
@@ -235,21 +249,17 @@ void main() {
 
     test('reduce-EMI prepayment keeps the installment count', () {
       final base = LoanSchedule.build(_loan(), const [], today: DateTime(2026));
-      final s = LoanSchedule.build(
-        _loan(),
-        [
-          LoanEvent(
-            id: 'pp',
-            loanId: 'l1',
-            kind: LoanEventKind.prepayment,
-            amountMinor: 20000000,
-            prepaymentMode: PrepaymentMode.reduceEmi,
-            date: DateTime(2026, 6, 1),
-            createdAt: DateTime(2026),
-          ),
-        ],
-        today: DateTime(2026),
-      );
+      final s = LoanSchedule.build(_loan(), [
+        LoanEvent(
+          id: 'pp',
+          loanId: 'l1',
+          kind: LoanEventKind.prepayment,
+          amountMinor: 20000000,
+          prepaymentMode: PrepaymentMode.reduceEmi,
+          date: DateTime(2026, 6, 1),
+          createdAt: DateTime(2026),
+        ),
+      ], today: DateTime(2026));
       expect(s.rows, hasLength(120));
       expect(s.rows[5].emiMinor, lessThan(base.rows[5].emiMinor));
       expect(s.rows[4].emiMinor, base.rows[4].emiMinor);
@@ -257,22 +267,18 @@ void main() {
     });
 
     test('prepayment that clears the balance marks the loan prepaid', () {
-      final s = LoanSchedule.build(
-        _loan(n: 12, principal: 1200000, rate: 12),
-        [
-          _paid(1),
-          LoanEvent(
-            id: 'pp',
-            loanId: 'l1',
-            kind: LoanEventKind.prepayment,
-            amountMinor: 5000000,
-            prepaymentMode: PrepaymentMode.reduceTenure,
-            date: DateTime(2026, 2, 1),
-            createdAt: DateTime(2026),
-          ),
-        ],
-        today: DateTime(2026, 2, 2),
-      );
+      final s = LoanSchedule.build(_loan(n: 12, principal: 1200000, rate: 12), [
+        _paid(1),
+        LoanEvent(
+          id: 'pp',
+          loanId: 'l1',
+          kind: LoanEventKind.prepayment,
+          amountMinor: 5000000,
+          prepaymentMode: PrepaymentMode.reduceTenure,
+          date: DateTime(2026, 2, 1),
+          createdAt: DateTime(2026),
+        ),
+      ], today: DateTime(2026, 2, 2));
       expect(s.rows, hasLength(1));
       expect(s.outstandingPrincipalMinor, 0);
       expect(s.unappliedPrepaymentMinor, greaterThan(0));
@@ -280,11 +286,11 @@ void main() {
     });
 
     test('all installments paid marks the loan completed', () {
-      final s = LoanSchedule.build(
-        _loan(n: 3, principal: 300000, rate: 12),
-        [_paid(1), _paid(2), _paid(3)],
-        today: DateTime(2026, 6),
-      );
+      final s = LoanSchedule.build(_loan(n: 3, principal: 300000, rate: 12), [
+        _paid(1),
+        _paid(2),
+        _paid(3),
+      ], today: DateTime(2026, 6));
       expect(s.effectiveStatus, LoanStatus.completed);
       expect(s.outstandingPrincipalMinor, 0);
     });

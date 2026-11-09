@@ -1,4 +1,4 @@
-import 'package:expensetrackerpro/domain/entities/sms_permission_state.dart';
+import 'package:kept/domain/entities/sms_permission_state.dart';
 
 abstract class SmsPermissionRepository {
   Future<SmsPermissionState> getStatus();

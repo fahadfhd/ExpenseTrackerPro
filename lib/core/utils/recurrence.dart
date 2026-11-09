@@ -1,6 +1,6 @@
-import 'package:expensetrackerpro/core/firebase/firestore_codec.dart';
+import 'package:kept/core/firebase/firestore_codec.dart';
 import 'package:cloud_firestore/cloud_firestore.dart' show Timestamp;
-import 'package:expensetrackerpro/core/utils/dates.dart';
+import 'package:kept/core/utils/dates.dart';
 
 enum RecurrenceFrequency { once, daily, weekly, monthly, yearly }
 
@@ -61,7 +61,11 @@ class Recurrence {
   }
 
   /// Occurrences in `[from, to)`, in order.
-  Iterable<DateTime> between(DateTime anchor, DateTime from, DateTime to) sync* {
+  Iterable<DateTime> between(
+    DateTime anchor,
+    DateTime from,
+    DateTime to,
+  ) sync* {
     if (!to.isAfter(from)) return;
     final last = until == null
         ? null
@@ -85,7 +89,7 @@ class Recurrence {
       };
       k = estimate > 1 ? estimate - 1 : 0;
     }
-    for (;; k++) {
+    for (; ; k++) {
       final date = nth(anchor, k);
       if (!date.isBefore(to) || (last != null && date.isAfter(last))) return;
       if (!date.isBefore(from)) yield date;

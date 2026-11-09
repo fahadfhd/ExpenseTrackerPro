@@ -1,8 +1,8 @@
-import 'package:expensetrackerpro/core/firebase/firebase_providers.dart';
-import 'package:expensetrackerpro/features/accounts/data/account_repository.dart';
-import 'package:expensetrackerpro/features/accounts/domain/account.dart';
-import 'package:expensetrackerpro/features/credit_cards/application/card_providers.dart';
-import 'package:expensetrackerpro/features/transactions/application/transaction_providers.dart';
+import 'package:kept/core/firebase/firebase_providers.dart';
+import 'package:kept/features/accounts/data/account_repository.dart';
+import 'package:kept/features/accounts/domain/account.dart';
+import 'package:kept/features/credit_cards/application/card_providers.dart';
+import 'package:kept/features/transactions/application/transaction_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final accountRepositoryProvider = Provider<AccountRepository>((ref) {

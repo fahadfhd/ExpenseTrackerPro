@@ -1,24 +1,28 @@
-import 'package:expensetrackerpro/core/firebase/firebase_providers.dart';
-import 'package:expensetrackerpro/features/accounts/domain/account.dart';
-import 'package:expensetrackerpro/features/accounts/presentation/account_detail_screen.dart';
-import 'package:expensetrackerpro/features/accounts/presentation/account_form_screen.dart';
-import 'package:expensetrackerpro/features/borrow_lend/presentation/borrow_lend_screen.dart';
-import 'package:expensetrackerpro/features/budgets/presentation/budgets_screen.dart';
-import 'package:expensetrackerpro/features/credit_cards/domain/credit_card.dart';
-import 'package:expensetrackerpro/features/credit_cards/presentation/card_detail_screen.dart';
-import 'package:expensetrackerpro/features/credit_cards/presentation/card_form_screen.dart';
-import 'package:expensetrackerpro/features/dashboard/application/upcoming_provider.dart';
-import 'package:expensetrackerpro/features/loans/domain/loan.dart';
-import 'package:expensetrackerpro/features/loans/presentation/emi_calculator_screen.dart';
-import 'package:expensetrackerpro/features/loans/presentation/loan_detail_screen.dart';
-import 'package:expensetrackerpro/features/loans/presentation/loan_form_screen.dart';
-import 'package:expensetrackerpro/features/recurring/presentation/recurring_screen.dart';
-import 'package:expensetrackerpro/features/reminders/presentation/reminders_screen.dart';
-import 'package:expensetrackerpro/features/reports/presentation/reports_screen.dart';
-import 'package:expensetrackerpro/features/search/presentation/search_screen.dart';
-import 'package:expensetrackerpro/features/settings/presentation/settings_screen.dart';
-import 'package:expensetrackerpro/features/vehicles/presentation/vehicles_screen.dart';
-import 'package:expensetrackerpro/shared/widgets/dialogs.dart';
+import 'package:kept/core/firebase/firebase_providers.dart';
+import 'package:kept/features/accounts/domain/account.dart';
+import 'package:kept/features/accounts/presentation/account_detail_screen.dart';
+import 'package:kept/features/accounts/presentation/account_form_screen.dart';
+import 'package:kept/features/borrow_lend/presentation/borrow_lend_screen.dart';
+import 'package:kept/features/budgets/presentation/budgets_screen.dart';
+import 'package:kept/features/categories/presentation/categories_screen.dart';
+import 'package:kept/features/credit_cards/domain/credit_card.dart';
+import 'package:kept/features/credit_cards/presentation/card_detail_screen.dart';
+import 'package:kept/features/credit_cards/presentation/card_form_screen.dart';
+import 'package:kept/features/dashboard/application/upcoming_provider.dart';
+import 'package:kept/features/debt_plan/presentation/debt_plan_screen.dart';
+import 'package:kept/features/debt_plan/presentation/debt_switch_screen.dart';
+import 'package:kept/features/debt_plan/presentation/extra_money_screen.dart';
+import 'package:kept/features/loans/domain/loan.dart';
+import 'package:kept/features/loans/presentation/emi_calculator_screen.dart';
+import 'package:kept/features/loans/presentation/loan_detail_screen.dart';
+import 'package:kept/features/loans/presentation/loan_form_screen.dart';
+import 'package:kept/features/recurring/presentation/recurring_screen.dart';
+import 'package:kept/features/reminders/presentation/reminders_screen.dart';
+import 'package:kept/features/reports/presentation/reports_screen.dart';
+import 'package:kept/features/search/presentation/search_screen.dart';
+import 'package:kept/features/settings/presentation/settings_screen.dart';
+import 'package:kept/features/vehicles/presentation/vehicles_screen.dart';
+import 'package:kept/shared/widgets/dialogs.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -72,6 +76,15 @@ abstract final class AppRoutes {
   static Future<void> emiCalculator(BuildContext c) =>
       pushPage(c, const EmiCalculatorScreen());
 
+  static Future<void> debtPlan(BuildContext c) =>
+      pushPage(c, const DebtPlanScreen());
+
+  static Future<void> extraMoney(BuildContext c, {int? initial}) =>
+      pushPage(c, ExtraMoneyScreen(initialMinor: initial));
+
+  static Future<void> debtSwitch(BuildContext c) =>
+      pushPage(c, const DebtSwitchScreen());
+
   static Future<void> borrowLend(BuildContext c) =>
       pushPage(c, const BorrowLendScreen());
 
@@ -86,6 +99,9 @@ abstract final class AppRoutes {
 
   static Future<void> mileageCalculator(BuildContext c) =>
       pushPage(c, const MileageCalculatorScreen());
+
+  static Future<void> categories(BuildContext c) =>
+      pushPage(c, const CategoriesScreen());
 
   static Future<void> budgets(BuildContext c) =>
       pushPage(c, const BudgetsScreen());

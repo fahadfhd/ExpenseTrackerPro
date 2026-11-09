@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:expensetrackerpro/domain/entities/transaction_item.dart';
+import 'package:kept/domain/entities/transaction_item.dart';
 
 class TransactionDeduplicator {
   static const _mergeWindow = Duration(hours: 2);

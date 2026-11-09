@@ -1,11 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart' hide Transaction;
-import 'package:expensetrackerpro/core/firebase/collections.dart';
-import 'package:expensetrackerpro/core/firebase/entity_store.dart';
-import 'package:expensetrackerpro/core/firebase/firebase_providers.dart';
-import 'package:expensetrackerpro/core/utils/dates.dart';
-import 'package:expensetrackerpro/features/recurring/domain/recurring_rule.dart';
-import 'package:expensetrackerpro/features/transactions/data/transaction_repository.dart';
-import 'package:expensetrackerpro/features/transactions/domain/transaction.dart';
+import 'package:kept/core/firebase/collections.dart';
+import 'package:kept/core/firebase/entity_store.dart';
+import 'package:kept/core/firebase/firebase_providers.dart';
+import 'package:kept/core/utils/dates.dart';
+import 'package:kept/features/recurring/domain/recurring_rule.dart';
+import 'package:kept/features/transactions/data/transaction_repository.dart';
+import 'package:kept/features/transactions/domain/transaction.dart';
 import 'package:flutter/foundation.dart';
 
 class RecurringRepository {
@@ -80,11 +80,13 @@ class RecurringRepository {
   Future<bool> _referencesExist(RecurringRule rule) async {
     final userDoc = store.userDoc;
     final refs = [
-      if (rule.type != TransactionType.creditCardExpense && rule.accountId != null)
+      if (rule.type != TransactionType.creditCardExpense &&
+          rule.accountId != null)
         userDoc.collection(Collections.accounts).doc(rule.accountId),
       if (rule.type == TransactionType.transfer && rule.toAccountId != null)
         userDoc.collection(Collections.accounts).doc(rule.toAccountId),
-      if (rule.type == TransactionType.creditCardExpense && rule.creditCardId != null)
+      if (rule.type == TransactionType.creditCardExpense &&
+          rule.creditCardId != null)
         userDoc.collection(Collections.creditCards).doc(rule.creditCardId),
     ];
     for (final ref in refs) {

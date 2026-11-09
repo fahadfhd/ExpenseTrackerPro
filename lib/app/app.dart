@@ -1,16 +1,16 @@
-import 'package:expensetrackerpro/app/main_shell.dart';
-import 'package:expensetrackerpro/core/firebase/firebase_providers.dart';
-import 'package:expensetrackerpro/core/l10n/l10n.dart';
-import 'package:expensetrackerpro/core/settings/app_settings.dart';
-import 'package:expensetrackerpro/core/theme/app_theme.dart';
-import 'package:expensetrackerpro/features/auth/presentation/welcome_screen.dart';
-import 'package:expensetrackerpro/presentation/splash/splash_screen.dart';
+import 'package:kept/app/main_shell.dart';
+import 'package:kept/core/firebase/firebase_providers.dart';
+import 'package:kept/core/l10n/l10n.dart';
+import 'package:kept/core/settings/app_settings.dart';
+import 'package:kept/core/theme/app_theme.dart';
+import 'package:kept/features/auth/presentation/welcome_screen.dart';
+import 'package:kept/presentation/splash/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class ExpanseTrackerProApp extends ConsumerWidget {
-  const ExpanseTrackerProApp({super.key});
+class KeptApp extends ConsumerWidget {
+  const KeptApp({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -22,6 +22,15 @@ class ExpanseTrackerProApp extends ConsumerWidget {
       theme: AppTheme.build(Brightness.light),
       darkTheme: AppTheme.build(Brightness.dark),
       locale: settings.locale,
+      // Tap anywhere outside a text field to hide the keyboard. Number
+      // keyboards on iPhone have no "Done" key, so this is the only way out.
+      // Children that handle taps (buttons, fields) win the gesture, so this
+      // only fires for taps on empty space.
+      builder: (context, child) => GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+        child: child,
+      ),
       supportedLocales: AppLocalizations.supportedLocales,
       localizationsDelegates: const [
         AppLocalizations.delegate,

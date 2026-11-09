@@ -1,9 +1,9 @@
-import 'package:expensetrackerpro/core/money/money.dart';
-import 'package:expensetrackerpro/features/transactions/domain/ledger_effects.dart';
-import 'package:expensetrackerpro/features/transactions/domain/monthly_summary.dart';
-import 'package:expensetrackerpro/features/transactions/domain/transaction.dart';
-import 'package:expensetrackerpro/features/transactions/domain/transaction_query.dart';
-import 'package:expensetrackerpro/features/transactions/domain/transaction_validator.dart';
+import 'package:kept/core/money/money.dart';
+import 'package:kept/features/transactions/domain/ledger_effects.dart';
+import 'package:kept/features/transactions/domain/monthly_summary.dart';
+import 'package:kept/features/transactions/domain/transaction.dart';
+import 'package:kept/features/transactions/domain/transaction_query.dart';
+import 'package:kept/features/transactions/domain/transaction_validator.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 Transaction tx(
@@ -60,9 +60,16 @@ void main() {
 
   group('LedgerEffects (account balance & card outstanding)', () {
     test('expense and income move the account', () {
-      expect(LedgerEffects.of(tx(TransactionType.expense, 500, account: 'a')).accounts, {'a': -500});
       expect(
-        LedgerEffects.of(tx(TransactionType.income, 900, account: 'a', category: 'salary')).accounts,
+        LedgerEffects.of(
+          tx(TransactionType.expense, 500, account: 'a'),
+        ).accounts,
+        {'a': -500},
+      );
+      expect(
+        LedgerEffects.of(
+          tx(TransactionType.income, 900, account: 'a', category: 'salary'),
+        ).accounts,
         {'a': 900},
       );
     });
@@ -74,23 +81,44 @@ void main() {
       expect(d.accounts, {'a': -1000, 'b': 1000});
     });
 
-    test('card expense raises outstanding; payment lowers it and debits account', () {
-      expect(LedgerEffects.of(tx(TransactionType.creditCardExpense, 300, card: 'c')).cards, {'c': 300});
-      final pay = LedgerEffects.of(
-        tx(TransactionType.creditCardPayment, 300, card: 'c', account: 'a'),
-      );
-      expect(pay.cards, {'c': -300});
-      expect(pay.accounts, {'a': -300});
-    });
+    test(
+      'card expense raises outstanding; payment lowers it and debits account',
+      () {
+        expect(
+          LedgerEffects.of(
+            tx(TransactionType.creditCardExpense, 300, card: 'c'),
+          ).cards,
+          {'c': 300},
+        );
+        final pay = LedgerEffects.of(
+          tx(TransactionType.creditCardPayment, 300, card: 'c', account: 'a'),
+        );
+        expect(pay.cards, {'c': -300});
+        expect(pay.accounts, {'a': -300});
+      },
+    );
 
     test('refund goes back to the card when one is set', () {
-      expect(LedgerEffects.of(tx(TransactionType.refund, 50, card: 'c')).cards, {'c': -50});
-      expect(LedgerEffects.of(tx(TransactionType.refund, 50, account: 'a')).accounts, {'a': 50});
+      expect(
+        LedgerEffects.of(tx(TransactionType.refund, 50, card: 'c')).cards,
+        {'c': -50},
+      );
+      expect(
+        LedgerEffects.of(tx(TransactionType.refund, 50, account: 'a')).accounts,
+        {'a': 50},
+      );
     });
 
     test('pending transactions have no effect', () {
       expect(
-        LedgerEffects.of(tx(TransactionType.expense, 500, account: 'a', status: TransactionStatus.pending)).isEmpty,
+        LedgerEffects.of(
+          tx(
+            TransactionType.expense,
+            500,
+            account: 'a',
+            status: TransactionStatus.pending,
+          ),
+        ).isEmpty,
         isTrue,
       );
     });
@@ -120,9 +148,14 @@ void main() {
 
   group('TransactionValidator', () {
     test('accepts valid combinations', () {
-      expect(TransactionValidator.validate(tx(TransactionType.expense, 1)), isEmpty);
       expect(
-        TransactionValidator.validate(tx(TransactionType.creditCardExpense, 1, card: 'c')),
+        TransactionValidator.validate(tx(TransactionType.expense, 1)),
+        isEmpty,
+      );
+      expect(
+        TransactionValidator.validate(
+          tx(TransactionType.creditCardExpense, 1, card: 'c'),
+        ),
         isEmpty,
       );
     });
@@ -137,23 +170,39 @@ void main() {
         contains(TransactionIssue.cardRequired),
       );
       expect(
-        TransactionValidator.validate(tx(TransactionType.transfer, 5, account: 'a', toAccount: 'a', category: 'transfer')),
+        TransactionValidator.validate(
+          tx(
+            TransactionType.transfer,
+            5,
+            account: 'a',
+            toAccount: 'a',
+            category: 'transfer',
+          ),
+        ),
         contains(TransactionIssue.sameTransferAccounts),
       );
       expect(
-        TransactionValidator.validate(tx(TransactionType.transfer, 5, account: 'a', category: 'transfer')),
+        TransactionValidator.validate(
+          tx(TransactionType.transfer, 5, account: 'a', category: 'transfer'),
+        ),
         contains(TransactionIssue.destinationAccountRequired),
       );
       expect(
-        TransactionValidator.validate(tx(TransactionType.loanPayment, 5, category: 'loan_emi')),
+        TransactionValidator.validate(
+          tx(TransactionType.loanPayment, 5, category: 'loan_emi'),
+        ),
         contains(TransactionIssue.loanRequired),
       );
       expect(
-        TransactionValidator.validate(tx(TransactionType.income, 5, category: 'food')),
+        TransactionValidator.validate(
+          tx(TransactionType.income, 5, category: 'food'),
+        ),
         contains(TransactionIssue.categoryMismatch),
       );
       expect(
-        TransactionValidator.validate(tx(TransactionType.lent, 5, category: 'debt')),
+        TransactionValidator.validate(
+          tx(TransactionType.lent, 5, category: 'debt'),
+        ),
         contains(TransactionIssue.debtRecordRequired),
       );
     });
@@ -163,11 +212,40 @@ void main() {
     test('computes income, spending, EMI, savings and breakdowns', () {
       final s = MonthlySummary.compute([
         tx(TransactionType.income, 100000, category: 'salary', account: 'a'),
-        tx(TransactionType.expense, 20000, account: 'a', date: DateTime(2026, 3, 2)),
-        tx(TransactionType.creditCardExpense, 15000, card: 'c', category: 'shopping', date: DateTime(2026, 3, 2)),
-        tx(TransactionType.refund, 5000, card: 'c', category: 'shopping', date: DateTime(2026, 3, 4)),
-        tx(TransactionType.creditCardPayment, 9000, card: 'c', account: 'a', category: 'card_payment'),
-        tx(TransactionType.transfer, 7000, account: 'a', toAccount: 'b', category: 'transfer'),
+        tx(
+          TransactionType.expense,
+          20000,
+          account: 'a',
+          date: DateTime(2026, 3, 2),
+        ),
+        tx(
+          TransactionType.creditCardExpense,
+          15000,
+          card: 'c',
+          category: 'shopping',
+          date: DateTime(2026, 3, 2),
+        ),
+        tx(
+          TransactionType.refund,
+          5000,
+          card: 'c',
+          category: 'shopping',
+          date: DateTime(2026, 3, 4),
+        ),
+        tx(
+          TransactionType.creditCardPayment,
+          9000,
+          card: 'c',
+          account: 'a',
+          category: 'card_payment',
+        ),
+        tx(
+          TransactionType.transfer,
+          7000,
+          account: 'a',
+          toAccount: 'b',
+          category: 'transfer',
+        ),
         tx(TransactionType.loanPayment, 30000, loan: 'l', category: 'loan_emi'),
         tx(TransactionType.borrowed, 4000, debt: 'd', category: 'debt'),
         tx(TransactionType.lent, 3000, debt: 'd2', category: 'debt'),
@@ -198,41 +276,88 @@ void main() {
 
   group('TransactionQuery', () {
     final list = [
-      tx(TransactionType.expense, 500, id: '1', description: 'Swiggy dinner', account: 'a', date: DateTime(2026, 3, 1)),
-      tx(TransactionType.creditCardExpense, 2500, id: '2', category: 'shopping', card: 'c', description: 'Amazon', date: DateTime(2026, 3, 3)),
-      tx(TransactionType.income, 90000, id: '3', category: 'salary', account: 'a', description: 'Salary', date: DateTime(2026, 3, 2)),
+      tx(
+        TransactionType.expense,
+        500,
+        id: '1',
+        description: 'Swiggy dinner',
+        account: 'a',
+        date: DateTime(2026, 3, 1),
+      ),
+      tx(
+        TransactionType.creditCardExpense,
+        2500,
+        id: '2',
+        category: 'shopping',
+        card: 'c',
+        description: 'Amazon',
+        date: DateTime(2026, 3, 3),
+      ),
+      tx(
+        TransactionType.income,
+        90000,
+        id: '3',
+        category: 'salary',
+        account: 'a',
+        description: 'Salary',
+        date: DateTime(2026, 3, 2),
+      ),
     ];
     String text(Transaction t) => '${t.description} ${t.categoryId}';
 
     test('filters by type, category, account, card and amount', () {
       expect(
-        TransactionQuery.apply(list, const TransactionFilter(types: {TransactionType.income}), searchText: text).map((t) => t.id),
+        TransactionQuery.apply(
+          list,
+          const TransactionFilter(types: {TransactionType.income}),
+          searchText: text,
+        ).map((t) => t.id),
         ['3'],
       );
       expect(
-        TransactionQuery.apply(list, const TransactionFilter(cardIds: {'c'}), searchText: text).map((t) => t.id),
+        TransactionQuery.apply(
+          list,
+          const TransactionFilter(cardIds: {'c'}),
+          searchText: text,
+        ).map((t) => t.id),
         ['2'],
       );
       expect(
-        TransactionQuery.apply(list, const TransactionFilter(accountIds: {'a'}, maxAmountMinor: 1000), searchText: text).map((t) => t.id),
+        TransactionQuery.apply(
+          list,
+          const TransactionFilter(accountIds: {'a'}, maxAmountMinor: 1000),
+          searchText: text,
+        ).map((t) => t.id),
         ['1'],
       );
     });
 
     test('search matches every term case-insensitively', () {
       expect(
-        TransactionQuery.apply(list, const TransactionFilter(text: 'swiggy FOOD'), searchText: text).map((t) => t.id),
+        TransactionQuery.apply(
+          list,
+          const TransactionFilter(text: 'swiggy FOOD'),
+          searchText: text,
+        ).map((t) => t.id),
         ['1'],
       );
     });
 
     test('sorts', () {
       expect(
-        TransactionQuery.apply(list, const TransactionFilter(), searchText: text).map((t) => t.id),
+        TransactionQuery.apply(
+          list,
+          const TransactionFilter(),
+          searchText: text,
+        ).map((t) => t.id),
         ['2', '3', '1'],
       );
       expect(
-        TransactionQuery.apply(list, const TransactionFilter(sort: TransactionSort.largest), searchText: text).map((t) => t.id),
+        TransactionQuery.apply(
+          list,
+          const TransactionFilter(sort: TransactionSort.largest),
+          searchText: text,
+        ).map((t) => t.id),
         ['3', '2', '1'],
       );
     });
@@ -240,8 +365,13 @@ void main() {
 
   group('Transaction serialization', () {
     test('round-trips through a map', () {
-      final original = tx(TransactionType.transfer, 1234, account: 'a', toAccount: 'b', category: 'transfer')
-          .copyWith(tags: ['x'], notes: 'n');
+      final original = tx(
+        TransactionType.transfer,
+        1234,
+        account: 'a',
+        toAccount: 'b',
+        category: 'transfer',
+      ).copyWith(tags: ['x'], notes: 'n');
       final back = Transaction.fromMap('t', original.toMap(userId: 'u'));
       expect(back.amountMinor, 1234);
       expect(back.type, TransactionType.transfer);

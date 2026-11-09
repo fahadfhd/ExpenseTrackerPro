@@ -92,6 +92,10 @@ class AppTheme {
       surface: isDark ? const Color(0xFF0F1720) : const Color(0xFFF4F7F2),
     );
     final cardColor = isDark ? const Color(0xFF111C24) : Colors.white;
+    final textTheme = ThemeData(brightness: brightness).textTheme.apply(
+      bodyColor: colorScheme.onSurface,
+      displayColor: colorScheme.onSurface,
+    );
 
     return ThemeData(
       useMaterial3: true,
@@ -101,17 +105,16 @@ class AppTheme {
           ? const Color(0xFF091116)
           : const Color(0xFFEEF4EE),
       extensions: [isDark ? FinanceColors.dark : FinanceColors.light],
-      textTheme: ThemeData(brightness: brightness).textTheme.apply(
-        bodyColor: colorScheme.onSurface,
-        displayColor: colorScheme.onSurface,
-      ),
+      textTheme: textTheme,
       appBarTheme: AppBarTheme(
         backgroundColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,
         foregroundColor: colorScheme.onSurface,
         elevation: 0,
         centerTitle: false,
-        titleTextStyle: TextStyle(
+        // Built on the theme's own style so the title uses the same font
+        // family as the rest of the UI.
+        titleTextStyle: textTheme.titleLarge?.copyWith(
           fontSize: 22,
           fontWeight: FontWeight.w800,
           color: colorScheme.onSurface,
@@ -141,7 +144,9 @@ class AppTheme {
         ),
       ),
       bottomSheetTheme: BottomSheetThemeData(
-        backgroundColor: isDark ? const Color(0xFF0F1A21) : const Color(0xFFF7FAF6),
+        backgroundColor: isDark
+            ? const Color(0xFF0F1A21)
+            : const Color(0xFFF7FAF6),
         showDragHandle: true,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
@@ -152,14 +157,29 @@ class AppTheme {
             ? const Color(0xFF0E171E)
             : Colors.white.withValues(alpha: 0.96),
         indicatorColor: colorScheme.primaryContainer,
+        // The size must be explicit: without it the label inherits the 14sp
+        // body size and a long word (Transactions) breaks in the middle,
+        // even on a 390 dp phone. 11sp semi-bold keeps the longest English
+        // and Malayalam labels on one line down to 360 dp.
         labelTextStyle: WidgetStatePropertyAll(
-          TextStyle(fontWeight: FontWeight.w700, color: colorScheme.onSurface),
+          TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0,
+            color: colorScheme.onSurface,
+          ),
         ),
       ),
       floatingActionButtonTheme: FloatingActionButtonThemeData(
         backgroundColor: colorScheme.primary,
         foregroundColor: colorScheme.onPrimary,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      ),
+      snackBarTheme: SnackBarThemeData(
+        // Floats above the bottom bar instead of covering it.
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        insetPadding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
       ),
       chipTheme: ChipThemeData(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),

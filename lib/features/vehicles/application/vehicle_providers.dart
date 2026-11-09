@@ -1,7 +1,7 @@
-import 'package:expensetrackerpro/core/firebase/firebase_providers.dart';
-import 'package:expensetrackerpro/features/transactions/application/transaction_providers.dart';
-import 'package:expensetrackerpro/features/vehicles/data/vehicle_repository.dart';
-import 'package:expensetrackerpro/features/vehicles/domain/vehicle.dart';
+import 'package:kept/core/firebase/firebase_providers.dart';
+import 'package:kept/features/transactions/application/transaction_providers.dart';
+import 'package:kept/features/vehicles/data/vehicle_repository.dart';
+import 'package:kept/features/vehicles/domain/vehicle.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 final vehicleRepositoryProvider = Provider<VehicleRepository>((ref) {

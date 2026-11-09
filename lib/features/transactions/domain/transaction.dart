@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart' show Timestamp;
-import 'package:expensetrackerpro/core/firebase/firestore_codec.dart';
-import 'package:expensetrackerpro/features/categories/domain/category.dart';
+import 'package:kept/core/firebase/firestore_codec.dart';
+import 'package:kept/features/categories/domain/category.dart';
 
 /// Every way money can move. Persisted by [Enum.name]; never rename values.
 enum TransactionType {
@@ -236,7 +236,9 @@ class Transaction {
     final namedKind = Categories.byId(named).kind;
     final category = isCredit
         ? (namedKind == CategoryKind.income ? named : Categories.otherIncomeId)
-        : (namedKind == CategoryKind.expense ? named : Categories.otherExpenseId);
+        : (namedKind == CategoryKind.expense
+              ? named
+              : Categories.otherExpenseId);
     final channels = Codec.strings(map['sourceChannels']);
     return Transaction(
       id: id,

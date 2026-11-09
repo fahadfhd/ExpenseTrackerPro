@@ -1,5 +1,5 @@
-import 'package:expensetrackerpro/core/transactions/transaction_deduplicator.dart';
-import 'package:expensetrackerpro/domain/entities/transaction_item.dart';
+import 'package:kept/core/transactions/transaction_deduplicator.dart';
+import 'package:kept/domain/entities/transaction_item.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

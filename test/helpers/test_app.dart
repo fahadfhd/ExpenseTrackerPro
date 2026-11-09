@@ -1,9 +1,14 @@
-import 'package:expensetrackerpro/app/app.dart';
-import 'package:expensetrackerpro/core/firebase/firebase_providers.dart';
-import 'package:expensetrackerpro/core/notifications/notification_planner.dart';
-import 'package:expensetrackerpro/core/notifications/notification_service.dart';
-import 'package:expensetrackerpro/core/settings/app_settings.dart';
-import 'package:expensetrackerpro/features/reminders/application/reminder_providers.dart';
+import 'package:kept/app/app.dart';
+import 'package:kept/core/ads/ad_service.dart';
+import 'package:kept/core/ads/rewarded_ads.dart';
+import 'package:kept/core/utils/clock.dart';
+import 'package:kept/core/firebase/firebase_providers.dart';
+import 'package:kept/core/l10n/l10n.dart';
+import 'package:kept/core/notifications/notification_planner.dart';
+import 'package:kept/core/notifications/notification_service.dart';
+import 'package:kept/core/settings/app_settings.dart';
+import 'package:kept/features/reminders/application/reminder_providers.dart';
+import 'package:kept/shared/widgets/payment_source_field.dart';
 import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:firebase_auth_mocks/firebase_auth_mocks.dart';
 import 'package:flutter/material.dart';
@@ -30,11 +35,27 @@ class FakeNotificationService implements NotificationService {
   @override
   Future<bool> areEnabled() async => enabled;
 
+  String? channelName;
+  String? channelDescription;
+
+  @override
+  Future<void> setChannelText({
+    required String name,
+    required String description,
+  }) async {
+    channelName = name;
+    channelDescription = description;
+  }
+
   @override
   Future<ReconcileResult> reconcile(List<PlannedNotification> desired) async {
     reconcileCalls++;
     scheduled = desired;
-    return ReconcileResult(scheduled: desired.length, cancelled: 0, unchanged: 0);
+    return ReconcileResult(
+      scheduled: desired.length,
+      cancelled: 0,
+      unchanged: 0,
+    );
   }
 }
 
@@ -48,8 +69,14 @@ class TestEnv {
   String get uid => auth.currentUser!.uid;
 
   Future<List<Map<String, dynamic>>> docs(String collection) async {
-    final snapshot = await db.collection('users').doc(uid).collection(collection).get();
-    return [for (final d in snapshot.docs) {'id': d.id, ...d.data()}];
+    final snapshot = await db
+        .collection('users')
+        .doc(uid)
+        .collection(collection)
+        .get();
+    return [
+      for (final d in snapshot.docs) {'id': d.id, ...d.data()},
+    ];
   }
 }
 
@@ -60,6 +87,13 @@ Future<TestEnv> pumpApp(
   ThemeMode themeMode = ThemeMode.light,
   Size physicalSize = const Size(1170, 2532),
   double devicePixelRatio = 3,
+  MockFirebaseAuth? auth,
+  String? localeCode,
+  // Ads are off under test unless a test asks for them.
+  bool adsReady = false,
+  RewardedAdGateway? rewardedGateway,
+  DateTime Function()? clock,
+  Map<String, Object> extraPrefs = const {},
 }) async {
   // Phone-sized surface so layouts match real devices.
   tester.view.physicalSize = physicalSize;
@@ -69,11 +103,14 @@ Future<TestEnv> pumpApp(
   SharedPreferences.setMockInitialValues({
     'settings.themeMode': themeMode.name,
     'settings.autoBackup': false,
+    // Null follows the device language, which is English under test.
+    'settings.locale': ?localeCode,
+    ...extraPrefs,
   });
   final prefs = await SharedPreferences.getInstance();
   final db = FakeFirebaseFirestore();
   // Anonymous ("guest") user: no cloud backup is attempted in tests.
-  final auth = MockFirebaseAuth(
+  auth ??= MockFirebaseAuth(
     signedIn: signedIn,
     mockUser: MockUser(uid: 'test-user', isAnonymous: true),
   );
@@ -86,8 +123,15 @@ Future<TestEnv> pumpApp(
         firestoreProvider.overrideWithValue(db),
         firebaseAuthProvider.overrideWithValue(auth),
         notificationServiceProvider.overrideWithValue(notifications),
+        // The AdMob SDK needs a real device; tests run without ads, or with
+        // a fake rewarded-video gateway.
+        adsReadyProvider.overrideWith((ref) => adsReady),
+        adPrivacyOptionsRequiredProvider.overrideWith((ref) => false),
+        if (rewardedGateway != null)
+          rewardedAdGatewayProvider.overrideWithValue(rewardedGateway),
+        if (clock != null) clockProvider.overrideWithValue(clock),
       ],
-      child: const ExpanseTrackerProApp(),
+      child: const KeptApp(),
     ),
   );
   await settle(tester);
@@ -123,6 +167,12 @@ Finder _mainScrollable(WidgetTester tester) {
 Future<void> reveal(WidgetTester tester, Finder finder) async {
   // Let focus-driven scroll animations (autofocus, enterText) finish first.
   await settle(tester);
+  if (finder.evaluate().isEmpty) {
+    // The target may be above the current position (lazy lists don't build
+    // off-screen rows): start from the top, then scroll down to it.
+    await tester.drag(_mainScrollable(tester), const Offset(0, 4000));
+    await tester.pump();
+  }
   if (finder.evaluate().isEmpty) {
     await tester.scrollUntilVisible(
       finder,
@@ -166,5 +216,72 @@ Future<void> pick(WidgetTester tester, String label, String option) async {
 /// Scrolls the front-most list back to the top.
 Future<void> scrollToTop(WidgetTester tester) async {
   await tester.drag(_mainScrollable(tester), const Offset(0, 3000));
+  await settle(tester);
+}
+
+/// Taps a payment option (account, card or cash) by its title in the open
+/// form. The field shows one kind of payment at a time, so the matching kind
+/// is opened first.
+Future<void> choosePayment(WidgetTester tester, String title) async {
+  final field = find.byType(PaymentSourceField).first;
+  Finder tile() => find.descendant(of: field, matching: find.text(title));
+  await reveal(tester, field);
+  final l10n = tester.element(field).l10n;
+  for (final (label, isCash) in [
+    (l10n.paymentTypeAccount, false),
+    (l10n.creditCard, false),
+    (l10n.paymentTypeCash, true),
+    (l10n.dontRecord, true),
+  ]) {
+    if (tile().evaluate().isNotEmpty) break;
+    final chip = find.descendant(
+      of: field,
+      matching: find.widgetWithText(ChoiceChip, label),
+    );
+    if (chip.evaluate().isEmpty) continue;
+    await reveal(tester, chip);
+    await tester.tap(chip.first, warnIfMissed: false);
+    await settle(tester);
+    // Cash is selected by its own chip.
+    if (isCash) return;
+  }
+  await reveal(tester, tile());
+  await tester.tap(tile().first, warnIfMissed: false);
+  await settle(tester);
+}
+
+/// Taps a category chip by its label in the open form.
+Future<void> chooseCategory(WidgetTester tester, String label) async {
+  final chip = find.widgetWithText(ChoiceChip, label);
+  if (chip.evaluate().isEmpty) {
+    // Only the first categories are shown until "More" is tapped.
+    final more = find.widgetWithText(ActionChip, 'More');
+    await reveal(tester, more);
+    await tester.tap(more.last, warnIfMissed: false);
+    await settle(tester);
+  }
+  await reveal(tester, chip);
+  await tester.tap(chip.first, warnIfMissed: false);
+  await settle(tester);
+}
+
+/// Opens the date field with [label] and accepts the picker's default date
+/// (today), returning that date.
+Future<DateTime> pickDate(WidgetTester tester, String label) async {
+  final field = find.widgetWithText(InputDecorator, label);
+  await reveal(tester, field);
+  await tester.tap(field.last);
+  await settle(tester);
+  await tester.tap(find.text('OK'));
+  await settle(tester);
+  return DateTime.now();
+}
+
+/// Shows the rarer entry kinds (card bill, refund, repay a borrow) in the
+/// open add form.
+Future<void> showMoreTypes(WidgetTester tester) async {
+  final more = find.widgetWithText(ActionChip, 'More');
+  if (more.evaluate().isEmpty) return;
+  await tester.tap(more.first, warnIfMissed: false);
   await settle(tester);
 }

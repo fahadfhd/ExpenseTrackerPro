@@ -1,4 +1,4 @@
-import 'package:expensetrackerpro/features/transactions/domain/transaction.dart';
+import 'package:kept/features/transactions/domain/transaction.dart';
 
 /// Aggregates for one period. Produced once per data change by
 /// [MonthlySummary.compute] and handed to widgets and charts as-is.

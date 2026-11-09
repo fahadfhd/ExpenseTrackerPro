@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart' show Timestamp;
-import 'package:expensetrackerpro/core/firebase/firestore_codec.dart';
-import 'package:expensetrackerpro/core/utils/recurrence.dart';
+import 'package:kept/core/firebase/firestore_codec.dart';
+import 'package:kept/core/utils/recurrence.dart';
 
 enum ReminderType {
   loanEmi,
@@ -65,7 +65,8 @@ class Reminder {
   final DateTime updatedAt;
 
   /// First occurrence as a local date-time.
-  DateTime get anchor => DateTime(date.year, date.month, date.day, hour, minute);
+  DateTime get anchor =>
+      DateTime(date.year, date.month, date.day, hour, minute);
 
   bool get isEntityReminder => entityType != ReminderEntityType.none;
 
@@ -124,9 +125,9 @@ class Reminder {
     final now = DateTime.now();
     final date = DateTime.tryParse(Codec.string(map['scheduledDate'])) ?? now;
     final time = Codec.string(map['scheduledTime'], '09:00').split(':');
-    final offsets =
-        Codec.ints(map['offsetsMinutes']).where((m) => m >= 0).toSet().toList()
-          ..sort();
+    final offsets = Codec.ints(
+      map['offsetsMinutes'],
+    ).where((m) => m >= 0).toSet().toList()..sort();
     return Reminder(
       id: id,
       title: Codec.string(map['title']),

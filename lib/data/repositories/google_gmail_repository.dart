@@ -1,9 +1,9 @@
 import 'dart:convert';
 
-import 'package:expensetrackerpro/domain/entities/email_message_item.dart';
-import 'package:expensetrackerpro/domain/entities/gmail_connection_state.dart';
-import 'package:expensetrackerpro/domain/repositories/gmail_repository.dart';
-import 'package:expensetrackerpro/features/auth/data/auth_repository.dart';
+import 'package:kept/domain/entities/email_message_item.dart';
+import 'package:kept/domain/entities/gmail_connection_state.dart';
+import 'package:kept/domain/repositories/gmail_repository.dart';
+import 'package:kept/features/auth/data/auth_repository.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';

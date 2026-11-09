@@ -1,4 +1,4 @@
-# ExpanseTrackerPro
+# Kept
 
 A personal finance manager built with Flutter and Firebase: expenses and
 income, bank accounts, credit cards, loans with EMI schedules, borrow/lend,

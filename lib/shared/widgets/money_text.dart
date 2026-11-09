@@ -1,5 +1,5 @@
-import 'package:expensetrackerpro/core/settings/app_settings.dart';
-import 'package:expensetrackerpro/core/theme/app_theme.dart';
+import 'package:kept/core/settings/app_settings.dart';
+import 'package:kept/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

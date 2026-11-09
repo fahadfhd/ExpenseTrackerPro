@@ -1,9 +1,9 @@
 import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart' show Timestamp;
-import 'package:expensetrackerpro/core/errors/app_failure.dart';
-import 'package:expensetrackerpro/core/firebase/collections.dart';
-import 'package:expensetrackerpro/features/transactions/domain/transaction.dart';
+import 'package:kept/core/errors/app_failure.dart';
+import 'package:kept/core/firebase/collections.dart';
+import 'package:kept/features/transactions/domain/transaction.dart';
 
 /// Decoded backup: `collection -> docId -> data`.
 class BackupPayload {
@@ -51,7 +51,8 @@ abstract final class BackupCodec {
     'collections': {
       for (final entry in collections.entries)
         entry.key: {
-          for (final doc in entry.value.entries) doc.key: _encodeValue(doc.value),
+          for (final doc in entry.value.entries)
+            doc.key: _encodeValue(doc.value),
         },
     },
   });
@@ -152,12 +153,18 @@ abstract final class BackupCodec {
             // Credentials must never round-trip through backups.
             !data.keys.any(_forbiddenField);
       case Collections.loans:
-        return isString('name') && isInt('principalMinor') && isInt('installments');
+        return isString('name') &&
+            isInt('principalMinor') &&
+            isInt('installments');
       case Collections.loanPayments:
       case Collections.fuelLogs:
-        return isString(collection == Collections.fuelLogs ? 'vehicleId' : 'loanId');
+        return isString(
+          collection == Collections.fuelLogs ? 'vehicleId' : 'loanId',
+        );
       case Collections.borrowLend:
         return isString('personName') && isInt('amountMinor');
+      case Collections.categories:
+        return isString('name') && data['name'].toString().trim().isNotEmpty;
       case Collections.reminders:
         return isString('title') && isString('scheduledDate');
       default:

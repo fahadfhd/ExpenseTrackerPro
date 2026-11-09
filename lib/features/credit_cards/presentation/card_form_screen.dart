@@ -1,16 +1,23 @@
-import 'package:expensetrackerpro/core/l10n/l10n.dart';
-import 'package:expensetrackerpro/core/money/money.dart';
-import 'package:expensetrackerpro/core/settings/app_settings.dart';
-import 'package:expensetrackerpro/features/accounts/application/account_providers.dart';
-import 'package:expensetrackerpro/features/credit_cards/application/card_providers.dart';
-import 'package:expensetrackerpro/features/credit_cards/domain/credit_card.dart';
-import 'package:expensetrackerpro/features/reminders/application/reminder_providers.dart';
-import 'package:expensetrackerpro/shared/widgets/dialogs.dart';
-import 'package:expensetrackerpro/shared/widgets/form_fields.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kept/core/l10n/l10n.dart';
+import 'package:kept/core/money/money.dart';
+import 'package:kept/core/settings/app_settings.dart';
+import 'package:kept/features/accounts/application/account_providers.dart';
+import 'package:kept/features/credit_cards/application/card_providers.dart';
+import 'package:kept/features/credit_cards/domain/credit_card.dart';
+import 'package:kept/features/reminders/application/reminder_providers.dart';
+import 'package:kept/shared/widgets/dialogs.dart';
+import 'package:kept/shared/widgets/form_fields.dart';
+import 'package:kept/shared/widgets/payment_source_field.dart';
 
+/// Add or edit a credit card.
+///
+/// Deliberately short: card name, credit limit, current outstanding and the
+/// payment due date. The statement day is worked out from the due date, and
+/// everything else (bank, last 4 digits, minimum-due %, the account the bill
+/// is paid from, notes) is optional and tucked away.
 class CardFormScreen extends ConsumerStatefulWidget {
   const CardFormScreen({super.key, this.initial});
 
@@ -27,36 +34,62 @@ class _CardFormScreenState extends ConsumerState<CardFormScreen> {
   late final _last4 = TextEditingController(text: widget.initial?.last4);
   late final _notes = TextEditingController(text: widget.initial?.notes);
   late final _limit = TextEditingController(
-    text: widget.initial == null ? '' : Money.toEditable(widget.initial!.creditLimitMinor),
+    text: widget.initial == null
+        ? ''
+        : Money.toEditable(widget.initial!.creditLimitMinor),
   );
   late final _outstanding = TextEditingController(
-    text: widget.initial == null ? '' : Money.toEditable(widget.initial!.openingOutstandingMinor),
+    text: widget.initial == null
+        ? ''
+        : Money.toEditable(widget.initial!.openingOutstandingMinor),
   );
-  late final _statementDay = TextEditingController(text: '${widget.initial?.statementDay ?? ''}');
-  late final _dueDay = TextEditingController(text: '${widget.initial?.dueDay ?? ''}');
   late final _minPercent = TextEditingController(
     text: '${widget.initial?.minimumDuePercent ?? 5}',
   );
-  late String? _linkedAccountId = existingAccountId(ref, widget.initial?.linkedAccountId);
+  late final _annualRate = TextEditingController(
+    text: widget.initial?.annualRatePercent?.toString() ?? '',
+  );
+
+  /// The next payment due date; only its day of month is stored.
+  late DateTime? _dueDate = widget.initial?.nextDueDate(DateTime.now());
+  late PaymentSource? _linked = widget.initial?.linkedAccountId == null
+      ? null
+      : paymentFor(ref, widget.initial!.linkedAccountId, known: false);
+  bool _dueMissing = false;
 
   @override
   void dispose() {
-    for (final c in [_name, _bank, _last4, _notes, _limit, _outstanding, _statementDay, _dueDay, _minPercent]) {
+    for (final c in [
+      _name,
+      _bank,
+      _last4,
+      _notes,
+      _limit,
+      _outstanding,
+      _minPercent,
+      _annualRate,
+    ]) {
       c.dispose();
     }
     super.dispose();
   }
 
   void _save() {
-    if (!_formKey.currentState!.validate()) return;
+    final formOk = _formKey.currentState!.validate();
+    setState(() => _dueMissing = _dueDate == null);
+    if (!formOk || _dueDate == null) return;
     final repo = ref.read(creditCardRepositoryProvider);
     final now = DateTime.now();
     final initial = widget.initial;
     final limit = Money.parse(_limit.text) ?? 0;
     final outstanding = Money.parse(_outstanding.text) ?? 0;
-    final statementDay = int.parse(_statementDay.text);
-    final dueDay = int.parse(_dueDay.text);
+    final dueDay = _dueDate!.day;
+    // Keep an existing statement day unless the due day changed.
+    final statementDay = initial != null && initial.dueDay == dueDay
+        ? initial.statementDay
+        : CreditCard.defaultStatementDay(dueDay);
     final minPercent = NumberField.parse(_minPercent.text) ?? 5;
+    final annualRate = NumberField.parse(_annualRate.text);
     final card = initial == null
         ? CreditCard(
             id: repo.newId(),
@@ -68,7 +101,8 @@ class _CardFormScreenState extends ConsumerState<CardFormScreen> {
             statementDay: statementDay,
             dueDay: dueDay,
             minimumDuePercent: minPercent,
-            linkedAccountId: _linkedAccountId,
+            annualRatePercent: annualRate,
+            linkedAccountId: _linked?.accountId,
             notes: _notes.text.trim(),
             createdAt: now,
             updatedAt: now,
@@ -82,7 +116,8 @@ class _CardFormScreenState extends ConsumerState<CardFormScreen> {
             statementDay: statementDay,
             dueDay: dueDay,
             minimumDuePercent: minPercent,
-            linkedAccountId: () => _linkedAccountId,
+            annualRatePercent: () => annualRate,
+            linkedAccountId: () => _linked?.accountId,
             notes: _notes.text.trim(),
             updatedAt: now,
           );
@@ -95,151 +130,178 @@ class _CardFormScreenState extends ConsumerState<CardFormScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
+    final theme = Theme.of(context);
     final accounts = ref.watch(activeAccountsProvider);
-    String? dayValidator(String? v) {
-      final n = int.tryParse(v ?? '');
-      return n == null || n < 1 || n > 31 ? l10n.dayInvalid : null;
-    }
+    final isEdit = widget.initial != null;
 
-    return Scaffold(
-      appBar: AppBar(title: Text(widget.initial == null ? l10n.newCard : l10n.editCard)),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            TextFormField(
-              controller: _name,
-              autofocus: widget.initial == null,
-              textCapitalization: TextCapitalization.words,
-              decoration: InputDecoration(labelText: l10n.cardName, hintText: l10n.cardNameHint),
-              validator: (v) => (v ?? '').trim().isEmpty ? l10n.nameRequired : null,
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: TextFormField(
+    // Ask before discarding a half-filled new entry.
+    return UnsavedChangesGuard(
+      isDirty: () =>
+          widget.initial == null &&
+          (_name.text.trim().isNotEmpty ||
+              _limit.text.trim().isNotEmpty ||
+              _outstanding.text.trim().isNotEmpty),
+      child: Scaffold(
+        appBar: AppBar(title: Text(isEdit ? l10n.editCard : l10n.newCard)),
+        body: Form(
+          key: _formKey,
+          child: ListView(
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            padding: const EdgeInsets.all(16),
+            children: [
+              TextFormField(
+                controller: _name,
+                autofocus: !isEdit,
+                textCapitalization: TextCapitalization.words,
+                decoration: InputDecoration(
+                  labelText: l10n.cardName,
+                  hintText: l10n.cardNameHint,
+                ),
+                validator: (v) =>
+                    (v ?? '').trim().isEmpty ? l10n.nameRequired : null,
+              ),
+              const SizedBox(height: 12),
+              AmountField(controller: _limit, label: l10n.creditLimit),
+              const SizedBox(height: 12),
+              // When editing, this field is the *starting* outstanding; the
+              // live figure adds every card transaction on top. Labelling it
+              // "current" invited users to enter a total that got
+              // double-counted.
+              AmountField(
+                controller: _outstanding,
+                label: isEdit
+                    ? l10n.outstandingWhenAdded
+                    : l10n.currentOutstanding,
+                required: false,
+                allowZero: true,
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(12, 4, 12, 0),
+                child: Text(
+                  !isEdit
+                      ? l10n.currentOutstandingHelp
+                      : l10n.outstandingWhenAddedHelp(
+                          ref
+                              .watch(currencyFormatterProvider)
+                              .format(
+                                ref
+                                        .watch(
+                                          cardsByIdProvider,
+                                        )[widget.initial!.id]
+                                        ?.outstandingMinor ??
+                                    widget.initial!.outstandingMinor,
+                              ),
+                        ),
+                  style: theme.textTheme.bodySmall,
+                ),
+              ),
+              const SizedBox(height: 12),
+              DateField(
+                label: l10n.cardDueDate,
+                value: _dueDate,
+                onChanged: (d) => setState(() {
+                  _dueDate = d;
+                  _dueMissing = false;
+                }),
+                firstDate: DateTime.now().subtract(const Duration(days: 1)),
+                lastDate: DateTime.now().add(const Duration(days: 366)),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(12, 6, 12, 0),
+                child: Text(
+                  _dueMissing ? l10n.cardDueDateRequired : l10n.cardDueDateHelp,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: _dueMissing ? theme.colorScheme.error : null,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+              ExpansionTile(
+                tilePadding: EdgeInsets.zero,
+                title: Text(l10n.cardMoreDetails),
+                childrenPadding: const EdgeInsets.only(bottom: 8),
+                children: [
+                  TextFormField(
                     controller: _bank,
                     textCapitalization: TextCapitalization.words,
                     decoration: InputDecoration(labelText: l10n.bankName),
                   ),
-                ),
-                const SizedBox(width: 12),
-                SizedBox(
-                  width: 130,
-                  child: TextFormField(
+                  const SizedBox(height: 12),
+                  TextFormField(
                     controller: _last4,
                     keyboardType: TextInputType.number,
                     maxLength: 4,
                     inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    decoration: InputDecoration(labelText: l10n.last4, counterText: ''),
+                    decoration: InputDecoration(
+                      labelText: l10n.last4,
+                      helperText: l10n.last4Help,
+                      counterText: '',
+                    ),
                     validator: (v) {
                       final text = (v ?? '').trim();
-                      return text.isEmpty || CreditCard.last4Pattern.hasMatch(text)
+                      return text.isEmpty ||
+                              CreditCard.last4Pattern.hasMatch(text)
                           ? null
                           : l10n.last4Invalid;
                     },
                   ),
-                ),
-              ],
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(12, 4, 12, 0),
-              child: Text(l10n.last4Help, style: Theme.of(context).textTheme.bodySmall),
-            ),
-            const SizedBox(height: 12),
-            AmountField(controller: _limit, label: l10n.creditLimit),
-            const SizedBox(height: 12),
-            // When editing, this field is the *starting* outstanding; the
-            // live figure adds every card transaction on top. Labelling it
-            // "current" invited users to enter a total that got
-            // double-counted.
-            AmountField(
-              controller: _outstanding,
-              label: widget.initial == null ? l10n.currentOutstanding : l10n.outstandingWhenAdded,
-              required: false,
-              allowZero: true,
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(12, 4, 12, 0),
-              child: Text(
-                widget.initial == null
-                    ? l10n.currentOutstandingHelp
-                    : l10n.outstandingWhenAddedHelp(
-                        ref.watch(currencyFormatterProvider).format(
-                          ref.watch(cardsByIdProvider)[widget.initial!.id]?.outstandingMinor ??
-                              widget.initial!.outstandingMinor,
-                        ),
-                      ),
-                style: Theme.of(context).textTheme.bodySmall,
+                  const SizedBox(height: 12),
+                  NumberField(
+                    controller: _minPercent,
+                    label: l10n.minimumDuePercent,
+                    suffix: '%',
+                    min: 0,
+                    max: 100,
+                    helper: l10n.minimumDuePercentHelp,
+                  ),
+                  const SizedBox(height: 12),
+                  NumberField(
+                    controller: _annualRate,
+                    label: l10n.cardAnnualRate,
+                    suffix: '%',
+                    min: 0,
+                    max: 100,
+                    required: false,
+                    helper: l10n.cardAnnualRateHelp,
+                  ),
+                  if (accounts.isNotEmpty) ...[
+                    const SizedBox(height: 16),
+                    PaymentSourceField(
+                      label: l10n.linkedAccount,
+                      value: _linked,
+                      accounts: accounts,
+                      allowCash: false,
+                      onChanged: (v) => setState(() => _linked = v),
+                    ),
+                  ],
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: _notes,
+                    maxLines: 3,
+                    minLines: 1,
+                    decoration: InputDecoration(labelText: l10n.notes),
+                  ),
+                ],
               ),
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: TextFormField(
-                    controller: _statementDay,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    decoration: InputDecoration(labelText: l10n.statementDay, helperText: l10n.dayOfMonth),
-                    validator: dayValidator,
-                  ),
+              const SizedBox(height: 8),
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.lock_outline_rounded),
+                title: Text(
+                  l10n.noCredentialsNote,
+                  style: theme.textTheme.bodySmall,
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: TextFormField(
-                    controller: _dueDay,
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    decoration: InputDecoration(labelText: l10n.dueDay, helperText: l10n.dayOfMonth),
-                    validator: dayValidator,
-                  ),
+              ),
+              const SizedBox(height: 8),
+              FilledButton(
+                style: FilledButton.styleFrom(
+                  minimumSize: const Size.fromHeight(52),
                 ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            NumberField(
-              controller: _minPercent,
-              label: l10n.minimumDuePercent,
-              suffix: '%',
-              min: 0,
-              max: 100,
-              helper: l10n.minimumDuePercentHelp,
-            ),
-            const SizedBox(height: 12),
-            PickerField<String>(
-              label: l10n.linkedAccount,
-              value: _linkedAccountId,
-              allowNone: true,
-              options: [
-                for (final a in accounts)
-                  PickerOption(a.id, a.displayName, icon: Icons.account_balance_rounded),
-              ],
-              onChanged: (v) => setState(() => _linkedAccountId = v),
-            ),
-            const SizedBox(height: 12),
-            TextFormField(
-              controller: _notes,
-              maxLines: 3,
-              minLines: 1,
-              decoration: InputDecoration(labelText: l10n.notes),
-            ),
-            const SizedBox(height: 12),
-            ListTile(
-              contentPadding: EdgeInsets.zero,
-              leading: const Icon(Icons.lock_outline_rounded),
-              title: Text(l10n.noCredentialsNote, style: Theme.of(context).textTheme.bodySmall),
-              subtitle: Text(l10n.cardReminderNote, style: Theme.of(context).textTheme.bodySmall),
-            ),
-            const SizedBox(height: 12),
-            FilledButton(
-              style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
-              onPressed: _save,
-              child: Text(l10n.save),
-            ),
-          ],
+                onPressed: _save,
+                child: Text(l10n.save),
+              ),
+            ],
+          ),
         ),
       ),
     );

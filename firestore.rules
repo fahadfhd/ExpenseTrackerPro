@@ -52,7 +52,7 @@ service cloud.firestore {
       match /{collection}/{id} {
         allow read, delete: if isOwner(uid);
         allow create, update: if isOwner(uid) && noCredentials()
-          && collection in ['accounts', 'loans', 'loan_payments', 'borrow_lend',
+          && collection in ['accounts', 'categories', 'loans', 'loan_payments', 'borrow_lend',
                             'reminders', 'vehicles', 'fuel_logs', 'budgets',
                             'recurring_transactions', 'settings'];
       }

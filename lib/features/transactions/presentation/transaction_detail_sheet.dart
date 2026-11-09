@@ -1,13 +1,14 @@
-import 'package:expensetrackerpro/core/l10n/l10n.dart';
-import 'package:expensetrackerpro/features/accounts/application/account_providers.dart';
-import 'package:expensetrackerpro/features/categories/domain/category.dart';
-import 'package:expensetrackerpro/features/credit_cards/application/card_providers.dart';
-import 'package:expensetrackerpro/features/transactions/application/transaction_providers.dart';
-import 'package:expensetrackerpro/features/transactions/domain/transaction.dart';
-import 'package:expensetrackerpro/features/transactions/presentation/transaction_form_sheet.dart';
-import 'package:expensetrackerpro/features/transactions/presentation/transaction_tile.dart';
-import 'package:expensetrackerpro/shared/widgets/dialogs.dart';
-import 'package:expensetrackerpro/shared/widgets/money_text.dart';
+import 'package:kept/core/l10n/l10n.dart';
+import 'package:kept/features/accounts/application/account_providers.dart';
+import 'package:kept/features/categories/domain/category.dart';
+import 'package:kept/features/credit_cards/application/card_providers.dart';
+import 'package:kept/features/transactions/application/transaction_providers.dart';
+import 'package:kept/features/transactions/domain/transaction.dart';
+import 'package:kept/features/transactions/presentation/transaction_form_sheet.dart';
+import 'package:kept/features/transactions/presentation/transaction_tile.dart';
+import 'package:kept/shared/widgets/dialogs.dart';
+import 'package:kept/shared/widgets/money_text.dart';
+import 'package:kept/features/categories/application/category_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -41,6 +42,7 @@ class TransactionDetailSheet extends ConsumerWidget {
     final theme = Theme.of(context);
     final accounts = ref.watch(accountsByIdProvider);
     final cards = ref.watch(cardsByIdProvider);
+    ref.watch(customCategoriesProvider);
     final category = Categories.byId(tx.categoryId);
     final locale = Localizations.localeOf(context).toString();
     final managedBy = _managedBy(l10n);
@@ -108,12 +110,15 @@ class TransactionDetailSheet extends ConsumerWidget {
             l10n.category,
             [
               l10n.categoryLabel(tx.categoryId),
-              if (tx.subCategoryId != null) l10n.categoryLabel(tx.subCategoryId),
+              if (tx.subCategoryId != null)
+                l10n.categoryLabel(tx.subCategoryId),
             ].join(' › '),
           ),
           row(l10n.date, DateFormat.yMMMEd(locale).add_jm().format(tx.date)),
           row(
-            tx.type == TransactionType.transfer ? l10n.fromAccount : l10n.paidWith,
+            tx.type == TransactionType.transfer
+                ? l10n.fromAccount
+                : l10n.paidWith,
             accounts[tx.accountId]?.displayName,
           ),
           row(l10n.toAccount, accounts[tx.toAccountId]?.displayName),
@@ -123,7 +128,8 @@ class TransactionDetailSheet extends ConsumerWidget {
           row(l10n.tags, tx.tags.join(', ')),
           if (!tx.isCleared) row(l10n.status, l10n.txStatusPending),
           if (tx.recurringRuleId != null) row('', l10n.recurringGenerated),
-          if (tx.importSource != null) row('', l10n.importedFrom(tx.importSource!)),
+          if (tx.importSource != null)
+            row('', l10n.importedFrom(tx.importSource!)),
           const SizedBox(height: 16),
           if (managedBy != null)
             Card(
@@ -181,11 +187,20 @@ class TransactionDetailSheet extends ConsumerWidget {
                     foregroundColor: theme.colorScheme.error,
                   ),
                   onPressed: () async {
-                    if (!await confirmDelete(context, titleOf(l10n, tx))) return;
-                    ref.read(transactionRepositoryProvider).delete(tx);
+                    if (!await confirmDelete(context, titleOf(l10n, tx))) {
+                      return;
+                    }
+                    final repo = ref.read(transactionRepositoryProvider);
+                    repo.delete(tx);
                     if (!context.mounted) return;
                     Navigator.pop(context);
-                    showMessage(context, l10n.transactionDeleted);
+                    // Saving it again restores the record and its balance
+                    // effect exactly.
+                    showUndo(
+                      context,
+                      l10n.transactionDeleted,
+                      onUndo: () => repo.save(tx),
+                    );
                   },
                 ),
               ],

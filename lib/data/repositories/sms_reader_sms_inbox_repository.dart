@@ -1,5 +1,5 @@
-import 'package:expensetrackerpro/domain/entities/sms_message_item.dart';
-import 'package:expensetrackerpro/domain/repositories/sms_inbox_repository.dart';
+import 'package:kept/domain/entities/sms_message_item.dart';
+import 'package:kept/domain/repositories/sms_inbox_repository.dart';
 import 'package:flutter/foundation.dart';
 import 'package:sms_reader/sms_reader.dart';
 

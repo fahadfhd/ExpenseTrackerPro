@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:expensetrackerpro/core/firebase/firebase_providers.dart';
+import 'package:kept/core/firebase/firebase_providers.dart';
 
 typedef FromMap<T> = T Function(String id, Map<String, dynamic> map);
 
@@ -35,7 +35,9 @@ class EntityStore<T> {
   Stream<List<T>> watchAll() => ref.snapshots().map(_decode);
 
   Stream<List<T>> watchQuery(
-    Query<Map<String, dynamic>> Function(CollectionReference<Map<String, dynamic>>)
+    Query<Map<String, dynamic>> Function(
+      CollectionReference<Map<String, dynamic>>,
+    )
     build,
   ) => build(ref).snapshots().map(_decode);
 

@@ -1,17 +1,18 @@
-import 'package:expensetrackerpro/core/l10n/l10n.dart';
-import 'package:expensetrackerpro/core/money/money.dart';
-import 'package:expensetrackerpro/core/settings/app_settings.dart';
-import 'package:expensetrackerpro/features/accounts/application/account_providers.dart';
-import 'package:expensetrackerpro/features/credit_cards/application/card_providers.dart';
-import 'package:expensetrackerpro/features/transactions/application/transaction_providers.dart';
-import 'package:expensetrackerpro/features/vehicles/application/vehicle_providers.dart';
-import 'package:expensetrackerpro/features/vehicles/domain/vehicle.dart';
-import 'package:expensetrackerpro/shared/widgets/charts.dart';
-import 'package:expensetrackerpro/shared/widgets/dialogs.dart';
-import 'package:expensetrackerpro/shared/widgets/form_fields.dart';
-import 'package:expensetrackerpro/shared/widgets/money_text.dart';
-import 'package:expensetrackerpro/shared/widgets/section_card.dart';
-import 'package:expensetrackerpro/shared/widgets/states.dart';
+import 'package:kept/core/l10n/l10n.dart';
+import 'package:kept/core/money/money.dart';
+import 'package:kept/core/settings/app_settings.dart';
+import 'package:kept/features/accounts/application/account_providers.dart';
+import 'package:kept/features/credit_cards/application/card_providers.dart';
+import 'package:kept/features/transactions/application/transaction_providers.dart';
+import 'package:kept/features/vehicles/application/vehicle_providers.dart';
+import 'package:kept/features/vehicles/domain/vehicle.dart';
+import 'package:kept/shared/widgets/charts.dart';
+import 'package:kept/shared/widgets/dialogs.dart';
+import 'package:kept/shared/widgets/form_fields.dart';
+import 'package:kept/shared/widgets/money_text.dart';
+import 'package:kept/shared/widgets/section_card.dart';
+import 'package:kept/shared/widgets/states.dart';
+import 'package:kept/shared/widgets/payment_source_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -28,7 +29,8 @@ String fuelUnit(AppLocalizations l10n, FuelType f) => switch (f) {
   _ => l10n.unitLitre,
 };
 
-String _num(double v) => v == v.roundToDouble() ? v.toStringAsFixed(0) : v.toStringAsFixed(1);
+String _num(double v) =>
+    v == v.roundToDouble() ? v.toStringAsFixed(0) : v.toStringAsFixed(1);
 
 class VehiclesScreen extends ConsumerWidget {
   const VehiclesScreen({super.key});
@@ -57,7 +59,10 @@ class VehiclesScreen extends ConsumerWidget {
         value: vehicles,
         onRetry: () => ref.invalidate(vehiclesProvider),
         data: (list) => list.isEmpty
-            ? EmptyState(icon: Icons.directions_car_rounded, message: l10n.vehiclesEmpty)
+            ? EmptyState(
+                icon: Icons.directions_car_rounded,
+                message: l10n.vehiclesEmpty,
+              )
             : ListView(
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 96),
                 children: [for (final v in list) _VehicleTile(v)],
@@ -81,17 +86,31 @@ class _VehicleTile extends ConsumerWidget {
       margin: const EdgeInsets.only(bottom: 8),
       clipBehavior: Clip.antiAlias,
       child: ListTile(
-        onTap: () => pushPage(context, VehicleDetailScreen(vehicleId: vehicle.id)),
+        onTap: () =>
+            pushPage(context, VehicleDetailScreen(vehicleId: vehicle.id)),
         leading: CircleAvatar(
-          child: Icon(vehicle.fuelType == FuelType.electric ? Icons.electric_car_rounded : Icons.directions_car_rounded),
+          child: Icon(
+            vehicle.fuelType == FuelType.electric
+                ? Icons.electric_car_rounded
+                : Icons.directions_car_rounded,
+          ),
         ),
-        title: Text(vehicle.name, style: const TextStyle(fontWeight: FontWeight.w700)),
-        subtitle: Text([
-          if (vehicle.registrationNickname.isNotEmpty) vehicle.registrationNickname,
-          l10n.fuelType(vehicle.fuelType),
-          if (mileage != null) '${_num(mileage)} ${mileageUnit(l10n, vehicle.fuelType)}',
-        ].join(' · ')),
-        trailing: stats == null ? null : Text(money.format(stats.thisMonthCostMinor)),
+        title: Text(
+          vehicle.name,
+          style: const TextStyle(fontWeight: FontWeight.w700),
+        ),
+        subtitle: Text(
+          [
+            if (vehicle.registrationNickname.isNotEmpty)
+              vehicle.registrationNickname,
+            l10n.fuelType(vehicle.fuelType),
+            if (mileage != null)
+              '${_num(mileage)} ${mileageUnit(l10n, vehicle.fuelType)}',
+          ].join(' · '),
+        ),
+        trailing: stats == null
+            ? null
+            : Text(money.format(stats.thisMonthCostMinor)),
       ),
     );
   }
@@ -108,14 +127,18 @@ class VehicleFormScreen extends ConsumerStatefulWidget {
 class _VehicleFormScreenState extends ConsumerState<VehicleFormScreen> {
   final _formKey = GlobalKey<FormState>();
   late final _name = TextEditingController(text: widget.initial?.name);
-  late final _reg = TextEditingController(text: widget.initial?.registrationNickname);
+  late final _reg = TextEditingController(
+    text: widget.initial?.registrationNickname,
+  );
   late final _price = TextEditingController(
     text: widget.initial == null || widget.initial!.fuelPricePerUnitMinor == 0
         ? ''
         : Money.toEditable(widget.initial!.fuelPricePerUnitMinor),
   );
   late final _mileage = TextEditingController(
-    text: widget.initial == null || widget.initial!.mileage == 0 ? '' : '${widget.initial!.mileage}',
+    text: widget.initial == null || widget.initial!.mileage == 0
+        ? ''
+        : '${widget.initial!.mileage}',
   );
   late final _notes = TextEditingController(text: widget.initial?.notes);
   late FuelType _fuel = widget.initial?.fuelType ?? FuelType.petrol;
@@ -164,29 +187,48 @@ class _VehicleFormScreenState extends ConsumerState<VehicleFormScreen> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
     return Scaffold(
-      appBar: AppBar(title: Text(widget.initial == null ? l10n.newVehicle : l10n.editVehicle)),
+      appBar: AppBar(
+        title: Text(
+          widget.initial == null ? l10n.newVehicle : l10n.editVehicle,
+        ),
+      ),
       body: Form(
         key: _formKey,
         child: ListView(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           padding: const EdgeInsets.all(16),
           children: [
             TextFormField(
               controller: _name,
               textCapitalization: TextCapitalization.words,
-              decoration: InputDecoration(labelText: l10n.vehicleName, hintText: l10n.vehicleNameHint),
-              validator: (v) => (v ?? '').trim().isEmpty ? l10n.nameRequired : null,
+              decoration: InputDecoration(
+                labelText: l10n.vehicleName,
+                hintText: l10n.vehicleNameHint,
+              ),
+              validator: (v) =>
+                  (v ?? '').trim().isEmpty ? l10n.nameRequired : null,
             ),
             const SizedBox(height: 12),
-            TextFormField(controller: _reg, decoration: InputDecoration(labelText: l10n.registrationNickname)),
+            TextFormField(
+              controller: _reg,
+              decoration: InputDecoration(labelText: l10n.registrationNickname),
+            ),
             const SizedBox(height: 12),
             PickerField<FuelType>(
               label: l10n.fuelTypeLabel,
               value: _fuel,
-              options: [for (final f in FuelType.values) PickerOption(f, l10n.fuelType(f))],
+              options: [
+                for (final f in FuelType.values)
+                  PickerOption(f, l10n.fuelType(f)),
+              ],
               onChanged: (v) => setState(() => _fuel = v ?? _fuel),
             ),
             const SizedBox(height: 12),
-            AmountField(controller: _price, label: '${l10n.fuelPrice} (${fuelUnit(l10n, _fuel)})', required: false),
+            AmountField(
+              controller: _price,
+              label: '${l10n.fuelPrice} (${fuelUnit(l10n, _fuel)})',
+              required: false,
+            ),
             const SizedBox(height: 12),
             NumberField(
               controller: _mileage,
@@ -198,10 +240,17 @@ class _VehicleFormScreenState extends ConsumerState<VehicleFormScreen> {
               helper: l10n.expectedMileageHelp,
             ),
             const SizedBox(height: 12),
-            TextFormField(controller: _notes, maxLines: 3, minLines: 1, decoration: InputDecoration(labelText: l10n.notes)),
+            TextFormField(
+              controller: _notes,
+              maxLines: 3,
+              minLines: 1,
+              decoration: InputDecoration(labelText: l10n.notes),
+            ),
             const SizedBox(height: 16),
             FilledButton(
-              style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
+              style: FilledButton.styleFrom(
+                minimumSize: const Size.fromHeight(52),
+              ),
               onPressed: _save,
               child: Text(l10n.save),
             ),
@@ -224,7 +273,13 @@ class VehicleDetailScreen extends ConsumerWidget {
         .where((v) => v.id == vehicleId)
         .firstOrNull;
     if (vehicle == null) {
-      return Scaffold(appBar: AppBar(), body: EmptyState(icon: Icons.search_off_rounded, message: l10n.failureNotFound));
+      return Scaffold(
+        appBar: AppBar(),
+        body: EmptyState(
+          icon: Icons.search_off_rounded,
+          message: l10n.failureNotFound,
+        ),
+      );
     }
     final stats = ref.watch(vehicleStatsProvider(vehicleId))!;
     final logs = ref.watch(vehicleFuelLogsProvider(vehicleId));
@@ -237,7 +292,12 @@ class VehicleDetailScreen extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(label, style: theme.textTheme.labelMedium),
-          Text(value, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
+          Text(
+            value,
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w800,
+            ),
+          ),
         ],
       ),
     );
@@ -249,14 +309,17 @@ class VehicleDetailScreen extends ConsumerWidget {
           IconButton(
             tooltip: l10n.edit,
             icon: const Icon(Icons.edit_rounded),
-            onPressed: () => pushPage(context, VehicleFormScreen(initial: vehicle)),
+            onPressed: () =>
+                pushPage(context, VehicleFormScreen(initial: vehicle)),
           ),
           IconButton(
             tooltip: l10n.delete,
             icon: const Icon(Icons.delete_outline_rounded),
             onPressed: () async {
               if (!await confirmDelete(context, vehicle.name)) return;
-              await ref.read(vehicleRepositoryProvider).deleteVehicle(vehicle.id);
+              await ref
+                  .read(vehicleRepositoryProvider)
+                  .deleteVehicle(vehicle.id);
               if (context.mounted) Navigator.pop(context);
             },
           ),
@@ -277,26 +340,42 @@ class VehicleDetailScreen extends ConsumerWidget {
                   children: [
                     stat(
                       l10n.avgMileage,
-                      stats.averageMileage == null ? l10n.noMileageYet : '${_num(stats.averageMileage!)} $unit',
+                      stats.averageMileage == null
+                          ? l10n.noMileageYet
+                          : '${_num(stats.averageMileage!)} $unit',
                     ),
                     stat(
                       l10n.costPerKm,
-                      stats.costPerKmMinor == null ? l10n.noMileageYet : money.format(stats.costPerKmMinor!.round()),
+                      stats.costPerKmMinor == null
+                          ? l10n.noMileageYet
+                          : money.format(stats.costPerKmMinor!.round()),
                     ),
                   ],
                 ),
                 const SizedBox(height: 12),
                 Row(
                   children: [
-                    stat(l10n.fuelThisMonth, money.format(stats.thisMonthCostMinor)),
-                    stat(l10n.fuelMonthlyAverage, money.format(stats.monthlyAverageCostMinor)),
+                    stat(
+                      l10n.fuelThisMonth,
+                      money.format(stats.thisMonthCostMinor),
+                    ),
+                    stat(
+                      l10n.fuelMonthlyAverage,
+                      money.format(stats.monthlyAverageCostMinor),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 12),
                 Row(
                   children: [
-                    stat(l10n.fuelYearlyEstimate, money.format(stats.yearlyEstimateMinor)),
-                    stat(l10n.totalDistance, '${_num(stats.totalDistanceKm)} ${l10n.unitKm}'),
+                    stat(
+                      l10n.fuelYearlyEstimate,
+                      money.format(stats.yearlyEstimateMinor),
+                    ),
+                    stat(
+                      l10n.totalDistance,
+                      '${_num(stats.totalDistanceKm)} ${l10n.unitKm}',
+                    ),
                   ],
                 ),
               ],
@@ -310,29 +389,51 @@ class VehicleDetailScreen extends ConsumerWidget {
               semanticsLabel: l10n.fuelCost6m,
               months: [
                 for (final e in stats.monthlyCost.entries)
-                  MonthBar(label: DateFormat.MMM(locale).format(e.key), a: e.value),
+                  MonthBar(
+                    label: DateFormat.MMM(locale).format(e.key),
+                    a: e.value,
+                  ),
               ],
             ),
           ),
           const SizedBox(height: 12),
-          Text(l10n.fuelLogs, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
+          Text(
+            l10n.fuelLogs,
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w800,
+            ),
+          ),
           const SizedBox(height: 8),
           if (logs.isEmpty)
-            EmptyState(icon: Icons.local_gas_station_rounded, message: l10n.fuelLogsEmpty, compact: true)
+            EmptyState(
+              icon: Icons.local_gas_station_rounded,
+              message: l10n.fuelLogsEmpty,
+              compact: true,
+            )
           else
             for (final log in logs)
               Card(
                 margin: const EdgeInsets.only(bottom: 8),
                 child: ListTile(
-                  onTap: () => showFormSheet(context, FuelLogSheet(vehicle: vehicle, initial: log)),
+                  onTap: () => showFormSheet(
+                    context,
+                    FuelLogSheet(vehicle: vehicle, initial: log),
+                  ),
                   leading: const Icon(Icons.local_gas_station_rounded),
-                  title: MoneyText(log.totalCostMinor, style: const TextStyle(fontWeight: FontWeight.w700)),
-                  subtitle: Text([
-                    DateFormat.yMMMd(locale).format(log.date),
-                    '${_num(log.fuelQuantity)} ${fuelUnit(l10n, vehicle.fuelType)}',
-                    if (log.distanceKm > 0) '${_num(log.distanceKm)} ${l10n.unitKm}',
-                    if (log.mileage != null && log.distanceKm > 0) '${_num(log.mileage!)} $unit',
-                  ].join(' · ')),
+                  title: MoneyText(
+                    log.totalCostMinor,
+                    style: const TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                  subtitle: Text(
+                    [
+                      DateFormat.yMMMd(locale).format(log.date),
+                      '${_num(log.fuelQuantity)} ${fuelUnit(l10n, vehicle.fuelType)}',
+                      if (log.distanceKm > 0)
+                        '${_num(log.distanceKm)} ${l10n.unitKm}',
+                      if (log.mileage != null && log.distanceKm > 0)
+                        '${_num(log.mileage!)} $unit',
+                    ].join(' · '),
+                  ),
                 ),
               ),
         ],
@@ -352,51 +453,44 @@ class FuelLogSheet extends ConsumerStatefulWidget {
   ConsumerState<FuelLogSheet> createState() => _FuelLogSheetState();
 }
 
-sealed class _Payment {
-  const _Payment();
-}
-
-class _AccountPay extends _Payment {
-  const _AccountPay(this.id);
-  final String id;
-  @override
-  bool operator ==(Object o) => o is _AccountPay && o.id == id;
-  @override
-  int get hashCode => id.hashCode;
-}
-
-class _CardPay extends _Payment {
-  const _CardPay(this.id);
-  final String id;
-  @override
-  bool operator ==(Object o) => o is _CardPay && o.id == id;
-  @override
-  int get hashCode => id.hashCode;
-}
-
 class _FuelLogSheetState extends ConsumerState<FuelLogSheet> {
   final _formKey = GlobalKey<FormState>();
   late final _distance = TextEditingController(
-    text: widget.initial == null || widget.initial!.distanceKm == 0 ? '' : _num(widget.initial!.distanceKm),
+    text: widget.initial == null || widget.initial!.distanceKm == 0
+        ? ''
+        : _num(widget.initial!.distanceKm),
   );
-  late final _quantity = TextEditingController(text: widget.initial == null ? '' : '${widget.initial!.fuelQuantity}');
+  late final _quantity = TextEditingController(
+    text: widget.initial == null ? '' : '${widget.initial!.fuelQuantity}',
+  );
   late final _price = TextEditingController(
-    text: Money.toEditable(widget.initial?.pricePerUnitMinor ?? widget.vehicle.fuelPricePerUnitMinor),
+    text: Money.toEditable(
+      widget.initial?.pricePerUnitMinor ?? widget.vehicle.fuelPricePerUnitMinor,
+    ),
   );
   late final _total = TextEditingController(
-    text: widget.initial == null ? '' : Money.toEditable(widget.initial!.totalCostMinor),
+    text: widget.initial == null
+        ? ''
+        : Money.toEditable(widget.initial!.totalCostMinor),
   );
   late final _odometer = TextEditingController(
-    text: widget.initial?.odometerKm == null ? '' : _num(widget.initial!.odometerKm!),
+    text: widget.initial?.odometerKm == null
+        ? ''
+        : _num(widget.initial!.odometerKm!),
   );
   late DateTime _date = widget.initial?.date ?? DateTime.now();
-  _Payment? _payment;
+  PaymentSource? _payment;
+  String? _payError;
   bool _totalEdited = false;
 
   @override
   void initState() {
     super.initState();
     _totalEdited = widget.initial != null;
+    // An existing fill with no linked expense was deliberately not recorded.
+    if (widget.initial != null && widget.initial!.transactionId == null) {
+      _payment = const CashSource();
+    }
     // Start from the expense already linked to this fill, so saving an edit
     // keeps it instead of removing it.
     final linkedId = widget.initial?.transactionId;
@@ -405,10 +499,10 @@ class _FuelLogSheetState extends ConsumerState<FuelLogSheet> {
         if (!mounted || tx == null) return;
         setState(() {
           _payment = tx.creditCardId != null
-              ? _CardPay(tx.creditCardId!)
+              ? CardSource(tx.creditCardId!)
               : tx.accountId != null
-              ? _AccountPay(tx.accountId!)
-              : null;
+              ? AccountSource(tx.accountId!)
+              : const CashSource();
         });
       });
     }
@@ -437,7 +531,12 @@ class _FuelLogSheetState extends ConsumerState<FuelLogSheet> {
     if (reading == null) return;
     final logs = ref.read(vehicleFuelLogsProvider(widget.vehicle.id));
     final previous = logs
-        .where((l) => l.id != widget.initial?.id && l.odometerKm != null && l.date.isBefore(_date))
+        .where(
+          (l) =>
+              l.id != widget.initial?.id &&
+              l.odometerKm != null &&
+              l.date.isBefore(_date),
+        )
         .firstOrNull;
     if (previous != null && reading > previous.odometerKm!) {
       _distance.text = _num(reading - previous.odometerKm!);
@@ -460,6 +559,13 @@ class _FuelLogSheetState extends ConsumerState<FuelLogSheet> {
 
   Future<void> _persist() async {
     if (!_formKey.currentState!.validate()) return;
+    final hasSources =
+        ref.read(activeAccountsProvider).isNotEmpty ||
+        ref.read(activeCardsProvider).isNotEmpty;
+    if (_payment == null && hasSources) {
+      setState(() => _payError = context.l10n.paymentRequired);
+      return;
+    }
     final repo = ref.read(vehicleRepositoryProvider);
     final payment = _payment;
     final log = FuelLog(
@@ -477,8 +583,8 @@ class _FuelLogSheetState extends ConsumerState<FuelLogSheet> {
     await repo.saveFuelLog(
       log,
       vehicleName: widget.vehicle.name,
-      accountId: payment is _AccountPay ? payment.id : null,
-      creditCardId: payment is _CardPay ? payment.id : null,
+      accountId: payment?.accountId,
+      creditCardId: payment?.cardId,
     );
     navigator.pop();
   }
@@ -493,6 +599,7 @@ class _FuelLogSheetState extends ConsumerState<FuelLogSheet> {
       child: Form(
         key: _formKey,
         child: ListView(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           shrinkWrap: true,
           padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
           children: [
@@ -501,7 +608,9 @@ class _FuelLogSheetState extends ConsumerState<FuelLogSheet> {
                 Expanded(
                   child: Text(
                     widget.initial == null ? l10n.addFuel : l10n.editFuel,
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
                 ),
                 if (widget.initial != null)
@@ -511,18 +620,38 @@ class _FuelLogSheetState extends ConsumerState<FuelLogSheet> {
                     onPressed: () async {
                       final navigator = Navigator.of(context);
                       if (!await confirmDelete(context, l10n.addFuel)) return;
-                      await ref.read(vehicleRepositoryProvider).deleteFuelLog(widget.initial!);
+                      await ref
+                          .read(vehicleRepositoryProvider)
+                          .deleteFuelLog(widget.initial!);
                       navigator.pop();
                     },
                   ),
               ],
             ),
             const SizedBox(height: 12),
-            DateField(label: l10n.date, value: _date, onChanged: (d) => setState(() => _date = d ?? _date)),
+            DateField(
+              label: l10n.date,
+              value: _date,
+              onChanged: (d) => setState(() => _date = d ?? _date),
+            ),
             const SizedBox(height: 12),
-            NumberField(controller: _odometer, label: l10n.odometer, suffix: l10n.unitKm, min: 0, required: false, onChanged: _onOdometer),
+            NumberField(
+              controller: _odometer,
+              label: l10n.odometer,
+              suffix: l10n.unitKm,
+              min: 0,
+              required: false,
+              onChanged: _onOdometer,
+            ),
             const SizedBox(height: 12),
-            NumberField(controller: _distance, label: l10n.distanceTravelled, suffix: l10n.unitKm, min: 0, max: 100000, required: false),
+            NumberField(
+              controller: _distance,
+              label: l10n.distanceTravelled,
+              suffix: l10n.unitKm,
+              min: 0,
+              max: 100000,
+              required: false,
+            ),
             const SizedBox(height: 12),
             NumberField(
               controller: _quantity,
@@ -533,28 +662,43 @@ class _FuelLogSheetState extends ConsumerState<FuelLogSheet> {
               onChanged: (_) => setState(_recalc),
             ),
             const SizedBox(height: 12),
-            AmountField(controller: _price, label: '${l10n.pricePerUnit} ($unit)', required: false, onChanged: (_) => setState(_recalc)),
+            AmountField(
+              controller: _price,
+              label: '${l10n.pricePerUnit} ($unit)',
+              required: false,
+              onChanged: (_) => setState(_recalc),
+            ),
             const SizedBox(height: 12),
-            AmountField(controller: _total, label: l10n.totalCost, onChanged: (_) => _totalEdited = true),
+            AmountField(
+              controller: _total,
+              label: l10n.totalCost,
+              onChanged: (_) => _totalEdited = true,
+            ),
             const SizedBox(height: 12),
-            PickerField<_Payment>(
+            PaymentSourceField(
               label: l10n.recordAsExpense,
               value: _payment,
-              allowNone: true,
-              noneLabel: l10n.dontRecord,
-              options: [
-                for (final a in accounts) PickerOption<_Payment>(_AccountPay(a.id), a.displayName, icon: Icons.account_balance_rounded),
-                for (final c in cards) PickerOption<_Payment>(_CardPay(c.id), c.displayName, icon: Icons.credit_card_rounded),
-              ],
-              onChanged: (v) => setState(() => _payment = v),
+              accounts: accounts,
+              cards: cards,
+              cashLabel: l10n.dontRecord,
+              errorText: _payError,
+              onChanged: (v) => setState(() {
+                _payment = v;
+                _payError = null;
+              }),
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(12, 6, 12, 0),
-              child: Text(l10n.vehicleFuelExpenseNote, style: Theme.of(context).textTheme.bodySmall),
+              child: Text(
+                l10n.vehicleFuelExpenseNote,
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
             ),
             const SizedBox(height: 16),
             FilledButton(
-              style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
+              style: FilledButton.styleFrom(
+                minimumSize: const Size.fromHeight(52),
+              ),
               onPressed: _saving ? null : _save,
               child: Text(l10n.save),
             ),
@@ -569,10 +713,12 @@ class MileageCalculatorScreen extends ConsumerStatefulWidget {
   const MileageCalculatorScreen({super.key});
 
   @override
-  ConsumerState<MileageCalculatorScreen> createState() => _MileageCalculatorScreenState();
+  ConsumerState<MileageCalculatorScreen> createState() =>
+      _MileageCalculatorScreenState();
 }
 
-class _MileageCalculatorScreenState extends ConsumerState<MileageCalculatorScreen> {
+class _MileageCalculatorScreenState
+    extends ConsumerState<MileageCalculatorScreen> {
   final _distance = TextEditingController();
   final _fuel = TextEditingController();
   final _price = TextEditingController();
@@ -595,24 +741,56 @@ class _MileageCalculatorScreenState extends ConsumerState<MileageCalculatorScree
     final fuel = NumberField.parse(_fuel.text);
     final price = Money.parse(_price.text);
     final trip = NumberField.parse(_trip.text);
-    final mileage = distance == null || fuel == null ? null : VehicleMath.mileage(distance, fuel);
-    final perKm = mileage == null || price == null || mileage == 0 ? null : price / mileage;
+    final mileage = distance == null || fuel == null
+        ? null
+        : VehicleMath.mileage(distance, fuel);
+    final perKm = mileage == null || price == null || mileage == 0
+        ? null
+        : price / mileage;
     final tripCost = mileage == null || price == null || trip == null
         ? null
-        : VehicleMath.tripCost(distanceKm: trip, mileage: mileage, pricePerUnitMinor: price);
+        : VehicleMath.tripCost(
+            distanceKm: trip,
+            mileage: mileage,
+            pricePerUnitMinor: price,
+          );
     void refresh(String _) => setState(() {});
     return Scaffold(
       appBar: AppBar(title: Text(l10n.mileageCalculator)),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          NumberField(controller: _distance, label: l10n.distanceTravelled, suffix: l10n.unitKm, min: 0, onChanged: refresh),
+          NumberField(
+            controller: _distance,
+            label: l10n.distanceTravelled,
+            suffix: l10n.unitKm,
+            min: 0,
+            onChanged: refresh,
+          ),
           const SizedBox(height: 12),
-          NumberField(controller: _fuel, label: l10n.fuelQuantity, suffix: l10n.unitLitre, min: 0.01, onChanged: refresh),
+          NumberField(
+            controller: _fuel,
+            label: l10n.fuelQuantity,
+            suffix: l10n.unitLitre,
+            min: 0.01,
+            onChanged: refresh,
+          ),
           const SizedBox(height: 12),
-          AmountField(controller: _price, label: l10n.pricePerUnit, required: false, onChanged: refresh),
+          AmountField(
+            controller: _price,
+            label: l10n.pricePerUnit,
+            required: false,
+            onChanged: refresh,
+          ),
           const SizedBox(height: 12),
-          NumberField(controller: _trip, label: l10n.tripDistance, suffix: l10n.unitKm, min: 0, required: false, onChanged: refresh),
+          NumberField(
+            controller: _trip,
+            label: l10n.tripDistance,
+            suffix: l10n.unitKm,
+            min: 0,
+            required: false,
+            onChanged: refresh,
+          ),
           const SizedBox(height: 16),
           SectionCard(
             title: l10n.mileageResult,
@@ -620,14 +798,19 @@ class _MileageCalculatorScreenState extends ConsumerState<MileageCalculatorScree
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  mileage == null ? l10n.calcEnterValues : '${mileage.toStringAsFixed(2)} ${l10n.unitKmPerL}',
-                  style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w900),
+                  mileage == null
+                      ? l10n.calcEnterValues
+                      : '${mileage.toStringAsFixed(2)} ${l10n.unitKmPerL}',
+                  style: theme.textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.w900,
+                  ),
                 ),
                 if (perKm != null) ...[
                   const SizedBox(height: 8),
                   Text('${l10n.calcCostPerKm}: ${money.format(perKm.round())}'),
                 ],
-                if (tripCost != null) Text('${l10n.tripCost}: ${money.format(tripCost)}'),
+                if (tripCost != null)
+                  Text('${l10n.tripCost}: ${money.format(tripCost)}'),
               ],
             ),
           ),

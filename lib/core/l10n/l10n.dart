@@ -1,23 +1,24 @@
 import 'dart:ui' show PlatformDispatcher;
 
-import 'package:expensetrackerpro/core/errors/app_failure.dart';
-import 'package:expensetrackerpro/core/settings/app_settings.dart';
-import 'package:expensetrackerpro/core/utils/recurrence.dart';
-import 'package:expensetrackerpro/features/accounts/domain/account.dart';
-import 'package:expensetrackerpro/features/borrow_lend/domain/debt_record.dart';
-import 'package:expensetrackerpro/features/loans/domain/amortization.dart';
-import 'package:expensetrackerpro/features/loans/domain/emi_engine.dart';
-import 'package:expensetrackerpro/features/loans/domain/loan.dart';
-import 'package:expensetrackerpro/features/reminders/domain/reminder.dart';
-import 'package:expensetrackerpro/features/transactions/domain/transaction.dart';
-import 'package:expensetrackerpro/features/transactions/domain/transaction_query.dart';
-import 'package:expensetrackerpro/features/transactions/domain/transaction_validator.dart';
-import 'package:expensetrackerpro/features/vehicles/domain/vehicle.dart';
-import 'package:expensetrackerpro/l10n/app_localizations.dart';
+import 'package:kept/core/errors/app_failure.dart';
+import 'package:kept/core/settings/app_settings.dart';
+import 'package:kept/core/utils/recurrence.dart';
+import 'package:kept/features/accounts/domain/account.dart';
+import 'package:kept/features/categories/domain/category.dart';
+import 'package:kept/features/borrow_lend/domain/debt_record.dart';
+import 'package:kept/features/loans/domain/amortization.dart';
+import 'package:kept/features/loans/domain/emi_engine.dart';
+import 'package:kept/features/loans/domain/loan.dart';
+import 'package:kept/features/reminders/domain/reminder.dart';
+import 'package:kept/features/transactions/domain/transaction.dart';
+import 'package:kept/features/transactions/domain/transaction_query.dart';
+import 'package:kept/features/transactions/domain/transaction_validator.dart';
+import 'package:kept/features/vehicles/domain/vehicle.dart';
+import 'package:kept/l10n/app_localizations.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-export 'package:expensetrackerpro/l10n/app_localizations.dart';
+export 'package:kept/l10n/app_localizations.dart';
 
 extension L10nContext on BuildContext {
   AppLocalizations get l10n => AppLocalizations.of(this);
@@ -35,6 +36,14 @@ final appLocaleProvider = Provider<Locale>((ref) {
   );
 });
 
+/// A language's name in its own script, so people can find theirs even when
+/// the app is currently showing a language they cannot read.
+String languageNativeName(String languageCode) => switch (languageCode) {
+  'en' => 'English',
+  'ml' => 'മലയാളം',
+  _ => languageCode.toUpperCase(),
+};
+
 final l10nProvider = Provider<AppLocalizations>(
   (ref) => lookupAppLocalizations(ref.watch(appLocaleProvider)),
 );
@@ -42,7 +51,10 @@ final l10nProvider = Provider<AppLocalizations>(
 /// Localized labels for domain enums and ids. Kept in one place so domain
 /// classes stay free of UI strings.
 extension DomainLabels on AppLocalizations {
-  String categoryLabel(String? id) => switch (id) {
+  String categoryLabel(String? id) =>
+      Categories.customName(id) ?? _builtInCategoryLabel(id);
+
+  String _builtInCategoryLabel(String? id) => switch (id) {
     'food' => catFood,
     'food.groceries' => catFoodGroceries,
     'food.dining' => catFoodDining,
@@ -123,10 +135,12 @@ extension DomainLabels on AppLocalizations {
     return switch (r.frequency) {
       RecurrenceFrequency.once => freqOnce,
       RecurrenceFrequency.daily => r.interval == 1 ? freqDaily : everyNDays(n),
-      RecurrenceFrequency.weekly => r.interval == 1 ? freqWeekly : everyNWeeks(n),
+      RecurrenceFrequency.weekly =>
+        r.interval == 1 ? freqWeekly : everyNWeeks(n),
       RecurrenceFrequency.monthly =>
         r.interval == 1 ? freqMonthly : everyNMonths(n),
-      RecurrenceFrequency.yearly => r.interval == 1 ? freqYearly : everyNYears(n),
+      RecurrenceFrequency.yearly =>
+        r.interval == 1 ? freqYearly : everyNYears(n),
     };
   }
 
@@ -215,6 +229,7 @@ extension DomainLabels on AppLocalizations {
     FailureKind.network => failureNetwork,
     FailureKind.permissionDenied => failurePermission,
     FailureKind.unauthenticated => failureUnauthenticated,
+    FailureKind.signInMethodDisabled => failureSignInMethodDisabled,
     FailureKind.notFound => failureNotFound,
     FailureKind.invalidData => failureInvalidData,
     FailureKind.unsupportedSchema => failureUnsupportedSchema,

@@ -1,14 +1,14 @@
-import 'package:expensetrackerpro/core/firebase/firebase_providers.dart';
-import 'package:expensetrackerpro/core/l10n/l10n.dart';
-import 'package:expensetrackerpro/core/money/money.dart';
-import 'package:expensetrackerpro/core/settings/app_settings.dart';
-import 'package:expensetrackerpro/core/utils/dates.dart';
-import 'package:expensetrackerpro/features/accounts/application/account_providers.dart';
-import 'package:expensetrackerpro/features/credit_cards/application/card_providers.dart';
-import 'package:expensetrackerpro/features/transactions/data/transaction_repository.dart';
-import 'package:expensetrackerpro/features/transactions/domain/monthly_summary.dart';
-import 'package:expensetrackerpro/features/transactions/domain/transaction.dart';
-import 'package:expensetrackerpro/features/transactions/domain/transaction_query.dart';
+import 'package:kept/core/firebase/firebase_providers.dart';
+import 'package:kept/core/l10n/l10n.dart';
+import 'package:kept/core/money/money.dart';
+import 'package:kept/core/settings/app_settings.dart';
+import 'package:kept/core/utils/dates.dart';
+import 'package:kept/features/accounts/application/account_providers.dart';
+import 'package:kept/features/credit_cards/application/card_providers.dart';
+import 'package:kept/features/transactions/data/transaction_repository.dart';
+import 'package:kept/features/transactions/domain/monthly_summary.dart';
+import 'package:kept/features/transactions/domain/transaction.dart';
+import 'package:kept/features/transactions/domain/transaction_query.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
@@ -73,7 +73,10 @@ class MonthPoint {
 
 /// Groups [transactions] into one summary per month of [range], oldest
 /// first, including empty months.
-List<MonthPoint> monthPoints(DateRange range, Iterable<Transaction> transactions) {
+List<MonthPoint> monthPoints(
+  DateRange range,
+  Iterable<Transaction> transactions,
+) {
   final buckets = <DateTime, List<Transaction>>{};
   for (
     var m = range.start;
@@ -170,11 +173,8 @@ final visibleTransactionsProvider =
       return ref
           .watch(transactionsInRangeProvider(range))
           .whenData(
-            (list) => TransactionQuery.apply(
-              list,
-              filter,
-              searchText: searchText,
-            ),
+            (list) =>
+                TransactionQuery.apply(list, filter, searchText: searchText),
           );
     });
 
@@ -222,26 +222,26 @@ final dashboardScopeProvider =
       DashboardScopeNotifier.new,
     );
 
-final dashboardSummaryProvider = Provider.autoDispose<AsyncValue<MonthlySummary>>(
-  (ref) {
-    final month = ref.watch(selectedMonthProvider);
-    final scope = ref.watch(dashboardScopeProvider);
-    return ref
-        .watch(monthTransactionsProvider(month))
-        .whenData((list) => MonthlySummary.compute(list.where(scope.includes)));
-  },
-);
+final dashboardSummaryProvider =
+    Provider.autoDispose<AsyncValue<MonthlySummary>>((ref) {
+      final month = ref.watch(selectedMonthProvider);
+      final scope = ref.watch(dashboardScopeProvider);
+      return ref
+          .watch(monthTransactionsProvider(month))
+          .whenData(
+            (list) => MonthlySummary.compute(list.where(scope.includes)),
+          );
+    });
 
-final dashboardTrendProvider = Provider.autoDispose<AsyncValue<List<MonthPoint>>>(
-  (ref) {
-    final month = ref.watch(selectedMonthProvider);
-    final scope = ref.watch(dashboardScopeProvider);
-    final range = DateRange.lastMonths(month, trendMonths);
-    return ref
-        .watch(transactionsInRangeProvider(range))
-        .whenData((list) => monthPoints(range, list.where(scope.includes)));
-  },
-);
+final dashboardTrendProvider =
+    Provider.autoDispose<AsyncValue<List<MonthPoint>>>((ref) {
+      final month = ref.watch(selectedMonthProvider);
+      final scope = ref.watch(dashboardScopeProvider);
+      final range = DateRange.lastMonths(month, trendMonths);
+      return ref
+          .watch(transactionsInRangeProvider(range))
+          .whenData((list) => monthPoints(range, list.where(scope.includes)));
+    });
 
 /// Latest transactions linked to an entity (account, card, loan…).
 final linkedTransactionsProvider = StreamProvider.autoDispose

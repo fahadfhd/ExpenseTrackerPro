@@ -1,11 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart' hide Transaction;
-import 'package:expensetrackerpro/core/firebase/collections.dart';
-import 'package:expensetrackerpro/core/firebase/entity_store.dart';
-import 'package:expensetrackerpro/core/firebase/firebase_providers.dart';
-import 'package:expensetrackerpro/features/categories/domain/category.dart';
-import 'package:expensetrackerpro/features/loans/domain/loan.dart';
-import 'package:expensetrackerpro/features/transactions/data/transaction_repository.dart';
-import 'package:expensetrackerpro/features/transactions/domain/transaction.dart';
+import 'package:kept/core/firebase/collections.dart';
+import 'package:kept/core/firebase/entity_store.dart';
+import 'package:kept/core/firebase/firebase_providers.dart';
+import 'package:kept/core/utils/dates.dart';
+import 'package:kept/features/categories/domain/category.dart';
+import 'package:kept/features/loans/domain/loan.dart';
+import 'package:kept/features/transactions/data/transaction_repository.dart';
+import 'package:kept/features/transactions/domain/transaction.dart';
 
 class LoanRepository {
   LoanRepository({
@@ -100,6 +101,40 @@ class LoanRepository {
         createdAt: now,
       ).toMap(),
     );
+    _transactions.commit(batch);
+  }
+
+  /// Marks installments 1..[count] as already paid when a loan that is
+  /// part-way through is added to the app.
+  ///
+  /// This is history only: it creates paid marks (dated on each due date)
+  /// but no transactions, so no account balance changes — those payments
+  /// happened before the app was tracking the money. Idempotent: ids are
+  /// per installment, so repeating it never duplicates.
+  void recordPastPayments(Loan loan, int count) {
+    if (count <= 0) return;
+    final now = DateTime.now();
+    final batch = _transactions.batch();
+    for (var k = 1; k <= count && k <= loan.installments; k++) {
+      final due = Dates.addMonths(
+        Dates.dayOf(loan.firstDueDate),
+        (k - 1) * loan.frequency.monthsPerPeriod,
+        preferredDay: loan.firstDueDate.day,
+      );
+      final id = LoanEvent.installmentEventId(loan.id, k);
+      batch.set(
+        events.ref.doc(id),
+        LoanEvent(
+          id: id,
+          loanId: loan.id,
+          kind: LoanEventKind.emiPaid,
+          installmentNumber: k,
+          amountMinor: loan.emiMinor,
+          date: due,
+          createdAt: now,
+        ).toMap(),
+      );
+    }
     _transactions.commit(batch);
   }
 
