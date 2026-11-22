@@ -4360,6 +4360,72 @@ abstract class AppLocalizations {
   /// **'Tap the selected category again to clear it'**
   String get categoryTapToClear;
 
+  /// No description provided for @subcategoriesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Subcategories'**
+  String get subcategoriesLabel;
+
+  /// No description provided for @subcategoriesEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No subcategories yet. Add one to split this category further.'**
+  String get subcategoriesEmpty;
+
+  /// No description provided for @subcategoryAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add subcategory'**
+  String get subcategoryAdd;
+
+  /// No description provided for @subcategoryRename.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename subcategory'**
+  String get subcategoryRename;
+
+  /// No description provided for @subcategoryNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Subcategory name'**
+  String get subcategoryNameLabel;
+
+  /// No description provided for @subcategoryNameDuplicate.
+  ///
+  /// In en, this message translates to:
+  /// **'This category already has a subcategory with this name'**
+  String get subcategoryNameDuplicate;
+
+  /// No description provided for @subcategoryInUse.
+  ///
+  /// In en, this message translates to:
+  /// **'This subcategory is used by transactions or a recurring entry, so it can\'t be deleted. Rename it instead.'**
+  String get subcategoryInUse;
+
+  /// No description provided for @subcategoryDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Subcategory deleted'**
+  String get subcategoryDeleted;
+
+  /// No description provided for @categoryBuiltInLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'Built-in categories can\'t be edited or deleted. Create your own with New.'**
+  String get categoryBuiltInLocked;
+
+  /// No description provided for @categoryOptionsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Long-press one of your categories to edit or delete it'**
+  String get categoryOptionsHint;
+
+  /// No description provided for @rename.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename'**
+  String get rename;
+
   /// No description provided for @typeTapToClear.
   ///
   /// In en, this message translates to:

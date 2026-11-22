@@ -52,5 +52,21 @@ class CategoryRepository {
     return rules.docs.isNotEmpty;
   }
 
+  /// A fresh id for a subcategory of [categoryId].
+  String newSubcategoryId(String categoryId) =>
+      CustomCategory.subcategoryIdFor(categoryId, store.newId());
+
+  /// Whether a transaction or recurring rule still refers to subcategory
+  /// [id]. Such a subcategory can be renamed but not deleted.
+  Future<bool> isSubcategoryInUse(String id) async {
+    if (await _transactions.hasLinked('subCategoryId', id)) return true;
+    final rules = await store.userDoc
+        .collection(Collections.recurringTransactions)
+        .where('subCategoryId', isEqualTo: id)
+        .limit(1)
+        .get();
+    return rules.docs.isNotEmpty;
+  }
+
   void delete(String id) => store.delete(id);
 }

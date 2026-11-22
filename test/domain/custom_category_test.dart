@@ -140,4 +140,41 @@ void main() {
     });
     expect(odd.icon, categoryIcons[defaultCategoryIconKey]);
   });
+
+  group('subcategories', () {
+    test('round-trip, skip malformed entries and resolve labels', () {
+      final c = _custom('custom_a', CategoryKind.expense).copyWith(
+        subcategories: [
+          CustomSubcategory(
+            id: CustomCategory.subcategoryIdFor('custom_a', 'x'),
+            name: 'Vet',
+          ),
+        ],
+      );
+      final map = c.toMap();
+      map['subcategories'] = <Object?>[
+        ...map['subcategories'] as List,
+        'junk',
+        {'id': '', 'name': 'No id'},
+        {'id': 'custom_a.sub_y'},
+      ];
+      final back = CustomCategory.fromMap('custom_a', map);
+      expect(back.subcategories.single.id, 'custom_a.sub_x');
+      expect(back.subcategories.single.name, 'Vet');
+
+      Categories.setCustom([back.toCategory()]);
+      final sub = Categories.byId('custom_a').subcategories.single;
+      expect(sub.isCustom, isTrue);
+      expect(Categories.customName('custom_a.sub_x'), 'Vet');
+      expect(Categories.customName('food.dining'), isNull);
+    });
+
+    test('older documents without subcategories still load', () {
+      final c = CustomCategory.fromMap('custom_a', {
+        'name': 'Pets',
+        'subcategories': 'not a list',
+      });
+      expect(c.subcategories, isEmpty);
+    });
+  });
 }

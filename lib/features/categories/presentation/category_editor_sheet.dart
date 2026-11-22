@@ -4,9 +4,12 @@ import 'package:kept/core/l10n/l10n.dart';
 import 'package:kept/features/categories/application/category_providers.dart';
 import 'package:kept/features/categories/domain/category.dart';
 import 'package:kept/features/categories/domain/custom_category.dart';
+import 'package:kept/features/categories/presentation/category_actions.dart';
 import 'package:kept/shared/widgets/dialogs.dart';
 
-/// Create or edit one of the user's own categories. Pops with the saved
+/// Create or edit one of the user's own categories and its subcategories.
+/// Subcategory changes are kept locally and written with the category on
+/// Save, so dismissing the sheet discards them. Pops with the saved
 /// category's id, so callers (the transaction form) can select it at once.
 class CategoryEditorSheet extends ConsumerStatefulWidget {
   const CategoryEditorSheet({super.key, this.initial, this.kind});
@@ -39,6 +42,16 @@ class _CategoryEditorSheetState extends ConsumerState<CategoryEditorSheet> {
   late int _color = widget.initial?.colorValue ?? categoryColors.first;
   CategoryNameIssue? _issue;
 
+  /// Fixed up front so new subcategory ids can embed it.
+  late final String _id =
+      widget.initial?.id ?? ref.read(categoryRepositoryProvider).newId();
+  late List<CustomSubcategory> _subs = [...?widget.initial?.subcategories];
+
+  /// Subcategories already in Firestore; only these can be in use.
+  late final Set<String> _savedSubIds = {
+    for (final s in widget.initial?.subcategories ?? const []) s.id,
+  };
+
   bool get _isEdit => widget.initial != null;
 
   @override
@@ -67,6 +80,27 @@ class _CategoryEditorSheetState extends ConsumerState<CategoryEditorSheet> {
     );
   }
 
+  Future<void> _addSubcategory() async {
+    final name = await showSubcategoryNameDialog(
+      context,
+      siblingNames: [for (final s in _subs) s.name],
+    );
+    if (name == null || !mounted) return;
+    final id = ref.read(categoryRepositoryProvider).newSubcategoryId(_id);
+    setState(() => _subs = [..._subs, CustomSubcategory(id: id, name: name)]);
+  }
+
+  Future<void> _subcategoryOptions(CustomSubcategory target) async {
+    final updated = await showSubcategoryActions(
+      context,
+      ref,
+      subcategories: _subs,
+      target: target,
+      checkInUse: _savedSubIds.contains(target.id),
+    );
+    if (updated != null && mounted) setState(() => _subs = updated);
+  }
+
   void _save() {
     final l10n = context.l10n;
     final issue = _check(l10n);
@@ -77,19 +111,21 @@ class _CategoryEditorSheetState extends ConsumerState<CategoryEditorSheet> {
     final initial = widget.initial;
     final category = initial == null
         ? CustomCategory(
-            id: repo.newId(),
+            id: _id,
             name: _name.text.trim(),
             kind: _kind,
             iconKey: _iconKey,
             colorValue: _color,
             createdAt: now,
             updatedAt: now,
+            subcategories: _subs,
           )
         : initial.copyWith(
             name: _name.text.trim(),
             iconKey: _iconKey,
             colorValue: _color,
             updatedAt: now,
+            subcategories: _subs,
           );
     repo.save(category);
     Categories.upsertCustom(category.toCategory());
@@ -152,6 +188,34 @@ class _CategoryEditorSheetState extends ConsumerState<CategoryEditorSheet> {
                   },
                   onSubmitted: (_) => _save(),
                 ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Text(l10n.subcategoriesLabel, style: theme.textTheme.labelLarge),
+          const SizedBox(height: 8),
+          if (_subs.isEmpty)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Text(
+                l10n.subcategoriesEmpty,
+                style: theme.textTheme.bodySmall,
+              ),
+            ),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (final sub in _subs)
+                InputChip(
+                  key: ValueKey('sub-${sub.id}'),
+                  label: Text(sub.name),
+                  onPressed: () => _subcategoryOptions(sub),
+                ),
+              ActionChip(
+                avatar: const Icon(Icons.add_rounded, size: 18),
+                label: Text(l10n.subcategoryAdd),
+                onPressed: _addSubcategory,
               ),
             ],
           ),

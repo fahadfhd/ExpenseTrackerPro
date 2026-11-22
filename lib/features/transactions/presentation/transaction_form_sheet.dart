@@ -14,6 +14,8 @@ import 'package:kept/features/budgets/application/budget_providers.dart';
 import 'package:kept/features/budgets/domain/budget.dart';
 import 'package:kept/features/categories/application/category_providers.dart';
 import 'package:kept/features/categories/domain/category.dart';
+import 'package:kept/features/categories/domain/custom_category.dart';
+import 'package:kept/features/categories/presentation/category_actions.dart';
 import 'package:kept/features/categories/presentation/category_editor_sheet.dart';
 import 'package:kept/features/credit_cards/application/card_providers.dart';
 import 'package:kept/features/credit_cards/domain/credit_card.dart';
@@ -456,6 +458,86 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
     }
   }
 
+  CustomCategory? _customById(String id) {
+    for (final c in ref.read(customCategoriesProvider).value ?? const []) {
+      if (c.id == id) return c;
+    }
+    return null;
+  }
+
+  /// Long-press on a category chip: the user's own categories can be
+  /// edited, archived or deleted; built-ins only explain why not.
+  Future<void> _categoryOptions(Category category) async {
+    final l10n = context.l10n;
+    final custom = category.isCustom ? _customById(category.id) : null;
+    if (custom == null) {
+      await showNotice(context, l10n.categoryBuiltInLocked);
+      return;
+    }
+    Haptics.selection();
+    final action = await showCategoryActions(context, ref, custom);
+    if (!mounted || action == null) return;
+    if (action == CategoryAction.deleted && _categoryId == custom.id) {
+      setState(() {
+        _categoryId = null;
+        _subCategoryId = null;
+      });
+    } else if (action == CategoryAction.edited &&
+        _categoryId == custom.id &&
+        _subCategoryId != null &&
+        !Categories.byId(
+          custom.id,
+        ).subcategories.any((s) => s.id == _subCategoryId)) {
+      // The chosen subcategory was removed in the editor.
+      setState(() => _subCategoryId = null);
+    } else {
+      setState(() {});
+    }
+  }
+
+  void _saveSubcategories(CustomCategory parent, List<CustomSubcategory> subs) {
+    final updated = parent.copyWith(
+      subcategories: subs,
+      updatedAt: DateTime.now(),
+    );
+    ref.read(categoryRepositoryProvider).save(updated);
+    Categories.upsertCustom(updated.toCategory());
+  }
+
+  Future<void> _addSubcategory(CustomCategory parent) async {
+    final name = await showSubcategoryNameDialog(
+      context,
+      siblingNames: [for (final s in parent.subcategories) s.name],
+    );
+    if (name == null || !mounted) return;
+    final sub = CustomSubcategory(
+      id: ref.read(categoryRepositoryProvider).newSubcategoryId(parent.id),
+      name: name,
+    );
+    _saveSubcategories(parent, [...parent.subcategories, sub]);
+    setState(() => _subCategoryId = sub.id);
+  }
+
+  Future<void> _subcategoryOptions(String subId) async {
+    final parent = _categoryId == null ? null : _customById(_categoryId!);
+    final target = parent?.subcategories
+        .where((s) => s.id == subId)
+        .firstOrNull;
+    if (parent == null || target == null) return;
+    Haptics.selection();
+    final updated = await showSubcategoryActions(
+      context,
+      ref,
+      subcategories: parent.subcategories,
+      target: target,
+    );
+    if (updated == null || !mounted) return;
+    _saveSubcategories(parent, updated);
+    setState(() {
+      if (!updated.any((s) => s.id == _subCategoryId)) _subCategoryId = null;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
@@ -846,17 +928,21 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
                         runSpacing: 8,
                         children: [
                           for (final c in visibleCategories)
-                            ChoiceChip(
-                              avatar: Icon(c.icon, size: 18, color: c.color),
-                              label: Text(l10n.categoryLabel(c.id)),
-                              selected: _categoryId == c.id,
-                              // Tapping the selected chip clears it.
-                              onSelected: (on) => setState(() {
-                                Haptics.selection();
-                                _categoryId = on ? c.id : null;
-                                _subCategoryId = null;
-                                _categoryError = null;
-                              }),
+                            GestureDetector(
+                              key: ValueKey('category-${c.id}'),
+                              onLongPress: () => _categoryOptions(c),
+                              child: ChoiceChip(
+                                avatar: Icon(c.icon, size: 18, color: c.color),
+                                label: Text(l10n.categoryLabel(c.id)),
+                                selected: _categoryId == c.id,
+                                // Tapping the selected chip clears it.
+                                onSelected: (on) => setState(() {
+                                  Haptics.selection();
+                                  _categoryId = on ? c.id : null;
+                                  _subCategoryId = null;
+                                  _categoryError = null;
+                                }),
+                              ),
                             ),
                           if (visibleCategories.length < shown.length)
                             ActionChip(
@@ -888,8 +974,17 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
                             ),
                           ),
                         ),
+                      if (visibleCategories.any((c) => c.isCustom))
+                        Padding(
+                          padding: const EdgeInsets.only(left: 4, top: 6),
+                          child: Text(
+                            l10n.categoryOptionsHint,
+                            style: theme.textTheme.bodySmall,
+                          ),
+                        ),
                       if (selectedCategory != null &&
-                          selectedCategory.subcategories.isNotEmpty) ...[
+                          (selectedCategory.subcategories.isNotEmpty ||
+                              selectedCategory.isCustom)) ...[
                         const SizedBox(height: 12),
                         Text(
                           l10n.subcategory,
@@ -901,12 +996,26 @@ class _TransactionFormSheetState extends ConsumerState<TransactionFormSheet> {
                           runSpacing: 8,
                           children: [
                             for (final s in selectedCategory.subcategories)
-                              FilterChip(
-                                label: Text(l10n.categoryLabel(s.id)),
-                                selected: _subCategoryId == s.id,
-                                onSelected: (on) => setState(
-                                  () => _subCategoryId = on ? s.id : null,
+                              GestureDetector(
+                                key: ValueKey('subcategory-${s.id}'),
+                                onLongPress: s.isCustom
+                                    ? () => _subcategoryOptions(s.id)
+                                    : null,
+                                child: FilterChip(
+                                  label: Text(l10n.categoryLabel(s.id)),
+                                  selected: _subCategoryId == s.id,
+                                  onSelected: (on) => setState(
+                                    () => _subCategoryId = on ? s.id : null,
+                                  ),
                                 ),
+                              ),
+                            if (_customById(selectedCategory.id)
+                                case final parent?)
+                              ActionChip(
+                                avatar: const Icon(Icons.add_rounded, size: 18),
+                                label: Text(l10n.categoryNew),
+                                tooltip: l10n.subcategoryAdd,
+                                onPressed: () => _addSubcategory(parent),
                               ),
                           ],
                         ),

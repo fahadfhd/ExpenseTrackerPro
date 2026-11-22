@@ -2376,6 +2376,44 @@ class AppLocalizationsMl extends AppLocalizations {
       'തിരഞ്ഞെടുത്ത വിഭാഗം മായ്ക്കാൻ അതിൽ വീണ്ടും അമർത്തുക';
 
   @override
+  String get subcategoriesLabel => 'ഉപവിഭാഗങ്ങൾ';
+
+  @override
+  String get subcategoriesEmpty =>
+      'ഇതുവരെ ഉപവിഭാഗങ്ങളില്ല. ഈ വിഭാഗത്തെ കൂടുതൽ വേർതിരിക്കാൻ ഒന്ന് ചേർക്കുക.';
+
+  @override
+  String get subcategoryAdd => 'ഉപവിഭാഗം ചേർക്കുക';
+
+  @override
+  String get subcategoryRename => 'ഉപവിഭാഗത്തിന്റെ പേര് മാറ്റുക';
+
+  @override
+  String get subcategoryNameLabel => 'ഉപവിഭാഗത്തിന്റെ പേര്';
+
+  @override
+  String get subcategoryNameDuplicate =>
+      'ഈ പേരിൽ ഒരു ഉപവിഭാഗം ഈ വിഭാഗത്തിൽ ഇതിനകം ഉണ്ട്';
+
+  @override
+  String get subcategoryInUse =>
+      'ഈ ഉപവിഭാഗം ഇടപാടുകളിലോ ആവർത്തന എൻട്രിയിലോ ഉപയോഗത്തിലുള്ളതിനാൽ ഇല്ലാതാക്കാൻ കഴിയില്ല. പകരം പേര് മാറ്റുക.';
+
+  @override
+  String get subcategoryDeleted => 'ഉപവിഭാഗം ഇല്ലാതാക്കി';
+
+  @override
+  String get categoryBuiltInLocked =>
+      'ബിൽറ്റ്-ഇൻ വിഭാഗങ്ങൾ എഡിറ്റ് ചെയ്യാനോ ഇല്ലാതാക്കാനോ കഴിയില്ല. പുതിയത് ഉപയോഗിച്ച് സ്വന്തമായി ഒന്ന് സൃഷ്ടിക്കുക.';
+
+  @override
+  String get categoryOptionsHint =>
+      'എഡിറ്റ് ചെയ്യാനോ ഇല്ലാതാക്കാനോ നിങ്ങളുടെ വിഭാഗത്തിൽ അമർത്തിപ്പിടിക്കുക';
+
+  @override
+  String get rename => 'പേര് മാറ്റുക';
+
+  @override
   String get typeTapToClear => 'ചെലവിലേക്ക് മടങ്ങാൻ വീണ്ടും അമർത്തുക';
 
   @override

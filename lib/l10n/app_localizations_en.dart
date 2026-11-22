@@ -2368,6 +2368,44 @@ class AppLocalizationsEn extends AppLocalizations {
       'Tap the selected category again to clear it';
 
   @override
+  String get subcategoriesLabel => 'Subcategories';
+
+  @override
+  String get subcategoriesEmpty =>
+      'No subcategories yet. Add one to split this category further.';
+
+  @override
+  String get subcategoryAdd => 'Add subcategory';
+
+  @override
+  String get subcategoryRename => 'Rename subcategory';
+
+  @override
+  String get subcategoryNameLabel => 'Subcategory name';
+
+  @override
+  String get subcategoryNameDuplicate =>
+      'This category already has a subcategory with this name';
+
+  @override
+  String get subcategoryInUse =>
+      'This subcategory is used by transactions or a recurring entry, so it can\'t be deleted. Rename it instead.';
+
+  @override
+  String get subcategoryDeleted => 'Subcategory deleted';
+
+  @override
+  String get categoryBuiltInLocked =>
+      'Built-in categories can\'t be edited or deleted. Create your own with New.';
+
+  @override
+  String get categoryOptionsHint =>
+      'Long-press one of your categories to edit or delete it';
+
+  @override
+  String get rename => 'Rename';
+
+  @override
   String get typeTapToClear => 'Tap again to switch back to Expense';
 
   @override

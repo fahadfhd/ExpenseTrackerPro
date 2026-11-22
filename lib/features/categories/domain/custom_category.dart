@@ -63,6 +63,30 @@ const categoryColors = <int>[
   0xFF8C7B6B,
 ];
 
+/// A subcategory the user created under one of their own categories.
+/// Stored inside the parent's document, in its `subcategories` list.
+class CustomSubcategory {
+  const CustomSubcategory({required this.id, required this.name});
+
+  final String id;
+  final String name;
+
+  CustomSubcategory copyWith({String? name}) =>
+      CustomSubcategory(id: id, name: name ?? this.name);
+
+  Map<String, dynamic> toMap() => {'id': id, 'name': name};
+
+  /// Null for malformed entries, which are skipped rather than failing the
+  /// whole category.
+  static CustomSubcategory? fromMap(Object? map) {
+    if (map is! Map) return null;
+    final id = Codec.stringOrNull(map['id'])?.trim();
+    final name = Codec.stringOrNull(map['name'])?.trim();
+    if (id == null || id.isEmpty || name == null || name.isEmpty) return null;
+    return CustomSubcategory(id: id, name: name);
+  }
+}
+
 /// A category created by the user. Stored in `categories/{id}`.
 class CustomCategory {
   const CustomCategory({
@@ -74,11 +98,17 @@ class CustomCategory {
     required this.createdAt,
     required this.updatedAt,
     this.archived = false,
+    this.subcategories = const [],
   });
 
   /// Ids are prefixed so they can never collide with built-in ids.
   static const idPrefix = 'custom_';
   static const maxNameLength = 30;
+
+  /// Subcategory ids embed the parent's id, so they stay unique across
+  /// categories and never collide with built-in subcategory ids.
+  static String subcategoryIdFor(String categoryId, String uniquePart) =>
+      '$categoryId.sub_$uniquePart';
 
   final String id;
   final String name;
@@ -88,6 +118,7 @@ class CustomCategory {
   final bool archived;
   final DateTime createdAt;
   final DateTime updatedAt;
+  final List<CustomSubcategory> subcategories;
 
   IconData get icon =>
       categoryIcons[iconKey] ?? categoryIcons[defaultCategoryIconKey]!;
@@ -102,6 +133,9 @@ class CustomCategory {
     color: color,
     customName: name,
     archived: archived,
+    subcategories: [
+      for (final s in subcategories) Subcategory(s.id, customName: s.name),
+    ],
   );
 
   CustomCategory copyWith({
@@ -110,6 +144,7 @@ class CustomCategory {
     int? colorValue,
     bool? archived,
     DateTime? updatedAt,
+    List<CustomSubcategory>? subcategories,
   }) => CustomCategory(
     id: id,
     name: name ?? this.name,
@@ -119,6 +154,7 @@ class CustomCategory {
     archived: archived ?? this.archived,
     createdAt: createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
+    subcategories: subcategories ?? this.subcategories,
   );
 
   Map<String, dynamic> toMap() => {
@@ -129,6 +165,7 @@ class CustomCategory {
     'archived': archived,
     'createdAt': Timestamp.fromDate(createdAt),
     'updatedAt': Timestamp.fromDate(updatedAt),
+    'subcategories': [for (final s in subcategories) s.toMap()],
   };
 
   factory CustomCategory.fromMap(String id, Map<String, dynamic> map) {
@@ -146,6 +183,10 @@ class CustomCategory {
       archived: Codec.boolean(map['archived']),
       createdAt: Codec.date(map['createdAt']) ?? now,
       updatedAt: Codec.date(map['updatedAt']) ?? now,
+      subcategories: [
+        if (map['subcategories'] case final List<dynamic> list)
+          for (final raw in list) ?CustomSubcategory.fromMap(raw),
+      ],
     );
   }
 }

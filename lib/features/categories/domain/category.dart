@@ -3,8 +3,13 @@ import 'package:flutter/material.dart';
 enum CategoryKind { expense, income }
 
 class Subcategory {
-  const Subcategory(this.id);
+  const Subcategory(this.id, {this.customName});
   final String id;
+
+  /// Set only for subcategories the user created under their own category.
+  final String? customName;
+
+  bool get isCustom => customName != null;
 }
 
 /// A transaction category: built-in (localized label, fixed id) or created
@@ -243,13 +248,26 @@ abstract final class Categories {
   /// that display categories also watch the provider so they rebuild.
   static Map<String, Category> _custom = const {};
 
-  static void setCustom(Iterable<Category> categories) =>
-      _custom = {for (final c in categories) c.id: c};
+  /// Labels of user-created subcategories, keyed by subcategory id.
+  static Map<String, String> _customSubNames = const {};
+
+  static void setCustom(Iterable<Category> categories) {
+    _custom = {for (final c in categories) c.id: c};
+    _indexSubNames();
+  }
 
   /// Makes a just-saved category resolvable immediately, before its
   /// Firestore snapshot arrives.
-  static void upsertCustom(Category category) =>
-      _custom = {..._custom, category.id: category};
+  static void upsertCustom(Category category) {
+    _custom = {..._custom, category.id: category};
+    _indexSubNames();
+  }
+
+  static void _indexSubNames() => _customSubNames = {
+    for (final c in _custom.values)
+      for (final s in c.subcategories)
+        if (s.customName != null) s.id: s.customName!,
+  };
 
   static Category byId(String? id) =>
       _custom[id] ?? _builtIn[id] ?? _builtIn[otherExpenseId]!;
@@ -257,8 +275,10 @@ abstract final class Categories {
   static bool exists(String? id) =>
       _custom.containsKey(id) || _builtIn.containsKey(id);
 
-  /// Label of a user-created category, or null for built-ins.
-  static String? customName(String? id) => _custom[id]?.customName;
+  /// Label of a user-created category or subcategory, or null for
+  /// built-ins.
+  static String? customName(String? id) =>
+      _custom[id]?.customName ?? _customSubNames[id];
 
   /// Categories offered when picking one for [kind]. Built-ins first, then
   /// the user's own; archived ones only with [includeArchived] (filters and

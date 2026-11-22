@@ -4,6 +4,7 @@ import 'package:kept/core/l10n/l10n.dart';
 import 'package:kept/features/categories/application/category_providers.dart';
 import 'package:kept/features/categories/domain/category.dart';
 import 'package:kept/features/categories/domain/custom_category.dart';
+import 'package:kept/features/categories/presentation/category_actions.dart';
 import 'package:kept/features/categories/presentation/category_editor_sheet.dart';
 import 'package:kept/shared/widgets/dialogs.dart';
 import 'package:kept/shared/widgets/states.dart';
@@ -69,14 +70,9 @@ class _KindList extends ConsumerWidget {
     CustomCategory c,
   ) async {
     final l10n = context.l10n;
-    final repo = ref.read(categoryRepositoryProvider);
-    if (await repo.isInUse(c.id)) {
-      if (context.mounted) showMessage(context, l10n.categoryInUse);
-      return;
+    if (await deleteCustomCategory(context, ref, c) && context.mounted) {
+      showMessage(context, l10n.categoryDeleted);
     }
-    if (!context.mounted || !await confirmDelete(context, c.name)) return;
-    repo.delete(c.id);
-    if (context.mounted) showMessage(context, l10n.categoryDeleted);
   }
 
   @override
@@ -116,6 +112,12 @@ class _KindList extends ConsumerWidget {
             margin: const EdgeInsets.only(bottom: 8),
             child: ListTile(
               onTap: () => CategoryEditorSheet.show(context, initial: c),
+              onLongPress: () async {
+                final action = await showCategoryActions(context, ref, c);
+                if (action == CategoryAction.deleted && context.mounted) {
+                  showMessage(context, l10n.categoryDeleted);
+                }
+              },
               leading: Container(
                 width: 44,
                 height: 44,
@@ -129,7 +131,17 @@ class _KindList extends ConsumerWidget {
                 c.name,
                 style: const TextStyle(fontWeight: FontWeight.w700),
               ),
-              subtitle: c.archived ? Text(l10n.categoryArchived) : null,
+              subtitle: c.archived || c.subcategories.isNotEmpty
+                  ? Text(
+                      [
+                        if (c.archived) l10n.categoryArchived,
+                        if (c.subcategories.isNotEmpty)
+                          c.subcategories.map((s) => s.name).join(', '),
+                      ].join(' · '),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    )
+                  : null,
               trailing: PopupMenuButton<String>(
                 onSelected: (v) {
                   final repo = ref.read(categoryRepositoryProvider);
