@@ -236,8 +236,14 @@ that crosses one shows a warning (toggle in Settings).
 
 * Firestore already keeps a live cloud copy. Backups add restorable
   snapshots: Settings → *Back up now*, plus an automatic weekly backup for
-  signed-in (non-guest) users. Files are written to
-  `users/{uid}/backups/backup-<millis>.json` in Storage; the last 5 are kept.
+  signed-in (non-guest) users. Snapshots live in Firestore (no Firebase
+  Storage needed, works on the free plan): a header document
+  `users/{uid}/backups/backup-<millis>` (`createdAt`, `chunkCount`,
+  `documentCount`, `complete`) plus the encoded JSON split into
+  `chunks/{index}` (`{data: string}`, ~200k characters each, under the 1 MiB
+  document limit). `complete` is set only after every chunk is written;
+  incomplete backups are never listed and are pruned after an hour. The last
+  5 complete backups are kept, and a failed prune never fails the backup.
 * Format (`BackupCodec`): `format`, `schemaVersion` (envelope, currently 1),
   `dataSchema`, `createdAt`, `settings`, `collections`. Timestamps are encoded
   as `{"__ts": millis}`. Decoding rejects other files and newer schema
@@ -245,8 +251,9 @@ that crosses one shows a warning (toggle in Settings).
   credential fields).
 * Restore writes documents under their original ids (overwriting matches;
   later records are kept), recalculates balances, migrates schema-1
-  transactions, updates `settings/backup` and triggers notification
-  rescheduling.
+  transactions, updates `settings/backup`, re-applies the saved app settings
+  (theme, currency, language, alerts — they are otherwise device-local) and
+  triggers notification rescheduling.
 
 ## Migrations
 

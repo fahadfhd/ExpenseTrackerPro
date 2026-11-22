@@ -54,7 +54,15 @@ service cloud.firestore {
         allow create, update: if isOwner(uid) && noCredentials()
           && collection in ['accounts', 'categories', 'loans', 'loan_payments', 'borrow_lend',
                             'reminders', 'vehicles', 'fuel_logs', 'budgets',
-                            'recurring_transactions', 'settings'];
+                            'recurring_transactions', 'settings', 'backups'];
+      }
+
+      // Backup snapshots: the encoded JSON split into chunks.
+      match /backups/{backupId}/chunks/{chunk} {
+        allow read, delete: if isOwner(uid);
+        allow create, update: if isOwner(uid)
+          && request.resource.data.keys().hasOnly(['data'])
+          && request.resource.data.data is string;
       }
     }
   }

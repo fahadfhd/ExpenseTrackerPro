@@ -85,6 +85,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     if (!ok) return;
     await _run(() async {
       final result = await ref.read(backupServiceProvider).restore(entry);
+      ref.read(settingsProvider.notifier).restoreFrom(result.settings);
       ref.read(notificationSyncProvider).resync();
       return [
         l10n.restoreDone('${result.restored}'),

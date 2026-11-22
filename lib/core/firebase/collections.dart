@@ -15,6 +15,9 @@ abstract final class Collections {
   static const categories = 'categories';
   static const settings = 'settings';
 
+  /// Backup snapshots (never backed up themselves).
+  static const backups = 'backups';
+
   /// Collections included in backups, in restore order (referenced entities
   /// before the entities that reference them).
   static const backedUp = [

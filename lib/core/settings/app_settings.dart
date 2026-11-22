@@ -105,6 +105,13 @@ class SettingsController extends Notifier<AppSettings> {
     }
   }
 
+  /// Applies settings restored from a backup over the current ones; keys
+  /// missing from [saved] keep their current value.
+  void restoreFrom(Map<String, dynamic> saved) {
+    if (saved.isEmpty) return;
+    apply(AppSettings.fromMap({...state.toMap(), ...saved}));
+  }
+
   void setThemeMode(ThemeMode mode) => apply(state.copyWith(themeMode: mode));
 
   void setCurrency(String code) => apply(state.copyWith(currencyCode: code));

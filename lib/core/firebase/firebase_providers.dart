@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:kept/core/errors/app_failure.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -11,10 +10,6 @@ final firestoreProvider = Provider<FirebaseFirestore>(
 
 final firebaseAuthProvider = Provider<FirebaseAuth>(
   (ref) => FirebaseAuth.instance,
-);
-
-final firebaseStorageProvider = Provider<FirebaseStorage>(
-  (ref) => FirebaseStorage.instance,
 );
 
 /// The signed-in user. Uses `userChanges()` rather than `authStateChanges()`

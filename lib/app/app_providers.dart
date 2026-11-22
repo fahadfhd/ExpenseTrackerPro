@@ -21,7 +21,6 @@ final backupServiceProvider = Provider<BackupService>((ref) {
   if (userDoc == null) throw StateError('Requires a signed-in user');
   return BackupService(
     userDoc: userDoc,
-    storage: ref.watch(firebaseStorageProvider),
     transactions: ref.watch(transactionRepositoryProvider),
   );
 });
